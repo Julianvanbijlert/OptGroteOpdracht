@@ -1,0 +1,11 @@
+class Node
+{
+    Node Next;
+    Node Previous;
+    Bedrijf bedrijf;
+
+    public Node(Bedrijf bedrijf)
+    {
+        this.bedrijf = bedrijf;
+    }
+}
