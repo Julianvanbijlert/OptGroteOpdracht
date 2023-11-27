@@ -9,3 +9,5 @@ class Node
         this.bedrijf = bedrijf;
     }
 }
+
+// in oude datastructuren uitwerking kijken hoe je dan de hele linkedlist met previous en next enzo initaliseert
