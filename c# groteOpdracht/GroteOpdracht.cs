@@ -76,6 +76,22 @@ public class AfstandMatrix
 
 }
 
+public class Bus
+{
+    private LinkedList<Bedrijf> maandagPad;
+    private LinkedList<Bedrijf> dinsdagPad;
+    private LinkedList<Bedrijf> woensdagPad;
+    private LinkedList<Bedrijf> donderdagPad;
+    private LinkedList<Bedrijf> vrijdagPad;
+
+    private int volume;
+
+    public Bus()
+    {
+        volume = 0;
+    }
+}
+
 public class Program
 {
     private static int aantalOrders = 1177;
