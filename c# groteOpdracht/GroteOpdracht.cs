@@ -16,53 +16,6 @@ using System.Text.RegularExpressions;
 
 //Manier om solutions te representeren
 
-public class Rijmoment
-{
-    public int volume;
-    public int tijd;
-    public Node beginnode;
-    public Node eindnode;
-
-    public Rijmoment() 
-    {
-        tijd = 30;
-        volume = 0;
-
-        beginnode = new Node(Program.stort);
-        beginnode.Next = eindnode;
-        eindnode.Previous = beginnode;
-        eindnode = new Node(Program.stort);;
-    }
-
-    public void ToevoegenNa(Bedrijf bedrijf, Node vorige)
-    {
-        
-        Node nieuw = new Node(bedrijf);
-        nieuw.Previous = vorige;
-        nieuw.Next = vorige.Next;
-        //vorige.Next.Previous = ;
-    }
-
-    public void Verwijderen(Bedrijf bedrijf)
-    {
-
-    }
-
-
-}
-
-public class Node
-{
-    public Node Next = null;
-    public Node Previous = null;
-    public Bedrijf bedrijf;
-
-    public Node(Bedrijf bedrijf)
-    {
-        this.bedrijf = bedrijf;
-    }
-}
-
 
 
 
@@ -71,7 +24,7 @@ public class Dag
 {
     List<Rijmoment> rijmomenten = new List<Rijmoment>();
 
-
+    //comment
 
     public Dag()
     {
