@@ -1,8 +1,11 @@
-namespace rommelrouterakkers;
 using System.Security.Cryptography;
+
+namespace rommelrouterakkers;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 //Manier om data in te lezen van
@@ -15,56 +18,10 @@ using System.Text.RegularExpressions;
 
 //Manier om solutions te representeren
 
-public class Rijmoment
-{
-    public int volume;
-    public int tijd;
-    public Node beginnode;
-    public Node eindnode;
-
-    public Rijmoment() 
-    {
-        tijd = 30;
-        volume = 0;
-
-        beginnode = new Node(Program.stort);
-        beginnode.Next = eindnode;
-        eindnode.Previous = beginnode;
-        eindnode = new Node(Program.stort);;
-    }
-
-    public void ToevoegenNa(Bedrijf bedrijf, Node vorige)
-    {
-        
-        Node nieuw = new Node(bedrijf);
-        nieuw.Previous = vorige;
-        nieuw.Next = vorige.Next;
-        //vorige.Next.Previous = ;
-    }
-
-    public void Verwijderen(Bedrijf bedrijf)
-    {
-
-    }
-
-
-}
-
-public class Node
-{
-    public Node Next = null;
-    public Node Previous = null;
-    public Bedrijf bedrijf;
-
-    public Node(Bedrijf bedrijf)
-    {
-        this.bedrijf = bedrijf;
-    }
-}
 
 
 
- 
+
 
 
 
@@ -132,6 +89,27 @@ public class Program
 
 
         bool b = true;
+        // sorteren 
+        bedrijven = bedrijven.OrderBy(b => b.matrixId).ToArray();
+        // uit lijst halen (wordtbezogd = true) 
+        Week e = new Week();
+
+        for (int i = 1; i < 7; i++) ;
+            //  while dag i nog niet vol is 
+                 // op dagen controleren
+                 // while (rijmoment x nogn iet vol zit) 
+                       // iets uit de lijst halen toevoegen in rijmoment 
+                         //   e.dagen[1].rijmomenten[0].ToevoegenVoor(bedrijven[i] ,  );
+
+
+        // in de linked list gooien 
+
+
+
+
+
+
+
     }
 }
 
