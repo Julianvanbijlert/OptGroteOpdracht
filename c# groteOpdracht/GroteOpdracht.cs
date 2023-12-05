@@ -1,6 +1,5 @@
-using System.Security.Cryptography;
-
 namespace rommelrouterakkers;
+using System.Security.Cryptography;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -65,24 +64,7 @@ public class Node
 
 
 
-
-
-public class Dag
-{
-    List<Rijmoment> rijmomenten = new List<Rijmoment>();
-
-
-
-    public Dag()
-    {
-
-    }
-
-    public override string ToString()
-    {
-        return base.ToString();
-    }
-}
+ 
 
 
 

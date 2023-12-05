@@ -8,6 +8,7 @@ public class Bedrijf
     public int volume; //totale volume niet volume per container
     public int matrixId;
     public float ledigingsDuur;
+    public bool wordtBezocht;
 
     //gwn om ff snel dingen aan te maken voor schrijven van code
     public Bedrijf()
@@ -21,6 +22,7 @@ public class Bedrijf
         volume = v * aantalBakken;
         matrixId = mId;
         ledigingsDuur = ledD;
+        wordtBezocht = false;
     }
 
     //int ord, int f, int v, int aantalBakken, int mId, float ledD
@@ -39,6 +41,11 @@ public class Bedrijf
         int mId = int.Parse(list[6]);
 
         return new Bedrijf(ord, f, v, aantalBakken, mId, ledD);
+    }
+
+    public bool checkBezocht()
+    {
+        return wordtBezocht;
     }
 }
 
