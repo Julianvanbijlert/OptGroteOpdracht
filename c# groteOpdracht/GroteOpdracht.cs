@@ -1,11 +1,14 @@
+using System.Security.Cryptography;
+
+namespace rommelrouterakkers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
 //Manier om data in te lezen van
-//Orderbestand  
-//AfstandMatrix
+    //Orderbestand  
+    //AfstandMatrix
 
 //Manier om solution te vinden
 
@@ -13,84 +16,75 @@ using System.Text.RegularExpressions;
 
 //Manier om solutions te representeren
 
-
-
-public class Bedrijf
+public class Rijmoment
 {
-    //Order;Plaats;Frequentie;AantContainers;VolumePerContainer;LedigingsDuurMinuten;MatrixID;XCoordinaat;YCoordinaat
-    public int orderNummer;
-    public int frequentie;
-    public int volume; //totale volume niet volume per container
-    public int matrixId;
-    public float ledigingsDuur;
+    public int volume;
+    public int tijd;
+    public Node beginnode;
+    public Node eindnode;
 
-
-    //gwn om ff snel dingen aan te maken voor schrijven van code
-    public Bedrijf()
+    public Rijmoment() 
     {
-    }
-
-    public Bedrijf(int ord, int f, int v, int aantalBakken, int mId, float ledD)
-    {
-        orderNummer = ord;
-        frequentie = f;
-        volume = v * aantalBakken;
-        matrixId = mId;
-        ledigingsDuur = ledD;
-    }
-
-    //int ord, int f, int v, int aantalBakken, int mId, float ledD
-    //Order;Plaats;Frequentie;AantContainers;VolumePerContainer;LedigingsDuurMinuten;MatrixID;XCoordinaat;YCoordinaat
-    public static Bedrijf parseBedrijf(string s)
-    {
-        char separator = ';';
-        string[] list = s.Split(separator);
-        
-        int ord = int.Parse(list[0]);
-       
-        int f = int.Parse(list[2].Substring(0, 1));
-        int aantalBakken = int.Parse(list[3]);
-        int v = int.Parse(list[4]);
-        float ledD = float.Parse(list[5]);
-        int mId = int.Parse(list[6]);
-
-        return new Bedrijf(ord, f, v, aantalBakken, mId, ledD);
-    }
-}
-
-public class AfstandMatrix
-{
-    //we chose to ignore distance as this does not matter for calculating time
-    public int[,] matrix;
-
-    public AfstandMatrix(int[,] matrix1)
-    {
-        matrix = matrix1;
-    }
-
-    public int lookup(Bedrijf b1, Bedrijf b2)
-    {
-        return matrix[b1.matrixId, b2.matrixId];
-    }
-
-
-}
-
-public class Bus
-{
-    private LinkedList<Bedrijf> maandagPad;
-    private LinkedList<Bedrijf> dinsdagPad;
-    private LinkedList<Bedrijf> woensdagPad;
-    private LinkedList<Bedrijf> donderdagPad;
-    private LinkedList<Bedrijf> vrijdagPad;
-
-    private int volume;
-
-    public Bus()
-    {
+        tijd = 30;
         volume = 0;
+
+        beginnode = new Node(Program.stort);
+        beginnode.Next = eindnode;
+        eindnode.Previous = beginnode;
+        eindnode = new Node(Program.stort);;
+    }
+
+    public void ToevoegenNa(Bedrijf bedrijf, Node vorige)
+    {
+        
+        Node nieuw = new Node(bedrijf);
+        nieuw.Previous = vorige;
+        nieuw.Next = vorige.Next;
+        //vorige.Next.Previous = ;
+    }
+
+    public void Verwijderen(Bedrijf bedrijf)
+    {
+
+    }
+
+
+}
+
+public class Node
+{
+    public Node Next = null;
+    public Node Previous = null;
+    public Bedrijf bedrijf;
+
+    public Node(Bedrijf bedrijf)
+    {
+        this.bedrijf = bedrijf;
     }
 }
+
+
+
+
+
+public class Dag
+{
+    List<Rijmoment> rijmomenten = new List<Rijmoment>();
+
+
+
+    public Dag()
+    {
+
+    }
+
+    public override string ToString()
+    {
+        return base.ToString();
+    }
+}
+
+
 
 public class Program
 {
@@ -99,6 +93,11 @@ public class Program
     private static string filepath = "../../../../";
     private static string matrixFileNaam =  filepath + "AfstandenMatrix.txt";
     private static string orderbestandFileNaam = filepath + "Orderbestand.txt";
+    private static List<Rijmoment>[] dagen = new List<Rijmoment>[6]; //BELANGRIJK: dagindexen zijn 1-5, niet 0-4
+    private static string scoreFile = filepath + "Scores.txt";
+    //bestsolutionvariable
+    public static Bedrijf stort = new Bedrijf(0, 0, 0, 0, 287, 0);
+
 
     static Bedrijf[] vulBedrijven(string fileNaam)
     {
@@ -115,8 +114,6 @@ public class Program
         }
         return bedrijven;
     }
-
-   
 
     static int[,] vulMatrix(string fileNaam)
     {
@@ -143,11 +140,25 @@ public class Program
         //maybe try catch for parsing, maar is niet nodig omdat we de input weten
         return (int.Parse(list[0]), int.Parse(list[1]), int.Parse(list[3]));
     }
+
+   
     static void Main()
     {
+        
         Bedrijf[] bedrijven = vulBedrijven(orderbestandFileNaam);
-        AfstandMatrix aMatrix = new AfstandMatrix(vulMatrix(matrixFileNaam));
+        AfstandMatrix aMatrix = new AfstandMatrix(vulMatrix(matrixFileNaam)); //afstanden niet in
+
 
         bool b = true;
     }
 }
+
+
+/*
+
+
+
+
+
+
+ */
