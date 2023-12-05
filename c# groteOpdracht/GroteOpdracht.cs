@@ -16,7 +16,7 @@ using System.Text.RegularExpressions;
 //Manier om solutions te representeren
 
 
-
+//ghfjhh
 
 
 public class Dag
