@@ -50,6 +50,7 @@ public class Program
             bedrijven[++count] = b;
         }
         return bedrijven;
+
     }
 
     static int[,] vulMatrix(string fileNaam)
@@ -82,9 +83,8 @@ public class Program
     static void Main() // is het handiger om, net als bij imperatief, in je main alleen 1 functie aan te roepen, en voor de rest alles in een klasse te zetten?
                        // dan kan je een nieuwe solution makkelijker aanmaken door die klasse gewoon opnieuw aan te roepen (bij inlezen)
     {
-        
-        Bedrijf[] bedrijven = vulBedrijven(orderbestandFileNaam);
         AfstandMatrix aMatrix = new AfstandMatrix(vulMatrix(matrixFileNaam)); //afstanden niet in
+        Bedrijf[] bedrijven = vulBedrijven(orderbestandFileNaam); 
 
         Week werkWeek = new Week();
 
@@ -106,35 +106,37 @@ public class Program
 
         // in de linked list gooien 
 
+        //voortaan met bedrijvenSorted werken, want bedrijven zelf is alleen maar null
+        List<Bedrijf> bedrijvenSorted = new List<Bedrijf>();
 
+        int minRijtijd = int.MaxValue;
+        int rijtijd;
+        int besteIndex = 0;
+        int zoekIndex = 0;
 
-        Bedrijf zoek = bedrijven[0];
-        int h = 1000000;
-        Bedrijf goede = new Bedrijf();
-        for (int i = 1; i < 1099; i++)
+        while (bedrijvenSorted.Count < aantalOrders)
         {
-            for (int j = 0; j < 1099; i++)
-            {
-                if (aMatrix.lookup(zoek, bedrijven[j]) < h)
+            for (int i = 0; i < aantalOrders; i++) // voeg eerst alle bedrijven met de beste matrixid toe
+                if (bedrijven[i] != null && bedrijven[i].matrixId == bedrijven[zoekIndex].matrixId)
                 {
-                    h = aMatrix.lookup(zoek, bedrijven[j]);
+                    bedrijvenSorted.Add(bedrijven[i]);
+                    bedrijven[i] = null;
+                }
+
+            for (int i = 0; i < aantalOrders; i++) // vind de nieuwe beste matrixid
+            {
+                if (zoekIndex == i) continue;
+                rijtijd = aMatrix.lookup(bedrijven[zoekIndex], bedrijven[i]);
+                if (rijtijd < minRijtijd)
+                {
+                    minRijtijd = rijtijd;
+                    besteIndex = i;
                 }
             }
-            for (int k = 0; k < 1099; k++)
-            {
-                if (h == bedrijven[k].matrixId)
-                {
-                    goede = bedrijven[k];
-                }
-            }
-            bedrijven[i] = goede;
-            h = 1000000;
-            zoek = goede;
+            bedrijven[zoekIndex] = null;
+            zoekIndex = besteIndex;
+            minRijtijd = int.MaxValue;
         }
-        //emma: ik heb dit geschreven om dat te sorteren maar ik snap ff niet hoe ik moet kijken of het klopt maar iig zou het moeten werken denk ik
-
-
-
     }
 }
 

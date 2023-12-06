@@ -25,12 +25,16 @@ public class Rijmoment
         nieuw.Next = volgende;
         volgende.Previous.Next = nieuw;
         volgende.Previous = nieuw;
+
+        //tijden erbij optellen
     }
 
     public void Verwijderen(Node node)
     {
         node.Previous.Next = node.Next;
         node.Next.Previous = node.Previous;
+
+        //tijden eraf halen en nieuwe rijtijd optellen
     }
 
     public void Wisselen(Node bedrijf, Node bedrijf2)
@@ -44,6 +48,7 @@ public class Rijmoment
         bedrijf.Next = nieuwn;
         bedrijf.Previous = nieuwp;
 
+        //oppassen wat er gebeurd met de tijden
     }
 }
 
