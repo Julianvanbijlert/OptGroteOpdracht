@@ -30,12 +30,11 @@ public class Program
     private static string filepath = "../../../../";
     private static string matrixFileNaam =  filepath + "AfstandenMatrix.txt";
     private static string orderbestandFileNaam = filepath + "Orderbestand.txt";
-    private static List<Rijmoment>[] dagen = new List<Rijmoment>[6]; //BELANGRIJK: dagindexen zijn 1-5, niet 0-4
+    //private static List<Rijmoment>[] dagen = new List<Rijmoment>[6]; //BELANGRIJK: dagindexen zijn 1-5, niet 0-4 (hebben we al in week)
     private static string scoreFile = filepath + "Scores.txt";
     //bestsolutionvariable
     public static Bedrijf stort = new Bedrijf(0, 0, 0, 0, 287, 0);
     public static AfstandMatrix aMatrix;
-    public static List<Bedrijf> bedrijven;
 
 
     static Bedrijf[] vulBedrijven(string fileNaam)
@@ -113,31 +112,54 @@ public class Program
 
         return bedrijvenSorted;
     }
+
+    static void StelBeginoplossingIn(List<Bedrijf> bedrijven, Week werkWeek)
+    {
+        List<Bedrijf>[] bedrijvenPerFreq = new List<Bedrijf>[5];
+        for (int i = 1; i <= 4; i++)
+            bedrijvenPerFreq[i] = new List<Bedrijf>();
+        foreach (Bedrijf bedrijf in bedrijven)
+            bedrijvenPerFreq[bedrijf.frequentie].Add(bedrijf);
+
+        Rijmoment[] huidigMoment = new Rijmoment[6];
+        for (int i = 1; i <= 5; i++)
+            huidigMoment[i] = werkWeek.dagen[i].RijmomentToevoegen();
+
+        int dag = 1;
+        foreach (Bedrijf bedrijf in bedrijvenPerFreq[1])
+        {
+            if (huidigMoment[dag].volume + bedrijf.volume > 100000)
+            {
+                if (werkWeek.dagen[dag].bussen[0].tijd + 30 > 7200 &&
+                    werkWeek.dagen[dag].bussen[1].tijd + 30 > 7200)
+                {
+                    if (dag == 5) return;
+                    dag += 1;
+                }
+                else huidigMoment[dag] = werkWeek.dagen[dag].RijmomentToevoegen();
+            }
+            huidigMoment[dag].LaatstToevoegen(bedrijf.Locaties[0]);             
+        }
+
+        //ik zou zeggen: alleen de bedrijven met freq 1 erin zetten. dat is namelijk al 95 procent van de bedrijven
+        //en daarmee zullen de dagen al aardig vol zitten. het programma kan de rest doen
+    }
    
     static void Main() // is het handiger om, net als bij imperatief, in je main alleen 1 functie aan te roepen, en voor de rest alles in een klasse te zetten?
                        // dan kan je een nieuwe solution makkelijker aanmaken door die klasse gewoon opnieuw aan te roepen (bij inlezen)
     {
         aMatrix = new AfstandMatrix(vulMatrix(matrixFileNaam)); //afstanden niet in
-        bedrijven = SorteerBedrijven(vulBedrijven(orderbestandFileNaam));
+        
+        List<Bedrijf> bedrijven = SorteerBedrijven(vulBedrijven(orderbestandFileNaam));
 
         Week werkWeek = new Week();
 
         //vulSolution
-        Random r = new Random();
+        Random r = new Random(); // voor alles wat een random nodig heeft
         bool b = true;
 
-        //// uit lijst halen (wordtbezogd = true) 
-        //Week e = new Week();
-
-        //for (int i = 1; i < 7; i++) ;
-        ////  while dag i nog niet vol is 
-        //// op dagen controleren
-        //// while (rijmoment x nogn iet vol zit) 
-        //// iets uit de lijst halen toevoegen in rijmoment 
-        ////   e.dagen[1].rijmomenten[0].ToevoegenVoor(bedrijven[i] ,  );
-
-
-        // in de linked list gooien 
+        StelBeginoplossingIn(bedrijven, werkWeek);
+ 
         Output oup = new Output(scoreFile);
         oup.printSolution(werkWeek);
     }

@@ -13,11 +13,11 @@ public class Dag
 
     // manier vinden hoe je rijmoment verwijdert wanneer een rijmoment leeg is
 
-    public void RijmomentToevoegen()
+    public Rijmoment RijmomentToevoegen() // geen void, zodat we er bij de basisoplossing meteen mee verder kunnen
     {
         if (bussen[0].tijd <= bussen[1].tijd) 
-            bussen[0].VoegRijmomentToe();
-        else bussen[1].VoegRijmomentToe();
+            return bussen[0].VoegRijmomentToe();
+        else return bussen[1].VoegRijmomentToe();
 
         //het is niet erg om dit niet random te maken, het is altijd voordeliger voor de optimale oplossing
         //om rijmomenten zoveel mogelijk te spreiden

@@ -31,6 +31,11 @@ public class Rijmoment
         tijd += ExtraTijdskostenBijToevoegen(nieuw);
     }
 
+    public void LaatstToevoegen(Node nieuw)
+    {
+        ToevoegenVoor(nieuw, eindnode);
+    }
+
     public void Verwijderen(Node weg)
     {
         volume -= weg.bedrijf.volume;

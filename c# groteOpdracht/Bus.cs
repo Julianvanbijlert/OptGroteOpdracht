@@ -12,7 +12,7 @@ public class Bus
         rijmomenten = new List<Rijmoment>();
     }
 
-    public void Insert(Node nieuw, Random r)
+    public void Insert(Node nieuw, Random r) // nog nieuw rijmoment aanmaken als hij vol is
     {
         int welkMoment = r.Next(0, rijmomenten.Count);
         Rijmoment huidig = rijmomenten[welkMoment];
@@ -21,10 +21,12 @@ public class Bus
         tijd += huidig.tijd;
     }
 
-    public void VoegRijmomentToe()
+    public Rijmoment VoegRijmomentToe() 
     {
-        rijmomenten.Add(new Rijmoment());
+        Rijmoment nieuw = new Rijmoment();
+        rijmomenten.Add(nieuw);
         tijd += 30;
+        return nieuw;
     }
 
     public void VerwijderLeegRijmoment(Rijmoment rijmoment) // kijken hoe we dit gaan doen, hoe access je het rijmoment en bus als je alleen de nodes hebt?

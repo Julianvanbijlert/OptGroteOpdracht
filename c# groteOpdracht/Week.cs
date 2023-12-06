@@ -101,7 +101,7 @@ public class Week
         string s = "";
         for(int i = 1; i <= 5 ; i++)
         {
-            s += dagen[i].ToString(i.ToString());
+            s += dagen[i].ToString();
             s += "\n";
         }
         return s;
