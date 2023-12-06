@@ -1,6 +1,8 @@
 namespace rommelrouterakkers;
+
 using System;
 using System.Collections.Generic;
+
 public class Week
 {
     //index from 1 to 5, not 0 to 4

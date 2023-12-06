@@ -17,8 +17,6 @@ using System.Text.RegularExpressions;
 //Manier om solutions te representeren
 
 
-//ghfjhh
-//hjgjhghjgj
 
 
 public class Program
