@@ -34,6 +34,7 @@ public class Program
     private static string scoreFile = filepath + "Scores.txt";
     //bestsolutionvariable
     public static Bedrijf stort = new Bedrijf(0, 0, 0, 0, 287, 0);
+    public static AfstandMatrix aMatrix;
 
 
     static Bedrijf[] vulBedrijven(string fileNaam)
@@ -79,20 +80,51 @@ public class Program
         return (int.Parse(list[0]), int.Parse(list[1]), int.Parse(list[3]));
     }
 
+    static List<Bedrijf> SorteerBedrijven(Bedrijf[] bedrijven)
+    {
+        List<Bedrijf> bedrijvenSorted = new List<Bedrijf>();
+
+        int minRijtijd = int.MaxValue;
+        int rijtijd;
+        int besteMatrixId = 0;
+
+        while (bedrijvenSorted.Count < aantalOrders)
+        {
+            for (int i = 0; i < aantalOrders; i++) // voeg eerst alle bedrijven met de beste matrixid toe
+                if (bedrijven[i] != null && bedrijven[i].matrixId == besteMatrixId)
+                {
+                    bedrijvenSorted.Add(bedrijven[i]);
+                    bedrijven[i] = null;
+                }
+
+            for (int i = 0; i < aantalOrders; i++) // vind de nieuwe beste matrixid
+            {
+                if (bedrijven[i] == null) continue;
+                rijtijd = aMatrix[besteMatrixId, bedrijven[i].matrixId];
+                if (rijtijd < minRijtijd)
+                {
+                    minRijtijd = rijtijd;
+                    besteMatrixId = bedrijven[i].matrixId;
+                }
+            }
+            minRijtijd = int.MaxValue;
+        }
+
+        return bedrijvenSorted;
+    }
    
     static void Main() // is het handiger om, net als bij imperatief, in je main alleen 1 functie aan te roepen, en voor de rest alles in een klasse te zetten?
                        // dan kan je een nieuwe solution makkelijker aanmaken door die klasse gewoon opnieuw aan te roepen (bij inlezen)
     {
-        AfstandMatrix aMatrix = new AfstandMatrix(vulMatrix(matrixFileNaam)); //afstanden niet in
-        Bedrijf[] bedrijven = vulBedrijven(orderbestandFileNaam); 
+        aMatrix = new AfstandMatrix(vulMatrix(matrixFileNaam)); //afstanden niet in
+        List<Bedrijf> bedrijven = SorteerBedrijven(vulBedrijven(orderbestandFileNaam));
 
         Week werkWeek = new Week();
 
         //vulSolution
         Random r = new Random();
         bool b = true;
-        // sorteren 
-        bedrijven.OrderBy(b => b.matrixId);
+
         // uit lijst halen (wordtbezogd = true) 
         Week e = new Week();
 
@@ -106,37 +138,6 @@ public class Program
 
         // in de linked list gooien 
 
-        //voortaan met bedrijvenSorted werken, want bedrijven zelf is alleen maar null
-        List<Bedrijf> bedrijvenSorted = new List<Bedrijf>();
-
-        int minRijtijd = int.MaxValue;
-        int rijtijd;
-        int besteIndex = 0;
-        int zoekIndex = 0;
-
-        while (bedrijvenSorted.Count < aantalOrders)
-        {
-            for (int i = 0; i < aantalOrders; i++) // voeg eerst alle bedrijven met de beste matrixid toe
-                if (bedrijven[i] != null && bedrijven[i].matrixId == bedrijven[zoekIndex].matrixId)
-                {
-                    bedrijvenSorted.Add(bedrijven[i]);
-                    bedrijven[i] = null;
-                }
-
-            for (int i = 0; i < aantalOrders; i++) // vind de nieuwe beste matrixid
-            {
-                if (zoekIndex == i) continue;
-                rijtijd = aMatrix.lookup(bedrijven[zoekIndex], bedrijven[i]);
-                if (rijtijd < minRijtijd)
-                {
-                    minRijtijd = rijtijd;
-                    besteIndex = i;
-                }
-            }
-            bedrijven[zoekIndex] = null;
-            zoekIndex = besteIndex;
-            minRijtijd = int.MaxValue;
-        }
     }
 }
 
