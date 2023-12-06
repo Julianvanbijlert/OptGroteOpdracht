@@ -23,7 +23,7 @@ using System.Text.RegularExpressions;
 
 
 
-public class Programma
+public class Program
 {
     private static int aantalOrders = 1177;
     private static int matrixIds = 1099;

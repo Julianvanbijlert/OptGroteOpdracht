@@ -8,6 +8,7 @@ public class Rijmoment
     public int tijd;
     public Node beginnode;
     public Node eindnode;
+    public bool bus1;
     
     public Rijmoment()
     {
@@ -20,38 +21,71 @@ public class Rijmoment
         eindnode.Previous = beginnode;
     }
 
-    public void ToevoegenVoor(Bedrijf bedrijf, Node volgende)
+    public void ToevoegenVoor(Node nieuw, Node volgende)
     {
-        Node nieuw = new Node(bedrijf);
         nieuw.Previous = volgende.Previous;
         nieuw.Next = volgende;
         volgende.Previous.Next = nieuw;
         volgende.Previous = nieuw;
 
-        //tijden erbij optellen
+        volume += nieuw.bedrijf.volume;
+        tijd += ExtraTijdskostenBijToevoegen(nieuw);
     }
 
-    public void Verwijderen(Node node)
+    public void Verwijderen(Node weg)
     {
-        node.Previous.Next = node.Next;
-        node.Next.Previous = node.Previous;
+        volume -= weg.bedrijf.volume;
+        tijd -= ExtraTijdskostenBijToevoegen(weg);
 
-        //tijden eraf halen en nieuwe rijtijd optellen
+        weg.Previous.Next = weg.Next;
+        weg.Next.Previous = weg.Previous;
     }
 
-    public void Wisselen(Node bedrijf, Node bedrijf2)
+    public int ExtraTijdskostenBijToevoegen(Node node)
     {
-        Node nieuwn = bedrijf2.Next;
-        Node nieuwp = bedrijf2.Previous;
-
-        bedrijf2.Next = bedrijf.Next;
-        bedrijf2.Previous = bedrijf.Previous;
-
-        bedrijf.Next = nieuwn;
-        bedrijf.Previous = nieuwp;
-
-        //oppassen wat er gebeurd met de tijden
+        int extra = 0;
+        extra += Program.aMatrix.lookup(node.Previous.bedrijf, node.bedrijf);
+        extra += Program.aMatrix.lookup(node.bedrijf, node.Next.bedrijf);
+        extra -= Program.aMatrix.lookup(node.Previous.bedrijf, node.Next.bedrijf);
+        return extra;
     }
+
+
+    // methode voor tegengestelde richting doorlopen? als buuroplossing
+
+    public void Wisselen(Node node, Node node2)
+    {
+        if (node.Next == node2)
+            WisselNaastElkaar(node, node2);
+        else if (node2.Next == node)
+            WisselNaastElkaar(node2, node);
+        else
+        {
+            tijd -= ExtraTijdskostenBijToevoegen(node);
+            tijd -= ExtraTijdskostenBijToevoegen(node2);
+
+            Node nieuwn = node2.Next;
+            Node nieuwp = node2.Previous;
+
+            node2.Next = node.Next;
+            node2.Previous = node.Previous;
+
+            node.Next = nieuwn;
+            node.Previous = nieuwp;
+
+            tijd += ExtraTijdskostenBijToevoegen(node);
+            tijd += ExtraTijdskostenBijToevoegen(node2);
+        }
+    }
+
+    public void WisselNaastElkaar(Node node, Node node2)
+    {
+        tijd -= ExtraTijdskostenBijToevoegen(node);
+        Verwijderen(node);
+        ToevoegenVoor(node, node2.Next);
+        tijd += ExtraTijdskostenBijToevoegen(node);
+    }
+
     public string ToString(string str, int c)
     {
         string s = "";

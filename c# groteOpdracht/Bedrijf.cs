@@ -17,7 +17,7 @@ public class Bedrijf
     //gwn om ff snel dingen aan te maken voor schrijven van code
     public Bedrijf()
     {
-    }
+    } 
 
     public Bedrijf(int ord, int f, int v, int aantalBakken, int mId, float ledD)
     {

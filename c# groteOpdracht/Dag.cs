@@ -2,12 +2,14 @@ using System.IO;
 
 namespace rommelrouterakkers;
 using System.Collections.Generic;
+using System;
 public class Dag
 {
     public List<Rijmoment> rijmomenten;
-    public Queue<Bedrijf> todoLijst;
-    
+    public Queue<Bedrijf> todoLijst; // dus niet nodig
 
+    public int bus1Tijd = 0;
+    public int bus2tijd = 0;
 
     public Dag()
     {
@@ -21,9 +23,18 @@ public class Dag
 
     }
 
-    public void Insert(Bedrijf b)
-    {
+    // manier vinden hoe je rijmoment verwijdert wanneer een rijmoment leeg is
 
+    public void RijmomentToevoegen()
+    {
+        rijmomenten.Add(new Rijmoment());
+        // kijken of dat past qua tijd en bij welke bus hij dan moet horen
+    }
+
+    public void Insert(Node nieuw, Random r)
+    {
+        int welkMoment = r.Next(0, rijmomenten.Count);
+        rijmomenten[welkMoment].ToevoegenVoor(nieuw, rijmomenten[welkMoment].eindnode);
     }
 
     //string is welke dag het is

@@ -48,7 +48,7 @@ public class Week
         {
             case 1: AddDag1(b, r);break;
             case 2: AddDag2(b,r); break;
-            case 3: AddDag3(b); break;
+            case 3: AddDag3(b, r); break;
             case 4: AddDag4(b, r); break;
             default: break;
         }      
@@ -56,7 +56,7 @@ public class Week
     public void AddDag1(Bedrijf b, Random r)
     {
         int dag = r.Next(1, 6);
-        dagen[dag].Insert(b);
+        dagen[dag].Insert(b.Locaties[0], r);
     }
     public void AddDag2(Bedrijf b, Random r)
     {
@@ -73,25 +73,26 @@ public class Week
             dag1 = 2; 
             dag2 = 5;
         }
-        dagen[dag1].Insert(b);
-        dagen[dag2].Insert(b);
+        dagen[dag1].Insert(b.Locaties[0], r);
+        dagen[dag2].Insert(b.Locaties[1], r);
     }
-    public void AddDag3(Bedrijf b)
+    public void AddDag3(Bedrijf b, Random r)
     {
-        dagen[1].Insert(b);
-        dagen[3].Insert(b);
-        dagen[5].Insert(b);
+        dagen[1].Insert(b.Locaties[0], r);
+        dagen[3].Insert(b.Locaties[1], r);
+        dagen[5].Insert(b.Locaties[2], r);
 
     }
     public void AddDag4(Bedrijf b, Random r)
     {
         int dag = r.Next(1, 6);
-
+        int j;
         for (int i = 1; i < 6; i++)
         {
             if (dag != i)
             {
-                dagen[i].Insert(b);
+                j = dag > i ? i - 2 : i - 1;
+                dagen[i].Insert(b.Locaties[j], r);
             }
         }
     }
