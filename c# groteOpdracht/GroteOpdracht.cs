@@ -23,7 +23,7 @@ using System.Text.RegularExpressions;
 
 
 
-public class Program
+public class Programma
 {
     private static int aantalOrders = 1177;
     private static int matrixIds = 1099;
@@ -35,6 +35,7 @@ public class Program
     //bestsolutionvariable
     public static Bedrijf stort = new Bedrijf(0, 0, 0, 0, 287, 0);
     public static AfstandMatrix aMatrix;
+    public static List<Bedrijf> bedrijven;
 
 
     static Bedrijf[] vulBedrijven(string fileNaam)
@@ -117,7 +118,7 @@ public class Program
                        // dan kan je een nieuwe solution makkelijker aanmaken door die klasse gewoon opnieuw aan te roepen (bij inlezen)
     {
         aMatrix = new AfstandMatrix(vulMatrix(matrixFileNaam)); //afstanden niet in
-        List<Bedrijf> bedrijven = SorteerBedrijven(vulBedrijven(orderbestandFileNaam));
+        bedrijven = SorteerBedrijven(vulBedrijven(orderbestandFileNaam));
 
         Week werkWeek = new Week();
 
@@ -125,15 +126,15 @@ public class Program
         Random r = new Random();
         bool b = true;
 
-        // uit lijst halen (wordtbezogd = true) 
-        Week e = new Week();
+        //// uit lijst halen (wordtbezogd = true) 
+        //Week e = new Week();
 
-        for (int i = 1; i < 7; i++) ;
-        //  while dag i nog niet vol is 
-        // op dagen controleren
-        // while (rijmoment x nogn iet vol zit) 
-        // iets uit de lijst halen toevoegen in rijmoment 
-        //   e.dagen[1].rijmomenten[0].ToevoegenVoor(bedrijven[i] ,  );
+        //for (int i = 1; i < 7; i++) ;
+        ////  while dag i nog niet vol is 
+        //// op dagen controleren
+        //// while (rijmoment x nogn iet vol zit) 
+        //// iets uit de lijst halen toevoegen in rijmoment 
+        ////   e.dagen[1].rijmomenten[0].ToevoegenVoor(bedrijven[i] ,  );
 
 
         // in de linked list gooien 
@@ -141,6 +142,7 @@ public class Program
         oup.printSolution(werkWeek);
     }
 }
+
 
 
 /*

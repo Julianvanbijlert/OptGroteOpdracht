@@ -39,23 +39,19 @@ public class Week
 
     public void Insert(Bedrijf b, Random r)
     {
-        int aantalKeer = b.frequentie;
-        DoeInDagen(aantalKeer, b, r);
+        DoeInDagen(b, r);
 
     }
-    public void DoeInDagen(int i, Bedrijf b, Random r)
+    public void DoeInDagen(Bedrijf b, Random r)
     {
-        
-        // later dagjes globaal maken en steeds list.Clear() doen van tevoren
-        switch (i)
+        switch (b.frequentie)
         {
             case 1: AddDag1(b, r);break;
             case 2: AddDag2(b,r); break;
             case 3: AddDag3(b); break;
             case 4: AddDag4(b, r); break;
             default: break;
-        }
-        
+        }      
     }
     public void AddDag1(Bedrijf b, Random r)
     {
