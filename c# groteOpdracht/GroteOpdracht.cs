@@ -4,6 +4,7 @@ namespace rommelrouterakkers;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.Metrics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -78,7 +79,8 @@ public class Program
     }
 
    
-    static void Main()
+    static void Main() // is het handiger om, net als bij imperatief, in je main alleen 1 functie aan te roepen, en voor de rest alles in een klasse te zetten?
+                       // dan kan je een nieuwe solution makkelijker aanmaken door die klasse gewoon opnieuw aan te roepen (bij inlezen)
     {
         
         Bedrijf[] bedrijven = vulBedrijven(orderbestandFileNaam);
@@ -90,23 +92,46 @@ public class Program
         Random r = new Random();
         bool b = true;
         // sorteren 
-        bedrijven = bedrijven.OrderBy(b => b.matrixId).ToArray();
+        bedrijven.OrderBy(b => b.matrixId);
         // uit lijst halen (wordtbezogd = true) 
         Week e = new Week();
 
         for (int i = 1; i < 7; i++) ;
-            //  while dag i nog niet vol is 
-                 // op dagen controleren
-                 // while (rijmoment x nogn iet vol zit) 
-                       // iets uit de lijst halen toevoegen in rijmoment 
-                         //   e.dagen[1].rijmomenten[0].ToevoegenVoor(bedrijven[i] ,  );
+        //  while dag i nog niet vol is 
+        // op dagen controleren
+        // while (rijmoment x nogn iet vol zit) 
+        // iets uit de lijst halen toevoegen in rijmoment 
+        //   e.dagen[1].rijmomenten[0].ToevoegenVoor(bedrijven[i] ,  );
 
 
         // in de linked list gooien 
 
 
 
-
+        Bedrijf zoek = bedrijven[0];
+        int h = 1000000;
+        Bedrijf goede = new Bedrijf();
+        for (int i = 1; i < 1099; i++)
+        {
+            for (int j = 0; j < 1099; i++)
+            {
+                if (aMatrix.lookup(zoek, bedrijven[j]) < h)
+                {
+                    h = aMatrix.lookup(zoek, bedrijven[j]);
+                }
+            }
+            for (int k = 0; k < 1099; k++)
+            {
+                if (h == bedrijven[k].matrixId)
+                {
+                    goede = bedrijven[k];
+                }
+            }
+            bedrijven[i] = goede;
+            h = 1000000;
+            zoek = goede;
+        }
+        //emma: ik heb dit geschreven om dat te sorteren maar ik snap ff niet hoe ik moet kijken of het klopt maar iig zou het moeten werken denk ik
 
 
 
