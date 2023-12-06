@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
+
 //Manier om data in te lezen van
     //Orderbestand  
     //AfstandMatrix
@@ -17,10 +18,6 @@ using System.Text.RegularExpressions;
 //Manier om solutions op te slaan
 
 //Manier om solutions te representeren
-
-
-
-
 
 
 
@@ -87,7 +84,10 @@ public class Program
         Bedrijf[] bedrijven = vulBedrijven(orderbestandFileNaam);
         AfstandMatrix aMatrix = new AfstandMatrix(vulMatrix(matrixFileNaam)); //afstanden niet in
 
+        Week werkWeek = new Week();
 
+        //vulSolution
+        Random r = new Random();
         bool b = true;
         // sorteren 
         bedrijven = bedrijven.OrderBy(b => b.matrixId).ToArray();
