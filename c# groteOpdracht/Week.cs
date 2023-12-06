@@ -11,6 +11,20 @@ public class Week
 
     }
 
+    public void Insert(Bedrijf b)
+    {
+        b.wordtBezocht = true;
+        int i = b.frequentie;
+
+        DoeInDagen(i, b);
+
+    }
+
+    public void DoeInDagen(int i, Bedrijf b)
+    {
+
+    }
+
     public string ToString()
     {
         string s = "";
