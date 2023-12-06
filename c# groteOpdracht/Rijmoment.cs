@@ -8,7 +8,6 @@ public class Rijmoment
     public int tijd;
     public Node beginnode;
     public Node eindnode;
-    public bool bus1;
     
     public Rijmoment()
     {
