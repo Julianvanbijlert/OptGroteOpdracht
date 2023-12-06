@@ -13,7 +13,7 @@ public class Rijmoment
         volume = 0;
 
         beginnode = new Node(Program.stort);
-        eindnode = new Node(Program.stort);
+        eindnode  = new Node(Program.stort);
         beginnode.Next = eindnode;
         eindnode.Previous = beginnode;
     }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace rommelrouterakkers;
 
@@ -26,7 +27,7 @@ public class Bedrijf
         matrixId = mId;
         ledigingsDuur = ledD;
         wordtBezocht = false;
-        Locaties = new List<Node>();
+        FillNodesLocatie(frequentie);
     }
 
     //int ord, int f, int v, int aantalBakken, int mId, float ledD
@@ -45,6 +46,15 @@ public class Bedrijf
         int mId = int.Parse(list[6]);
 
         return new Bedrijf(ord, f, v, aantalBakken, mId, ledD);
+    }
+
+    public void FillNodesLocatie(int f)
+    {
+        Locaties = new List<Node>();
+        for (int j = 0; j < f; j++)
+        {
+            Locaties.Add(new Node(this));
+        }
     }
 
     public bool checkBezocht()
