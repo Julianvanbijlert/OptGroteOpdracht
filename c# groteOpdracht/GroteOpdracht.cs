@@ -137,7 +137,8 @@ public class Program
 
 
         // in de linked list gooien 
-
+        Output oup = new Output(scoreFile);
+        oup.printSolution(werkWeek);
     }
 }
 

@@ -1,7 +1,14 @@
 namespace rommelrouterakkers;
-
+using System;
+using System.IO;
 public class Output
 {
+    private readonly string _scoreFile;
+
+    public Output(string sf)
+    {
+        _scoreFile = sf;
+    }
     //VrachtwagenNummer ; Dagnummer ; hoeveelste adres ; id van dat adres (odernummer?) afstorten is 0
 
     //loads solution from file, should return a "week"
@@ -10,7 +17,7 @@ public class Output
 
     }
 
-    public void printSolution()
+    public void printSolution(Week w)
     {
         /*
          * 1.      Vrachtautonummer (1 of 2)
@@ -23,11 +30,16 @@ public class Output
            1; 1; 3; 0
            1; 1; 4; 30
          */
+        Console.WriteLine(w.ToString());
     }
 
-    public void printSolutionToFile()
+    public void printSolutionToFile(Week w)
     {
         //pak de beste solution variabele
         //schrijf die naar de file met pad scoreFile
+        StreamWriter wr = new StreamWriter(_scoreFile);
+        wr.WriteLine(w.ToString());
+        wr.Close();
+
     }
 }

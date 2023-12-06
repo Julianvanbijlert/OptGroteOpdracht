@@ -1,3 +1,5 @@
+using System.Threading;
+
 namespace rommelrouterakkers;
 using System; 
 public class Rijmoment
@@ -50,6 +52,19 @@ public class Rijmoment
 
         //oppassen wat er gebeurd met de tijden
     }
+    public string ToString(string str, int c)
+    {
+        string s = "";
+        Node current = beginnode;
+        int count = c;
+        while (current.Next != eindnode)
+        {
+            count++;
+            s += current.ToString(str + ";" + count.ToString());
+
+        }
+        return ";";
+    }
 }
 
 public class Node
@@ -68,6 +83,12 @@ public class Node
         this.Previous.Next = this.Next;
         this.Next.Previous = this.Previous;
     }
+
+    public string ToString(string str)
+    {
+        return str + ";" + bedrijf.orderNummer.ToString() + "\n";
+    }
+    
 }
 
 // bij aanmaken van bedrijf meteen nodes aanmaken die nog geen pointers hebben.

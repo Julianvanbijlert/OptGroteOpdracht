@@ -10,7 +10,7 @@ public class Week
 
     public Week()
     {
-        for (int i = 1; i <= 6; i++)
+        for (int i = 1; i <= 5; i++)
             dagen[i] = new Dag();
     }
 
@@ -39,9 +39,8 @@ public class Week
 
     public void Insert(Bedrijf b, Random r)
     {
-        int i = b.frequentie;
-
-        DoeInDagen(i, b, r);
+        int aantalKeer = b.frequentie;
+        DoeInDagen(aantalKeer, b, r);
 
     }
     public void DoeInDagen(int i, Bedrijf b, Random r)
@@ -106,6 +105,7 @@ public class Week
         for(int i = 1; i <= 5 ; i++)
         {
             s += dagen[i].ToString(i.ToString());
+            s += "\n";
         }
         return s;
     }
