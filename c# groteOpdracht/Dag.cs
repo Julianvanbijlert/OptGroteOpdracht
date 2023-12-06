@@ -19,6 +19,11 @@ public class Dag
 
     }
 
+    public void Insert(Bedrijf b)
+    {
+
+    }
+
     //string is welke dag het is
     public string ToString(string i)
     {

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace rommelrouterakkers;
 
 public class Bedrijf
@@ -10,6 +12,7 @@ public class Bedrijf
     public float ledigingsDuur;
     public bool wordtBezocht;
 
+    public List<Node> Locaties;
     //gwn om ff snel dingen aan te maken voor schrijven van code
     public Bedrijf()
     {
@@ -23,6 +26,7 @@ public class Bedrijf
         matrixId = mId;
         ledigingsDuur = ledD;
         wordtBezocht = false;
+        Locaties = new List<Node>();
     }
 
     //int ord, int f, int v, int aantalBakken, int mId, float ledD

@@ -57,4 +57,14 @@ public class Node
     {
         this.bedrijf = bedrijf;
     }
+
+    public void Verwijder()
+    {
+        this.Previous.Next = this.Next;
+        this.Next.Previous = this.Previous;
+    }
 }
+
+// bij aanmaken van bedrijf meteen nodes aanmaken die nog geen pointers hebben.
+// als je hem toevoegt, maak je pointers. als je hem verwijdert, haal je de pointers weg
+    // is gedaan

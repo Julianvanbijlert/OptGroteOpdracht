@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
+
 //Manier om data in te lezen van
     //Orderbestand  
     //AfstandMatrix
@@ -18,25 +19,6 @@ using System.Text.RegularExpressions;
 
 //ghfjhh
 //hjgjhghjgj
-
-
-public class Dag
-{
-    List<Rijmoment> rijmomenten = new List<Rijmoment>();
-
-    //comment
-
-    public Dag()
-    {
-
-    }
-
-    public override string ToString()
-    {
-        return base.ToString();
-    }
-}
-
 
 
 public class Program
@@ -104,7 +86,7 @@ public class Program
         Week werkWeek = new Week();
 
         //vulSolution
-
+        Random r = new Random();
         bool b = true;
     }
 }
