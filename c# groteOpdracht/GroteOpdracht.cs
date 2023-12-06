@@ -101,6 +101,9 @@ public class Program
         Bedrijf[] bedrijven = vulBedrijven(orderbestandFileNaam);
         AfstandMatrix aMatrix = new AfstandMatrix(vulMatrix(matrixFileNaam)); //afstanden niet in
 
+        Week werkWeek = new Week();
+
+        //vulSolution
 
         bool b = true;
     }
