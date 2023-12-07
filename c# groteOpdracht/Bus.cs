@@ -45,7 +45,7 @@ public class Bus
         {
           //LETOP hier moet nog iets gebeuren met welke bus er gebeurd
             (int c, string s2) = rijmomenten[j].ToString(i, count);
-            count += c;
+            count += c - count;
             s += s2;
         }
          return s;

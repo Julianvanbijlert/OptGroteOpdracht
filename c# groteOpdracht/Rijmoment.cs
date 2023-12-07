@@ -98,12 +98,11 @@ public class Rijmoment
         string s = "";
         Node current = beginnode;
         int count = c;
-        while (current.Next != eindnode)
+        while (current != eindnode)
         {
-            count++;
-            s += current.ToString(str + count.ToString());
             current = current.Next;
-
+            s += current.ToString(str + count.ToString());
+            count++;
         }
         return (count,s);
     }

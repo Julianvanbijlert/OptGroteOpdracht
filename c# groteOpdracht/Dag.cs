@@ -36,8 +36,8 @@ public class Dag
     {
         string s = "";
 
-        s += bussen[0].ToString(i + ";1;");
-        s += bussen[1].ToString(i + ";2;");
+        s += bussen[0].ToString("1;" + i + ";");
+        s += bussen[1].ToString("2;" + i + ";");
 
 
         return s;
