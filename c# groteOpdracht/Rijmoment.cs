@@ -167,5 +167,7 @@ public class Node
 }
 
 // bij aanmaken van bedrijf meteen nodes aanmaken die nog geen pointers hebben.
-// als je hem toevoegt, maak je pointers. als je hem verwijdert, haal je de pointers weg
+// als je hem toevoegt, maak je pointers. als je hem verwijdert,
+
+    /// haal je de pointers weg
     // is gedaan

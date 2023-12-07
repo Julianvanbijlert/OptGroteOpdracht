@@ -152,7 +152,7 @@ public class Setup
         bedrijvenPerFreq[2] = SorteerBedrijven(bedrijvenPerFreq[2]);
 
         Bus bus0 = werkWeek.dagen[1].bussen[0];
-        Bus bus1 = werkWeek.dagen[4].bussen[0];
+        Bus bus1 = werkWeek.dagen[4].bussen[1];
         Rijmoment huidig1 = bus0.VoegRijmomentToe();
         Rijmoment huidig2 = bus1.VoegRijmomentToe();
         

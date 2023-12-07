@@ -21,7 +21,7 @@ public class ILS
                 for (int k = 0; k < b.rijmomenten.Count; k++)
                 {
                     Rijmoment r = b.rijmomenten[k];
-                    r = r.RijBFS();
+                    b.rijmomenten[k] = r.RijBFS();
                 }
             }
         }
