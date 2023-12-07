@@ -15,7 +15,7 @@ public class Output
 
    
 
-    public void printSolution(Week w)
+    public void PrintSolution(Week w)
     {
         /*
          * 1.      Vrachtautonummer (1 of 2)
@@ -31,7 +31,7 @@ public class Output
         Console.WriteLine(w.ToString());
     }
 
-    public void printSolutionToFile(Week w)
+    public void PrintSolutionToFile(Week w)
     {
         //pak de beste solution variabele
         //schrijf die naar de file met pad scoreFile

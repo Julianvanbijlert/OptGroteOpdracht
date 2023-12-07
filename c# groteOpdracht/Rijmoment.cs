@@ -15,8 +15,8 @@ public class Rijmoment
         tijd = 1800; // omgerekend naar seconden
         volume = 0;
 
-        beginnode = new Node(Program.stort);
-        eindnode  = new Node(Program.stort);
+        beginnode = new Node(Setup.stort);
+        eindnode  = new Node(Setup.stort);
         beginnode.Next = eindnode;
         eindnode.Previous = beginnode;
         bus = buss;
@@ -54,9 +54,9 @@ public class Rijmoment
     public float ExtraTijdskostenBijToevoegen(Bedrijf bedrijf, Node volgende)
     { 
         float extra = 0;
-        extra += Program.aMatrix.lookup(volgende.Previous.bedrijf, bedrijf);
-        extra += Program.aMatrix.lookup(bedrijf, volgende.bedrijf);
-        extra -= Program.aMatrix.lookup(volgende.Previous.bedrijf, volgende.bedrijf);
+        extra += Setup.aMatrix.lookup(volgende.Previous.bedrijf, bedrijf);
+        extra += Setup.aMatrix.lookup(bedrijf, volgende.bedrijf);
+        extra -= Setup.aMatrix.lookup(volgende.Previous.bedrijf, volgende.bedrijf);
         extra += bedrijf.ledigingsDuur * 60;
         return extra;
     }
@@ -64,9 +64,9 @@ public class Rijmoment
     public float ExtraTijdskostenBijVerwijderen(Node node)
     {
         float extra = 0;
-        extra -= Program.aMatrix.lookup(node.Previous.bedrijf, node.bedrijf);
-        extra -= Program.aMatrix.lookup(node.bedrijf, node.Next.bedrijf);
-        extra += Program.aMatrix.lookup(node.Previous.bedrijf, node.Next.bedrijf);
+        extra -= Setup.aMatrix.lookup(node.Previous.bedrijf, node.bedrijf);
+        extra -= Setup.aMatrix.lookup(node.bedrijf, node.Next.bedrijf);
+        extra += Setup.aMatrix.lookup(node.Previous.bedrijf, node.Next.bedrijf);
         extra -= node.bedrijf.ledigingsDuur * 60;
         return extra;
     }
