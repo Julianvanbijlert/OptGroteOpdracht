@@ -8,7 +8,6 @@ public class Rijmoment
     public float tijd;
     public Node beginnode;
     public Node eindnode;
-    public Bus bus;
     
     public Rijmoment(Bus buss)
     {
@@ -19,7 +18,6 @@ public class Rijmoment
         eindnode  = new Node(Program.stort);
         beginnode.Next = eindnode;
         eindnode.Previous = beginnode;
-        bus = buss;
     }
 
     public void ToevoegenVoor(Node nieuw, Node volgende, float extratijd)

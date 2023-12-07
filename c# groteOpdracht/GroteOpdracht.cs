@@ -40,7 +40,7 @@ public class Program
     public static Bedrijf stort = new Bedrijf(0, 0, 0, 0, 287, 0);
     public static AfstandMatrix aMatrix;
     public static List<int> freqcount = new List<int>();
-
+    
     static List<Bedrijf> vulBedrijven(string fileNaam) // heb het naar een list verandert zodat we kunnen verwijderen voor sorteren
     {
         List<Bedrijf> bedrijven = new List<Bedrijf>();
@@ -130,15 +130,16 @@ public class Program
 
         bedrijvenPerFreq[2] = SorteerBedrijven(bedrijvenPerFreq[2]);
 
-        Rijmoment huidig1 = werkWeek.dagen[1].RijmomentToevoegen();
-        Rijmoment huidig2 = werkWeek.dagen[4].RijmomentToevoegen();
-        Bus bus1 = huidig1.bus;
-        Bus bus2 = huidig2.bus;
+        Bus bus0 = werkWeek.dagen[1].bussen[0];
+        Bus bus1 = werkWeek.dagen[4].bussen[0];
+        Rijmoment huidig1 = bus0.VoegRijmomentToe();
+        Rijmoment huidig2 = bus1.VoegRijmomentToe(); 
+
         foreach (Bedrijf bedr in bedrijvenPerFreq[2])
         {
             extratijd = huidig1.ExtraTijdskostenBijToevoegen(bedr, huidig1.eindnode);
-            bus1.tijd += extratijd;
-            bus2.tijd += extratijd;
+            bus0.tijd += extratijd;
+            bus1.tijd += extratijd; 
             huidig1.ToevoegenVoor(bedr.Locaties[0], huidig1.eindnode, extratijd);
             huidig2.ToevoegenVoor(bedr.Locaties[1], huidig2.eindnode, extratijd);
         }
@@ -174,7 +175,7 @@ public class Program
                         }
                         if (huidig.volume + bedrijf.volume > 100000) //wellicht op 80000 ofzo zetten om het programma speling te geven
                         {
-                            break;
+                            break; //ik snap t nu
                         }
                         huidig.ToevoegenVoor(bedrijf.Locaties[0], huidig.eindnode, extratijd);
                         bus.tijd += extratijd;
@@ -223,7 +224,7 @@ public class Program
                        // dan kan je een nieuwe solution makkelijker aanmaken door die klasse gewoon opnieuw aan te roepen (bij inlezen)
     {
         aMatrix = new AfstandMatrix(vulMatrix(matrixFileNaam)); //afstanden niet in
-        
+
         List<Bedrijf> bedrijven = vulBedrijven(orderbestandFileNaam);
 
         Week werkWeek = new Week();
@@ -233,13 +234,13 @@ public class Program
         bool b = true;
 
         StelBeginoplossingIn(bedrijven, werkWeek);
- 
+
         Output oup = new Output(scoreFile, bestScores);
         oup.printSolution(werkWeek);
         oup.printSolutionToFile(werkWeek);
         //oup.MakeNewBestFile(werkWeek);
 
-
+        
     }
 }
 
