@@ -1,6 +1,8 @@
 using System.Security.Cryptography;
 
 namespace rommelrouterakkers;
+
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -33,23 +35,24 @@ public class Program
     private static string orderbestandFileNaam = filepath + "Orderbestand.txt";
     //private static List<Rijmoment>[] dagen = new List<Rijmoment>[6]; //BELANGRIJK: dagindexen zijn 1-5, niet 0-4 (hebben we al in week)
     private static string scoreFile = filepath + "Scores.txt";
+    private static string bestScores = filepath + " ";
     //bestsolutionvariable
     public static Bedrijf stort = new Bedrijf(0, 0, 0, 0, 287, 0);
     public static AfstandMatrix aMatrix;
+    public static List<int> freqcount = new List<int>();
 
-
-    static Bedrijf[] vulBedrijven(string fileNaam)
+    static List<Bedrijf> vulBedrijven(string fileNaam) // heb het naar een list verandert zodat we kunnen verwijderen voor sorteren
     {
-        Bedrijf[] bedrijven = new Bedrijf[aantalOrders];
+        List<Bedrijf> bedrijven = new List<Bedrijf>();
 
         StreamReader sr = new StreamReader(fileNaam);
         string regel = sr.ReadLine();
-        int count = -1; // is -1 so you can do ++count in the function
+        // int count = -1; // is -1 so you can do ++count in the function
 
         while ((regel = sr.ReadLine()) != null)
         {
             Bedrijf b = Bedrijf.parseBedrijf(regel);
-            bedrijven[++count] = b;
+            bedrijven.Add(b);
         }
         return bedrijven;
 
@@ -81,33 +84,34 @@ public class Program
         return (int.Parse(list[0]), int.Parse(list[1]), int.Parse(list[3]));
     }
 
-    static List<Bedrijf> SorteerBedrijven(Bedrijf[] bedrijven)
+    static List<Bedrijf> SorteerBedrijven(List<Bedrijf> bedrijven)
     {
         List<Bedrijf> bedrijvenSorted = new List<Bedrijf>();
 
         int minRijtijd = int.MaxValue;
         int rijtijd;
-        int besteMatrixId = 0;
+        int besteMatrixId = 287;
+        int temp = 287;
 
-        while (bedrijvenSorted.Count < aantalOrders)
+        while (bedrijven.Count != 0)
         {
-            for (int i = 0; i < aantalOrders; i++) // voeg eerst alle bedrijven met de beste matrixid toe
-                if (bedrijven[i] != null && bedrijven[i].matrixId == besteMatrixId)
+            for (int i = 0; i < bedrijven.Count; i++) // voeg eerst alle bedrijven met de beste matrixid toe
+                if (bedrijven[i].matrixId == besteMatrixId)
                 {
                     bedrijvenSorted.Add(bedrijven[i]);
-                    bedrijven[i] = null;
+                    bedrijven.RemoveAt(i);
                 }
 
-            for (int i = 0; i < aantalOrders; i++) // vind de nieuwe beste matrixid
+            for (int i = 0; i < bedrijven.Count; i++) // vind de nieuwe beste matrixid
             {
-                if (bedrijven[i] == null) continue;
                 rijtijd = aMatrix[besteMatrixId, bedrijven[i].matrixId];
                 if (rijtijd < minRijtijd)
                 {
                     minRijtijd = rijtijd;
-                    besteMatrixId = bedrijven[i].matrixId;
+                    temp = bedrijven[i].matrixId;
                 }
             }
+            besteMatrixId = temp;
             minRijtijd = int.MaxValue;
         }
 
@@ -119,39 +123,85 @@ public class Program
         List<Bedrijf>[] bedrijvenPerFreq = new List<Bedrijf>[5];
         for (int i = 1; i <= 4; i++)
             bedrijvenPerFreq[i] = new List<Bedrijf>();
-        foreach (Bedrijf bedrijf in bedrijven)
-            bedrijvenPerFreq[bedrijf.frequentie].Add(bedrijf);
+        foreach (Bedrijf bed in bedrijven)
+            bedrijvenPerFreq[bed.frequentie].Add(bed);
 
-        int dag = 1;
-        int tijd;
-        Bus huidigeBus = werkWeek.dagen[1].bussen[0];
-        Rijmoment huidigMoment = huidigeBus.VoegRijmomentToe();
-        foreach (Bedrijf bedrijf in bedrijvenPerFreq[1])
+        Rijmoment huidig;
+        Bus bus;
+        Dag dag;
+        Bedrijf bedrijf;
+        float extratijd;
+        bool andereBus;
+        for (int i = 1; i <= 5; i++)
         {
-            if (huidigMoment.volume + bedrijf.volume > 100000)
+            dag = werkWeek.dagen[i];
+            for (int j = 0; j <= 1; j++)
             {
-                if (Math.Min(werkWeek.dagen[dag].bussen[0].tijd, 
-                             werkWeek.dagen[dag].bussen[1].tijd) + 1800 > 43200) // omgerekend naar seconden
+                bus = dag.bussen[j];
+                andereBus = false;
+                while (!andereBus && bus.tijd + 1800 <= 43200)
                 {
-                    if (dag == 5) return;
-                    dag += 1;
-                }
-                (huidigeBus, huidigMoment) = werkWeek.dagen[dag].RijmomentToevoegen();
-            }
-            tijd = huidigeBus.tijd + huidigMoment.ExtraTijdskostenBijToevoegen(bedrijf, huidigMoment.eindnode);
-            if (tijd > 43200)
-            {
-                if (dag == 5) return;
-                dag += 1;
-                (huidigeBus, huidigMoment) = werkWeek.dagen[dag].RijmomentToevoegen();
-            }
-            huidigMoment.LaatstToevoegen(bedrijf.Locaties[0]);             
-        }
+                    huidig = bus.VoegRijmomentToe();
+                    bedrijvenPerFreq[1] = SorteerBedrijven(bedrijvenPerFreq[1]);
+                    while (true)
+                    {
+                        if (bedrijvenPerFreq[1].Count == 0) return;
+                        bedrijf = bedrijvenPerFreq[1][0];
+                        extratijd = huidig.ExtraTijdskostenBijToevoegen(bedrijf, huidig.eindnode);
+                        if (bus.tijd + extratijd > 43200)
+                        {
+                            andereBus = true;
+                            if (huidig.beginnode.Next == huidig.eindnode)
+                                bus.rijmomenten.RemoveAt(bus.rijmomenten.Count - 1);
+                            break;
+                        }
+                        if (huidig.volume + bedrijf.volume > 100000)
+                        {
+                            break;
+                        }
+                        huidig.ToevoegenVoor(bedrijf.Locaties[0], huidig.eindnode, extratijd);
+                        bus.tijd += extratijd;
+                        bedrijvenPerFreq[1].RemoveAt(0); 
+                    }
 
-        //ik zou zeggen: alleen de bedrijven met freq 1 erin zetten. dat is namelijk al 95 procent van de bedrijven
-        //en daarmee zullen de dagen al aardig vol zitten. het programma kan de rest doen
+                }               
+            }
+        }
     }
    
+
+    //loads solution from file, should return a "week"
+    public Week loadSolution(string fileNaam, List<Bedrijf> bedrijven)
+    {
+        Week w = new Week(); 
+        StreamReader sr = new StreamReader(fileNaam);
+        string regel;
+        while ((regel = sr.ReadLine()) != null)
+        {
+            string[] list = regel.Split(';');
+            int bus = int.Parse(list[0]);
+            int dag = int.Parse(list[1]);
+            int seq = int.Parse(list[2]);
+            int ord = int.Parse(list[3]);
+
+            Bedrijf b = VindBedrijf(ord, bedrijven );
+
+            w.Load(dag, bus, seq, b);
+        }
+        sr.Close();
+
+        return w;
+    }
+
+    public Bedrijf VindBedrijf(int ord, List<Bedrijf> bedrijven)
+    {
+        foreach (Bedrijf b in bedrijven)
+            if (b.orderNummer == ord)
+                return b;
+       
+        return null;
+    }
+
     static void Main() // is het handiger om, net als bij imperatief, in je main alleen 1 functie aan te roepen, en voor de rest alles in een klasse te zetten?
                        // dan kan je een nieuwe solution makkelijker aanmaken door die klasse gewoon opnieuw aan te roepen (bij inlezen)
     {
@@ -167,9 +217,12 @@ public class Program
 
         StelBeginoplossingIn(bedrijven, werkWeek);
  
-        Output oup = new Output(scoreFile);
+        Output oup = new Output(scoreFile, bestScores);
         oup.printSolution(werkWeek);
         oup.printSolutionToFile(werkWeek);
+       // oup.MakeNewBestFile(werkWeek);
+
+
     }
 }
 

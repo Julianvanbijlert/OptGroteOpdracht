@@ -7,7 +7,7 @@ using System;
 public class Bus
 {
     public List<Rijmoment> rijmomenten;
-    public int tijd = 0;
+    public float tijd = 0;
 
     public Bus()
     {
@@ -18,9 +18,9 @@ public class Bus
     {
         int welkMoment = r.Next(0, rijmomenten.Count);
         Rijmoment huidig = rijmomenten[welkMoment];
-        tijd -= huidig.tijd;
-        rijmomenten[welkMoment].ToevoegenVoor(nieuw, rijmomenten[welkMoment].eindnode);
-        tijd += huidig.tijd;
+        float extratijd = huidig.ExtraTijdskostenBijToevoegen(nieuw.bedrijf, huidig.eindnode);
+        tijd += extratijd;
+        huidig.ToevoegenVoor(nieuw, huidig.eindnode, extratijd);
     }
 
     public Rijmoment VoegRijmomentToe() 
@@ -33,7 +33,7 @@ public class Bus
 
     public void VerwijderLeegRijmoment(Rijmoment rijmoment) // kijken hoe we dit gaan doen, hoe access je het rijmoment en bus als je alleen de nodes hebt?
     {
-        tijd -= 1800;
+        tijd -= rijmoment.tijd;
         rijmomenten.Remove(rijmoment);
     }
 
@@ -45,7 +45,7 @@ public class Bus
         {
           //LETOP hier moet nog iets gebeuren met welke bus er gebeurd
             (int c, string s2) = rijmomenten[j].ToString(i, count);
-            count += c - count;
+            count = c;
             s += s2;
         }
          return s;

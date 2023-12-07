@@ -4,18 +4,16 @@ using System.IO;
 public class Output
 {
     private readonly string _scoreFile;
+    private readonly string _bestScores;
 
-    public Output(string sf)
+    public Output(string sf, string bs)
     {
         _scoreFile = sf;
+        _bestScores = bs;
     }
     //VrachtwagenNummer ; Dagnummer ; hoeveelste adres ; id van dat adres (odernummer?) afstorten is 0
 
-    //loads solution from file, should return a "week"
-    public static void loadSolution(string fileNaam)
-    {
-
-    }
+   
 
     public void printSolution(Week w)
     {
@@ -41,5 +39,13 @@ public class Output
         wr.WriteLine(w.ToString());
         wr.Close();
 
+    }
+
+    public void MakeNewBestFile(Week w)
+    {
+        FileStream fs = File.Create(_bestScores);
+        StreamWriter wr = new StreamWriter(fs);
+        wr.WriteLine(w.ToString());
+        wr.Close();
     }
 }

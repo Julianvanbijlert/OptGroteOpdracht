@@ -5,7 +5,7 @@ using System;
 public class Rijmoment
 {
     public int volume;
-    public int tijd;
+    public float tijd;
     public Node beginnode;
     public Node eindnode;
     
@@ -20,20 +20,22 @@ public class Rijmoment
         eindnode.Previous = beginnode;
     }
 
-    public void ToevoegenVoor(Node nieuw, Node volgende)
+    public void ToevoegenVoor(Node nieuw, Node volgende, float extratijd)
     {
-        tijd += ExtraTijdskostenBijToevoegen(nieuw.bedrijf, volgende);
+        tijd += extratijd;
         volume += nieuw.bedrijf.volume;
 
         nieuw.Previous = volgende.Previous;
         nieuw.Next = volgende;
         volgende.Previous.Next = nieuw;
         volgende.Previous = nieuw;
+
+        nieuw.bedrijf.wordtBezocht = true;
     }
 
-    public void LaatstToevoegen(Node nieuw)
+    public void LaatstToevoegen(Node nieuw, float extratijd)
     {
-        ToevoegenVoor(nieuw, eindnode);
+        ToevoegenVoor(nieuw, eindnode, extratijd);
     }
 
     public void Verwijderen(Node weg)
@@ -43,23 +45,27 @@ public class Rijmoment
 
         weg.Previous.Next = weg.Next;
         weg.Next.Previous = weg.Previous;
+
+        weg.bedrijf.wordtBezocht = false;
     }
 
-    public int ExtraTijdskostenBijToevoegen(Bedrijf bedrijf, Node volgende)
-    {
-        int extra = 0;
+    public float ExtraTijdskostenBijToevoegen(Bedrijf bedrijf, Node volgende)
+    { 
+        float extra = 0;
         extra += Program.aMatrix.lookup(volgende.Previous.bedrijf, bedrijf);
         extra += Program.aMatrix.lookup(bedrijf, volgende.bedrijf);
         extra -= Program.aMatrix.lookup(volgende.Previous.bedrijf, volgende.bedrijf);
+        extra += bedrijf.ledigingsDuur * 60;
         return extra;
     }
 
-    public int ExtraTijdskostenBijVerwijderen(Node node)
+    public float ExtraTijdskostenBijVerwijderen(Node node)
     {
-        int extra = 0;
+        float extra = 0;
         extra -= Program.aMatrix.lookup(node.Previous.bedrijf, node.bedrijf);
         extra -= Program.aMatrix.lookup(node.bedrijf, node.Next.bedrijf);
         extra += Program.aMatrix.lookup(node.Previous.bedrijf, node.Next.bedrijf);
+        extra -= node.bedrijf.ledigingsDuur * 60;
         return extra;
     }
 
@@ -80,17 +86,15 @@ public class Rijmoment
             Verwijderen(node);
             Verwijderen(node2);
 
-            ToevoegenVoor(node, next2);
-            ToevoegenVoor(node2, next1);
+            ToevoegenVoor(node, next2, ExtraTijdskostenBijToevoegen(node.bedrijf, next2));
+            ToevoegenVoor(node2, next1, ExtraTijdskostenBijToevoegen(node2.bedrijf, next1));
         }
     }
 
     public void WisselNaastElkaar(Node node, Node node2)
     {
-        tijd += ExtraTijdskostenBijVerwijderen(node);
         Verwijderen(node);
-        tijd += ExtraTijdskostenBijToevoegen(node.bedrijf, node2.Next);
-        ToevoegenVoor(node, node2.Next);
+        ToevoegenVoor(node, node2.Next, ExtraTijdskostenBijToevoegen(node.bedrijf, node2.Next));
     }
 
     public (int, string) ToString(string str, int c)
