@@ -93,7 +93,7 @@ public class Rijmoment
         ToevoegenVoor(node, node2.Next);
     }
 
-    public string ToString(string str, int c)
+    public (int, string) ToString(string str, int c)
     {
         string s = "";
         Node current = beginnode;
@@ -101,10 +101,11 @@ public class Rijmoment
         while (current.Next != eindnode)
         {
             count++;
-            s += current.ToString(str + ";" + count.ToString());
+            s += current.ToString(str + count.ToString());
+            current = current.Next;
 
         }
-        return ";";
+        return (count,s);
     }
 }
 
