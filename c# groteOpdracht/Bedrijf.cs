@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Globalization;
 
 namespace rommelrouterakkers;
-
+//comment
 public class Bedrijf
 {
     //Order;Plaats;Frequentie;AantContainers;VolumePerContainer;LedigingsDuurMinuten;MatrixID;XCoordinaat;YCoordinaat

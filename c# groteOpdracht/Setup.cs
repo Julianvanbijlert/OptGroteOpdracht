@@ -35,9 +35,12 @@ public class Setup
 
         //vulSolution
         Random r = new Random(); // voor alles wat een random nodig heeft
-        bool b = true;
+        
 
         StelBeginoplossingIn(bedrijven, werkWeek);
+
+        ILS ils = new ILS(werkWeek);
+        ils.BFS();
 
         Output oup = new Output(scoreFile, bestScores);
         oup.PrintSolution(werkWeek);
@@ -128,30 +131,41 @@ public class Setup
         return bedrijvenSorted;
     }
 
-    static void StelBeginoplossingIn(List<Bedrijf> bedrijven, Week werkWeek)
+    public static List<Bedrijf>[] VulBedrijvenPerFreq(List<Bedrijf> bedrijven)
     {
         List<Bedrijf>[] bedrijvenPerFreq = new List<Bedrijf>[5];
         for (int i = 1; i <= 4; i++)
             bedrijvenPerFreq[i] = new List<Bedrijf>();
+
         foreach (Bedrijf bed in bedrijven)
             bedrijvenPerFreq[bed.frequentie].Add(bed);
 
-        float extratijd;
+        
+        return bedrijvenPerFreq;
+    }
 
+    static void StelBeginoplossingIn(List<Bedrijf> bedrijven, Week werkWeek)
+    {
+        List<Bedrijf>[] bedrijvenPerFreq = VulBedrijvenPerFreq(bedrijven);
+
+        float extratijd;
         bedrijvenPerFreq[2] = SorteerBedrijven(bedrijvenPerFreq[2]);
 
-        Rijmoment huidig1 = werkWeek.dagen[1].RijmomentToevoegen();
-        Rijmoment huidig2 = werkWeek.dagen[4].RijmomentToevoegen();
-        Bus bus1 = huidig1.bus;
-        Bus bus2 = huidig2.bus;
+        Bus bus0 = werkWeek.dagen[1].bussen[0];
+        Bus bus1 = werkWeek.dagen[4].bussen[0];
+        Rijmoment huidig1 = bus0.VoegRijmomentToe();
+        Rijmoment huidig2 = bus1.VoegRijmomentToe();
+        
+
         foreach (Bedrijf bedr in bedrijvenPerFreq[2])
         {
             extratijd = huidig1.ExtraTijdskostenBijToevoegen(bedr, huidig1.eindnode);
+            bus0.tijd += extratijd;
             bus1.tijd += extratijd;
-            bus2.tijd += extratijd;
             huidig1.ToevoegenVoor(bedr.Locaties[0], huidig1.eindnode, extratijd);
             huidig2.ToevoegenVoor(bedr.Locaties[1], huidig2.eindnode, extratijd);
         }
+        
 
         Rijmoment huidig;
         Bus bus;
@@ -184,7 +198,7 @@ public class Setup
                         }
                         if (huidig.volume + bedrijf.volume > 100000) //wellicht op 80000 ofzo zetten om het programma speling te geven
                         {
-                            break;
+                            break; 
                         }
                         huidig.ToevoegenVoor(bedrijf.Locaties[0], huidig.eindnode, extratijd);
                         bus.tijd += extratijd;

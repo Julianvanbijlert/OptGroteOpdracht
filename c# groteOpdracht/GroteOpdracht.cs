@@ -1,3 +1,4 @@
+using System;
 using System.Security.Cryptography;
 
 namespace rommelrouterakkers;
@@ -24,6 +25,7 @@ public class Program
     {
         Setup s = new Setup();
 
+        Console.ReadLine();
     }
 }
 

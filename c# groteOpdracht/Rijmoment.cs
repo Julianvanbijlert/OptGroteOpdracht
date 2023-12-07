@@ -69,7 +69,37 @@ public class Rijmoment
         return extra;
     }
 
+    //Zoekt de beste plek voor alle nodes binnen dat rijmoment op
+    public Rijmoment RijBFS()
+    {
+        Rijmoment best = this;
+        Rijmoment Current = this;
+        Node beginNode = Current.beginnode;
+        Node wisselNode = Current.beginnode.Next;
 
+        while (beginNode.Next != Current.eindnode)
+        {
+            while (beginNode.Next != Current.eindnode)
+            {
+                //iets met wissel -> tijden geupdate    
+                Current.Wisselen(beginNode, wisselNode);
+
+                if (best.tijd > Current.tijd)
+                {
+                    best = Current;
+                    Current = best;
+                    beginNode = Current.beginnode;
+                    wisselNode = Current.beginnode.Next;
+                }
+
+                wisselNode = wisselNode.Next;
+
+            }
+            beginNode = beginnode.Next;
+        }
+
+        return best;
+    }
     // methode voor tegengestelde richting doorlopen? als buuroplossing
 
     public void Wisselen(Node node, Node node2)
