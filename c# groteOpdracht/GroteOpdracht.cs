@@ -169,6 +169,7 @@ public class Program
  
         Output oup = new Output(scoreFile);
         oup.printSolution(werkWeek);
+        oup.printSolutionToFile(werkWeek);
     }
 }
 
