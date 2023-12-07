@@ -2,17 +2,17 @@ using System.Runtime.InteropServices;
 
 namespace rommelrouterakkers;
 
-public class ILS
+public class ZoekAlgoritme
 {
     private Week week;
-    public ILS(Week w)
+    public ZoekAlgoritme(Week w)
     {
         week = w;
     }
 
     public void BFS()
     {
-        for(int i = 1; i <= 5; i++)//Dag d in week.dagen)
+        for (int i = 1; i <= 5; i++)//Dag d in week.dagen)
         {
             Dag d = week.dagen[i];
             for (int j = 0; j <= 1; j++)
@@ -23,9 +23,21 @@ public class ILS
                     Rijmoment r = b.rijmomenten[k];
                     b.rijmomenten[k] = r.RijBFS();
                 }
+                //miss moet je de variabele elke keer toekennen aan de plek, maar weet niet
             }
         }
     }
+}
+
+public class ILS
+{
+    private Week week;
+    public ILS(Week w)
+    {
+        week = w;
+    }
+
+   
 
 
     

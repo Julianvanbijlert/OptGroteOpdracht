@@ -40,7 +40,9 @@ public class Setup
         StelBeginoplossingIn(bedrijven, werkWeek);
 
         ILS ils = new ILS(werkWeek);
-        ils.BFS();
+
+        ZoekAlgoritme za = new ZoekAlgoritme(werkWeek);
+        za.BFS();
 
         Output oup = new Output(scoreFile, bestScores);
         oup.PrintSolution(werkWeek);
