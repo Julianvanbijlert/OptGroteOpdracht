@@ -8,11 +8,12 @@ using System.Diagnostics.Metrics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 
 //Manier om data in te lezen van
-    //Orderbestand  
-    //AfstandMatrix
+//Orderbestand  
+//AfstandMatrix
 
 //Manier om solution te vinden
 
@@ -121,24 +122,30 @@ public class Program
         foreach (Bedrijf bedrijf in bedrijven)
             bedrijvenPerFreq[bedrijf.frequentie].Add(bedrijf);
 
-        Rijmoment[] huidigMoment = new Rijmoment[6];
-        for (int i = 1; i <= 5; i++)
-            huidigMoment[i] = werkWeek.dagen[i].RijmomentToevoegen();
-
         int dag = 1;
+        int tijd;
+        Bus huidigeBus = werkWeek.dagen[1].bussen[0];
+        Rijmoment huidigMoment = huidigeBus.VoegRijmomentToe();
         foreach (Bedrijf bedrijf in bedrijvenPerFreq[1])
         {
-            if (huidigMoment[dag].volume + bedrijf.volume > 100000)
+            if (huidigMoment.volume + bedrijf.volume > 100000)
             {
-                if (werkWeek.dagen[dag].bussen[0].tijd + 30 > 7200 &&
-                    werkWeek.dagen[dag].bussen[1].tijd + 30 > 7200)
+                if (Math.Min(werkWeek.dagen[dag].bussen[0].tijd, 
+                             werkWeek.dagen[dag].bussen[1].tijd) + 1800 > 43200) // omgerekend naar seconden
                 {
                     if (dag == 5) return;
                     dag += 1;
                 }
-                else huidigMoment[dag] = werkWeek.dagen[dag].RijmomentToevoegen();
+                (huidigeBus, huidigMoment) = werkWeek.dagen[dag].RijmomentToevoegen();
             }
-            huidigMoment[dag].LaatstToevoegen(bedrijf.Locaties[0]);             
+            tijd = huidigeBus.tijd + huidigMoment.ExtraTijdskostenBijToevoegen(bedrijf, huidigMoment.eindnode);
+            if (tijd > 43200)
+            {
+                if (dag == 5) return;
+                dag += 1;
+                (huidigeBus, huidigMoment) = werkWeek.dagen[dag].RijmomentToevoegen();
+            }
+            huidigMoment.LaatstToevoegen(bedrijf.Locaties[0]);             
         }
 
         //ik zou zeggen: alleen de bedrijven met freq 1 erin zetten. dat is namelijk al 95 procent van de bedrijven

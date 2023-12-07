@@ -35,7 +35,7 @@ public class Bedrijf
     public static Bedrijf parseBedrijf(string s)
     {
         char separator = ';';
-        string[] list = s.Split(separator); // pas op, split dit ook op spaties?
+        string[] list = s.Split(separator); 
 
         int ord = int.Parse(list[0]);
 

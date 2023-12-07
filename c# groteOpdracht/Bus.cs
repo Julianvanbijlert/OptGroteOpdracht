@@ -25,13 +25,13 @@ public class Bus
     {
         Rijmoment nieuw = new Rijmoment();
         rijmomenten.Add(nieuw);
-        tijd += 30;
+        tijd += 1800;
         return nieuw;
     }
 
     public void VerwijderLeegRijmoment(Rijmoment rijmoment) // kijken hoe we dit gaan doen, hoe access je het rijmoment en bus als je alleen de nodes hebt?
     {
-        tijd -= 30;
+        tijd -= 1800;
         rijmomenten.Remove(rijmoment);
     }
 }

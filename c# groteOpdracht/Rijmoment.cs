@@ -11,7 +11,7 @@ public class Rijmoment
     
     public Rijmoment()
     {
-        tijd = 30;
+        tijd = 1800; // omgerekend naar seconden
         volume = 0;
 
         beginnode = new Node(Program.stort);
@@ -22,13 +22,13 @@ public class Rijmoment
 
     public void ToevoegenVoor(Node nieuw, Node volgende)
     {
+        tijd += ExtraTijdskostenBijToevoegen(nieuw.bedrijf, volgende);
+        volume += nieuw.bedrijf.volume;
+
         nieuw.Previous = volgende.Previous;
         nieuw.Next = volgende;
         volgende.Previous.Next = nieuw;
         volgende.Previous = nieuw;
-
-        volume += nieuw.bedrijf.volume;
-        tijd += ExtraTijdskostenBijToevoegen(nieuw);
     }
 
     public void LaatstToevoegen(Node nieuw)
@@ -39,18 +39,27 @@ public class Rijmoment
     public void Verwijderen(Node weg)
     {
         volume -= weg.bedrijf.volume;
-        tijd -= ExtraTijdskostenBijToevoegen(weg);
+        tijd += ExtraTijdskostenBijVerwijderen(weg);
 
         weg.Previous.Next = weg.Next;
         weg.Next.Previous = weg.Previous;
     }
 
-    public int ExtraTijdskostenBijToevoegen(Node node)
+    public int ExtraTijdskostenBijToevoegen(Bedrijf bedrijf, Node volgende)
     {
         int extra = 0;
-        extra += Program.aMatrix.lookup(node.Previous.bedrijf, node.bedrijf);
-        extra += Program.aMatrix.lookup(node.bedrijf, node.Next.bedrijf);
-        extra -= Program.aMatrix.lookup(node.Previous.bedrijf, node.Next.bedrijf);
+        extra += Program.aMatrix.lookup(volgende.Previous.bedrijf, bedrijf);
+        extra += Program.aMatrix.lookup(bedrijf, volgende.bedrijf);
+        extra -= Program.aMatrix.lookup(volgende.Previous.bedrijf, volgende.bedrijf);
+        return extra;
+    }
+
+    public int ExtraTijdskostenBijVerwijderen(Node node)
+    {
+        int extra = 0;
+        extra -= Program.aMatrix.lookup(node.Previous.bedrijf, node.bedrijf);
+        extra -= Program.aMatrix.lookup(node.bedrijf, node.Next.bedrijf);
+        extra += Program.aMatrix.lookup(node.Previous.bedrijf, node.Next.bedrijf);
         return extra;
     }
 
@@ -65,29 +74,23 @@ public class Rijmoment
             WisselNaastElkaar(node2, node);
         else
         {
-            tijd -= ExtraTijdskostenBijToevoegen(node);
-            tijd -= ExtraTijdskostenBijToevoegen(node2);
+            Node next1 = node.Next;
+            Node next2 = node2.Next;
 
-            Node nieuwn = node2.Next;
-            Node nieuwp = node2.Previous;
+            Verwijderen(node);
+            Verwijderen(node2);
 
-            node2.Next = node.Next;
-            node2.Previous = node.Previous;
-
-            node.Next = nieuwn;
-            node.Previous = nieuwp;
-
-            tijd += ExtraTijdskostenBijToevoegen(node);
-            tijd += ExtraTijdskostenBijToevoegen(node2);
+            ToevoegenVoor(node, next2);
+            ToevoegenVoor(node2, next1);
         }
     }
 
     public void WisselNaastElkaar(Node node, Node node2)
     {
-        tijd -= ExtraTijdskostenBijToevoegen(node);
+        tijd += ExtraTijdskostenBijVerwijderen(node);
         Verwijderen(node);
+        tijd += ExtraTijdskostenBijToevoegen(node.bedrijf, node2.Next);
         ToevoegenVoor(node, node2.Next);
-        tijd += ExtraTijdskostenBijToevoegen(node);
     }
 
     public string ToString(string str, int c)
