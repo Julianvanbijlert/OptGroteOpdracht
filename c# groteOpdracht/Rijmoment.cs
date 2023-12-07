@@ -8,8 +8,9 @@ public class Rijmoment
     public float tijd;
     public Node beginnode;
     public Node eindnode;
+    public Bus bus;
     
-    public Rijmoment()
+    public Rijmoment(Bus buss)
     {
         tijd = 1800; // omgerekend naar seconden
         volume = 0;
@@ -18,6 +19,7 @@ public class Rijmoment
         eindnode  = new Node(Program.stort);
         beginnode.Next = eindnode;
         eindnode.Previous = beginnode;
+        bus = buss;
     }
 
     public void ToevoegenVoor(Node nieuw, Node volgende, float extratijd)
@@ -104,8 +106,8 @@ public class Rijmoment
         int count = c;
         while (current != eindnode)
         {
-            s += current.ToString(str + count.ToString());
             current = current.Next;
+            s += current.ToString(str + count.ToString());
             count++;
         }
         return (count,s);

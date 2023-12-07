@@ -25,7 +25,7 @@ public class Bus
 
     public Rijmoment VoegRijmomentToe() 
     {
-        Rijmoment nieuw = new Rijmoment();
+        Rijmoment nieuw = new Rijmoment(this);
         rijmomenten.Add(nieuw);
         tijd += 1800;
         return nieuw;

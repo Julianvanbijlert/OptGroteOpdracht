@@ -126,12 +126,29 @@ public class Program
         foreach (Bedrijf bed in bedrijven)
             bedrijvenPerFreq[bed.frequentie].Add(bed);
 
+        float extratijd;
+
+        bedrijvenPerFreq[2] = SorteerBedrijven(bedrijvenPerFreq[2]);
+
+        Rijmoment huidig1 = werkWeek.dagen[1].RijmomentToevoegen();
+        Rijmoment huidig2 = werkWeek.dagen[4].RijmomentToevoegen();
+        Bus bus1 = huidig1.bus;
+        Bus bus2 = huidig2.bus;
+        foreach (Bedrijf bedr in bedrijvenPerFreq[2])
+        {
+            extratijd = huidig1.ExtraTijdskostenBijToevoegen(bedr, huidig1.eindnode);
+            bus1.tijd += extratijd;
+            bus2.tijd += extratijd;
+            huidig1.ToevoegenVoor(bedr.Locaties[0], huidig1.eindnode, extratijd);
+            huidig2.ToevoegenVoor(bedr.Locaties[1], huidig2.eindnode, extratijd);
+        }
+
         Rijmoment huidig;
         Bus bus;
         Dag dag;
         Bedrijf bedrijf;
-        float extratijd;
         bool andereBus;
+
         for (int i = 1; i <= 5; i++)
         {
             dag = werkWeek.dagen[i];
@@ -141,7 +158,7 @@ public class Program
                 andereBus = false;
                 while (!andereBus && bus.tijd + 1800 <= 43200)
                 {
-                    huidig = bus.VoegRijmomentToe();
+                    huidig = bus.VoegRijmomentToe(); // dit uiteindelijk allemaal nog efficienter maken, kan door nieuwe variabele 'bus' van rijmoment
                     bedrijvenPerFreq[1] = SorteerBedrijven(bedrijvenPerFreq[1]);
                     while (true)
                     {
@@ -155,7 +172,7 @@ public class Program
                                 bus.rijmomenten.RemoveAt(bus.rijmomenten.Count - 1);
                             break;
                         }
-                        if (huidig.volume + bedrijf.volume > 100000)
+                        if (huidig.volume + bedrijf.volume > 100000) //wellicht op 80000 ofzo zetten om het programma speling te geven
                         {
                             break;
                         }
@@ -207,7 +224,7 @@ public class Program
     {
         aMatrix = new AfstandMatrix(vulMatrix(matrixFileNaam)); //afstanden niet in
         
-        List<Bedrijf> bedrijven = SorteerBedrijven(vulBedrijven(orderbestandFileNaam));
+        List<Bedrijf> bedrijven = vulBedrijven(orderbestandFileNaam);
 
         Week werkWeek = new Week();
 
@@ -220,7 +237,7 @@ public class Program
         Output oup = new Output(scoreFile, bestScores);
         oup.printSolution(werkWeek);
         oup.printSolutionToFile(werkWeek);
-       // oup.MakeNewBestFile(werkWeek);
+        //oup.MakeNewBestFile(werkWeek);
 
 
     }
