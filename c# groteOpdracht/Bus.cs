@@ -1,4 +1,6 @@
-﻿namespace rommelrouterakkers;
+﻿using System.Threading;
+
+namespace rommelrouterakkers;
 using System.Collections.Generic;
 using System;
 
@@ -33,5 +35,19 @@ public class Bus
     {
         tijd -= 30;
         rijmomenten.Remove(rijmoment);
+    }
+
+    public string ToString(string i)
+    { 
+        string s = "";
+        int count = 1;
+        for (int j = 0; j < rijmomenten.Count; j++)
+        {
+          //LETOP hier moet nog iets gebeuren met welke bus er gebeurd
+            (int c, string s2) = rijmomenten[j].ToString(i, count);
+            count += c;
+            s += s2;
+        }
+         return s;
     }
 }
