@@ -100,9 +100,9 @@ public class Rijmoment
         int count = c;
         while (current.Next != eindnode)
         {
-            count++;
             s += current.ToString(str + count.ToString());
             current = current.Next;
+            count++;
 
         }
         return (count,s);
