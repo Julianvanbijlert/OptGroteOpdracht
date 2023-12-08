@@ -20,8 +20,7 @@ public class ZoekAlgoritme
                 Bus b = d.bussen[j];
                 for (int k = 0; k < b.rijmomenten.Count; k++)
                 {
-                    Rijmoment r = b.rijmomenten[k];
-                    b.rijmomenten[k] = r.RijBFS();
+                    b.rijmomenten[k].RijBFS();
                 }
                 //miss moet je de variabele elke keer toekennen aan de plek, maar weet niet
             }

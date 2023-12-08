@@ -1,4 +1,4 @@
-﻿using System.Threading;
+﻿
 
 namespace rommelrouterakkers;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System;
 public class Bus
 {
     public List<Rijmoment> rijmomenten;
-    public float tijd = 0;
+    public double tijd = 0;
 
     public Bus()
     {
@@ -18,7 +18,7 @@ public class Bus
     {
         int welkMoment = r.Next(0, rijmomenten.Count);
         Rijmoment huidig = rijmomenten[welkMoment];
-        float extratijd = huidig.ExtraTijdskostenBijToevoegen(nieuw.bedrijf, huidig.eindnode);
+        double extratijd = huidig.ExtraTijdskostenBijToevoegen(nieuw.bedrijf, huidig.eindnode.Previous, huidig.eindnode);
         tijd += extratijd;
         huidig.ToevoegenVoor(nieuw, huidig.eindnode, extratijd);
     }
@@ -33,7 +33,7 @@ public class Bus
 
     public void VerwijderLeegRijmoment(Rijmoment rijmoment) // kijken hoe we dit gaan doen, hoe access je het rijmoment en bus als je alleen de nodes hebt?
     {
-        tijd -= rijmoment.tijd;
+        tijd -= 1800;
         rijmomenten.Remove(rijmoment);
     }
 

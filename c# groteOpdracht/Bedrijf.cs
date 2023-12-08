@@ -10,7 +10,7 @@ public class Bedrijf
     public int frequentie;
     public int volume; //totale volume niet volume per container
     public int matrixId;
-    public float ledigingsDuur;
+    public double ledigingsDuur;
     public bool wordtBezocht;
 
     public List<Node> Locaties;
@@ -19,7 +19,7 @@ public class Bedrijf
     {
     } 
 
-    public Bedrijf(int ord, int f, int v, int aantalBakken, int mId, float ledD)
+    public Bedrijf(int ord, int f, int v, int aantalBakken, int mId, double ledD)
     {
         orderNummer = ord;
         frequentie = f;
@@ -30,7 +30,7 @@ public class Bedrijf
         FillNodesLocatie(frequentie);
     }
 
-    //int ord, int f, int v, int aantalBakken, int mId, float ledD
+    //int ord, int f, int v, int aantalBakken, int mId, double ledD
     //Order;Plaats;Frequentie;AantContainers;VolumePerContainer;LedigingsDuurMinuten;MatrixID;XCoordinaat;YCoordinaat
     public static Bedrijf parseBedrijf(string s)
     {
@@ -42,7 +42,7 @@ public class Bedrijf
         int f = int.Parse(list[2].Substring(0, 1));
         int aantalBakken = int.Parse(list[3]);
         int v = int.Parse(list[4]);
-        float ledD = float.Parse(list[5]);
+        double ledD = double.Parse(list[5]);
         int mId = int.Parse(list[6]);
 
         return new Bedrijf(ord, f, v, aantalBakken, mId, ledD);

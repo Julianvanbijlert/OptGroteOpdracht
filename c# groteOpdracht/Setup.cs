@@ -22,7 +22,6 @@ public class Setup
     //bestsolutionvariable
     public static Bedrijf stort = new Bedrijf(0, 0, 0, 0, 287, 0);
     public static AfstandMatrix aMatrix;
-    public static List<int> freqcount = new List<int>();
 
 
     public Setup()
@@ -39,7 +38,7 @@ public class Setup
 
         StelBeginoplossingIn(bedrijven, werkWeek);
 
-        ILS ils = new ILS(werkWeek);
+        //ILS ils = new ILS(werkWeek);
 
         ZoekAlgoritme za = new ZoekAlgoritme(werkWeek);
         za.BFS();
@@ -150,20 +149,25 @@ public class Setup
     {
         List<Bedrijf>[] bedrijvenPerFreq = VulBedrijvenPerFreq(bedrijven);
 
-        float extratijd;
+        
+        double extratijd;
         bedrijvenPerFreq[2] = SorteerBedrijven(bedrijvenPerFreq[2]);
 
         Bus bus0 = werkWeek.dagen[1].bussen[0];
-        Bus bus1 = werkWeek.dagen[4].bussen[1];
+        Bus bus1 = werkWeek.dagen[4].bussen[0];
         Rijmoment huidig1 = bus0.VoegRijmomentToe();
         Rijmoment huidig2 = bus1.VoegRijmomentToe();
-        
 
         foreach (Bedrijf bedr in bedrijvenPerFreq[2])
         {
-            extratijd = huidig1.ExtraTijdskostenBijToevoegen(bedr, huidig1.eindnode);
-            bus0.tijd += extratijd;
-            bus1.tijd += extratijd;
+            if (huidig1.volume + bedr.volume > 100000)
+            {
+                bus0 = werkWeek.dagen[2].bussen[0];
+                bus1 = werkWeek.dagen[5].bussen[0];
+                huidig1 = bus0.VoegRijmomentToe();
+                huidig2 = bus1.VoegRijmomentToe();
+            }    
+            extratijd = huidig1.ExtraTijdskostenBijToevoegen(bedr, huidig1.eindnode.Previous, huidig1.eindnode);
             huidig1.ToevoegenVoor(bedr.Locaties[0], huidig1.eindnode, extratijd);
             huidig2.ToevoegenVoor(bedr.Locaties[1], huidig2.eindnode, extratijd);
         }
@@ -190,8 +194,8 @@ public class Setup
                     {
                         if (bedrijvenPerFreq[1].Count == 0) return;
                         bedrijf = bedrijvenPerFreq[1][0];
-                        extratijd = huidig.ExtraTijdskostenBijToevoegen(bedrijf, huidig.eindnode);
-                        if (bus.tijd + extratijd > 43200)
+                        extratijd = huidig.ExtraTijdskostenBijToevoegen(bedrijf, huidig.eindnode.Previous, huidig.eindnode);
+                        if (bus.tijd + extratijd > 36500)
                         {
                             andereBus = true;
                             if (huidig.beginnode.Next == huidig.eindnode)
@@ -203,7 +207,6 @@ public class Setup
                             break; 
                         }
                         huidig.ToevoegenVoor(bedrijf.Locaties[0], huidig.eindnode, extratijd);
-                        bus.tijd += extratijd;
                         bedrijvenPerFreq[1].RemoveAt(0);
                     }
 

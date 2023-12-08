@@ -34,6 +34,7 @@ public class Week
         {
             n.Verwijder();
         }
+        b.wordtBezocht = false;
         
     }
 
@@ -51,7 +52,8 @@ public class Week
             case 3: AddDag3(b, r); break;
             case 4: AddDag4(b, r); break;
             default: break;
-        }      
+        }
+        b.wordtBezocht = true;
     }
     public void AddDag1(Bedrijf b, Random r)
     {
