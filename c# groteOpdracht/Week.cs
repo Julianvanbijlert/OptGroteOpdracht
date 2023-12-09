@@ -111,7 +111,7 @@ public class Week
     
     public void Load(int dag, int bus, int seq, Bedrijf b)
     {
-       // dagen[dag].bussen[bus].Insert(b);
+       dagen[dag].bussen[bus].Load(b);
     }
     
 }

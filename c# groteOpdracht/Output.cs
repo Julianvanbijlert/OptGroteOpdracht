@@ -1,5 +1,6 @@
 namespace rommelrouterakkers;
 using System;
+using System.Collections.Generic;
 using System.IO;
 public class Output
 {
@@ -13,7 +14,31 @@ public class Output
     }
     //VrachtwagenNummer ; Dagnummer ; hoeveelste adres ; id van dat adres (odernummer?) afstorten is 0
 
-   
+
+    //loads solution from file, should return a "week"
+    public Week loadSolution(string fileNaam, List<Bedrijf> bedrijven)
+    {
+        Week w = new Week();
+        StreamReader sr = new StreamReader(fileNaam);
+        string regel;
+        while ((regel = sr.ReadLine()) != null)
+        {
+            string[] list = regel.Split(';');
+            int bus = int.Parse(list[0]) - 1;
+            int dag = int.Parse(list[1]);
+            int seq = int.Parse(list[2]);
+            int ord = int.Parse(list[3]);
+
+
+            Bedrijf b = Setup.VindBedrijf(ord, bedrijven);
+
+            w.Load(dag, bus, seq, b);
+        }
+        sr.Close();
+
+        return w;
+    }
+
 
     public void PrintSolution(Week w)
     {

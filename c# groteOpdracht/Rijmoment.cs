@@ -1,4 +1,4 @@
-using System.Threading;
+//using System.Threading;
 
 namespace rommelrouterakkers;
 using System; 
@@ -34,6 +34,7 @@ public class Rijmoment
         volgende.Previous = nieuw;
     }
 
+    
     public void LaatstToevoegen(Node nieuw, double extratijd)
     {
         ToevoegenVoor(nieuw, eindnode, extratijd);
@@ -47,6 +48,15 @@ public class Rijmoment
 
         weg.Previous.Next = weg.Next;
         weg.Next.Previous = weg.Previous;
+    }
+
+    public void Load(Bedrijf b, double extratijd)
+    {
+        //stop bedrijf in dit rijmoment
+        LaatstToevoegen(new Node(b), extratijd);
+
+        //voeg pointers toe van bedrijf naar deze node?
+
     }
 
     public double ExtraTijdskostenBijToevoegen(Bedrijf bedrijf, Node vorige, Node volgende)
@@ -70,65 +80,79 @@ public class Rijmoment
     }
 
     //Zoekt de beste plek voor alle nodes binnen dat rijmoment op
-    public void RijBFS() // dit volgende week omgooien. zorg dat de random nodes kiezen O(1) is, dus misschien pick gwn 2 random bedrijven en wissel hun 2 nodes van een dag om, al zitten ze niet in het zelfde rijmoment
-    { 
-        Random r = new Random();
-        if (Count < 2) return;
-        double T = 100; //parameters niet helemaal lekker
-        int random;
-        int random2;
-        double extratijd;
-        int zelfde = 0;
-        while(true)
+    // dit volgende week omgooien. zorg dat de random nodes kiezen O(1) is, dus misschien pick gwn 2 random bedrijven en wissel hun 2 nodes van een dag om, al zitten ze niet in het zelfde rijmoment
+    public Rijmoment RijBFS()
+    {
+        Rijmoment best = this;
+        Rijmoment Current = this;
+
+        Node beginNode = Current.beginnode;
+        Node wisselNode = Current.beginnode.Next;
+
+        while (beginNode.Next != eindnode)
         {
-            Node node1 = beginnode.Next;
-            Node node2 = beginnode.Next;
-
-            random = r.Next(0, Count);
-            for (int j = 0; j < random; j++)
-                node1 = node1.Next;
-            random2 = random;
-            while (random == random2)
-                random2 = r.Next(0, Count);
-            for (int j = 0; j < random2; j++)                
-                node2 = node2.Next;
-
-            extratijd = ExtraTijdsKostenBijWisselen(node1, node2);
-
-            if (extratijd < 0 || (extratijd != 0 && -extratijd / T > -21 && r.Next(0, (int)(1 / Math.Exp(-extratijd / T))) == 0 && bus.tijd + extratijd <= 43200))
+            while (wisselNode.Next != beginnode)
             {
-                Wisselen(node1, node2, extratijd);
-                zelfde = 0;
+                /*
+                if (beginNode != wisselNode)
+                    Current.Wisselen(beginNode, wisselNode);
+
+                if (best.tijd > Current.tijd)
+                {
+                    best = Current;
+                    beginNode = Current.beginnode;
+                    wisselNode = Current.beginnode.Next;
+                }
+                */
+                wisselNode = wisselNode.Next;
             }
-            zelfde++;
-            T = 0.999 * T;
-            if (zelfde == 500)
-                return;
-
-
-            //Node node1 = beginnode.Next;              //pure simulated annealing doen we nu, dus dit ff weggecomment
-            //Node node2 = beginnode.Next.Next;
-            //double extratijd;
-
-            //while (node1.Next != eindnode)
-            //{
-            //    while (node2 != eindnode)
-            //    {
-
-
-
-            //        node2 = node2.Next;
-
-            //    }
-            //    node1 = node1.Next;
-            //}
-            //if 
+            beginNode.Next = wisselNode;
 
         }
-        // methode voor tegengestelde richting doorlopen? als buuroplossing
+
+        return best;
     }
 
-    public void Wisselen(Node node, Node node2, double extratijd)
+    public void RijmomentenLocalSearch()
+    {
+    Random r = new Random();
+    if (Count < 2) return;
+    double T = 100; //parameters niet helemaal lekker
+    int random;
+    int random2;
+    double extratijd;
+    int zelfde = 0;
+    while (true)
+    {
+        Node node1 = beginnode.Next;
+        Node node2 = beginnode.Next;
+
+        random = r.Next(0, Count);
+        for (int j = 0; j < random; j++)
+            node1 = node1.Next;
+        random2 = random;
+        while (random == random2)
+            random2 = r.Next(0, Count);
+        for (int j = 0; j < random2; j++)
+            node2 = node2.Next;
+
+        extratijd = ExtraTijdsKostenBijWisselen(node1, node2);
+
+        if (extratijd < 0 || (extratijd != 0 && -extratijd / T > -21 &&
+                              r.Next(0, (int)(1 / Math.Exp(-extratijd / T))) == 0 && bus.tijd + extratijd <= 43200))
+        {
+            Wisselen(node1, node2, extratijd);
+            zelfde = 0;
+        }
+
+        zelfde++;
+        T = 0.999 * T;
+        if (zelfde == 500)
+            return;
+        }
+    }
+
+public void Wisselen(Node node, Node node2, double extratijd)
     {
         if (node.Next == node2)
             WisselNaastElkaar(node, node2);
@@ -192,8 +216,8 @@ public class Rijmoment
 
 public class Node
 {
-    public Node Next = null;
     public Node Previous = null;
+    public Node Next = null;
     public Bedrijf bedrijf;
 
     public Node(Bedrijf bedrijf)

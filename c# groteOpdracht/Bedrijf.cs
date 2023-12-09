@@ -61,5 +61,17 @@ public class Bedrijf
     {
         return wordtBezocht;
     }
+
+    public Node FindUnusedNode()
+    {
+        foreach (Node node in Locaties)
+        {
+            if (node == null)
+            {
+                return node;
+            }
+        }
+        return null;
+    }
 }
 

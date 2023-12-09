@@ -30,22 +30,22 @@ public class Setup
 
         List<Bedrijf> bedrijven = vulBedrijven(orderbestandFileNaam);
 
-        Week werkWeek = new Week();
-
+        Output oup = new Output(scoreFile, bestScores);
+        Week werkWeek = oup.loadSolution(scoreFile, bedrijven);
         //vulSolution
         Random r = new Random(); // voor alles wat een random nodig heeft
         
 
-        StelBeginoplossingIn(bedrijven, werkWeek);
+        //StelBeginoplossingIn(bedrijven, werkWeek);
 
         //ILS ils = new ILS(werkWeek);
 
         ZoekAlgoritme za = new ZoekAlgoritme(werkWeek);
         za.BFS();
 
-        Output oup = new Output(scoreFile, bestScores);
+        
         oup.PrintSolution(werkWeek);
-        oup.PrintSolutionToFile(werkWeek);
+       // oup.PrintSolutionToFile(werkWeek);
         //oup.MakeNewBestFile(werkWeek);
     }
 
@@ -216,31 +216,14 @@ public class Setup
     }
 
 
-    //loads solution from file, should return a "week"
-    public Week loadSolution(string fileNaam, List<Bedrijf> bedrijven)
+    
+
+    public static Bedrijf VindBedrijf(int ord, List<Bedrijf> bedrijven)
     {
-        Week w = new Week();
-        StreamReader sr = new StreamReader(fileNaam);
-        string regel;
-        while ((regel = sr.ReadLine()) != null)
+        if (ord == 0)
         {
-            string[] list = regel.Split(';');
-            int bus = int.Parse(list[0]);
-            int dag = int.Parse(list[1]);
-            int seq = int.Parse(list[2]);
-            int ord = int.Parse(list[3]);
-
-            Bedrijf b = VindBedrijf(ord, bedrijven);
-
-            w.Load(dag, bus, seq, b);
+            return stort;
         }
-        sr.Close();
-
-        return w;
-    }
-
-    public Bedrijf VindBedrijf(int ord, List<Bedrijf> bedrijven)
-    {
         foreach (Bedrijf b in bedrijven)
             if (b.orderNummer == ord)
                 return b;
