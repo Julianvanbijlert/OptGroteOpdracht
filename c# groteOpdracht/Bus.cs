@@ -31,6 +31,7 @@ public class Bus
             VoegRijmomentToe();
             return;
         }
+
         //als dat niet zo is pak het laatste rijmoment en voeg hem daar aan toe
         int laatsteRijmoment = rijmomenten.Count;
         Rijmoment huidig = rijmomenten[laatsteRijmoment];
@@ -54,6 +55,14 @@ public class Bus
     {
         tijd -= 1800;
         rijmomenten.Remove(rijmoment);
+    }
+
+    public void BFS()
+    {
+        for (int i = 0; i < rijmomenten.Count; i++)
+        {
+            rijmomenten[i] = rijmomenten[i].RijBFS(); //voelt onnodig als je gwn kan veranderen is handiger
+        }
     }
 
     public string ToString(string i)

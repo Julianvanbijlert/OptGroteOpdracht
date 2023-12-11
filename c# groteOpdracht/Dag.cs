@@ -43,6 +43,14 @@ public class Dag
         return s;
     }
 
+    public void BFS()
+    {
+        foreach (var bus in bussen)
+        {
+            bus.BFS();
+        }
+    }
+
     ////string is welke dag het is
     //public string ToString(string i) // deze methode moet nog wel aangepast worden, door de nieuwe busklasse
     //{

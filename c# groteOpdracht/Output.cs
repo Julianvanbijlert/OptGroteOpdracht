@@ -26,13 +26,13 @@ public class Output
             string[] list = regel.Split(';');
             int bus = int.Parse(list[0]) - 1;
             int dag = int.Parse(list[1]);
-            int seq = int.Parse(list[2]);
             int ord = int.Parse(list[3]);
 
 
             Bedrijf b = Setup.VindBedrijf(ord, bedrijven);
+            b.wordtBezocht = true;
 
-            w.Load(dag, bus, seq, b);
+            w.Load(dag, bus, b);
         }
         sr.Close();
 

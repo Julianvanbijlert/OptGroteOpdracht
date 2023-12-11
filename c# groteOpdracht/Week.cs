@@ -108,8 +108,17 @@ public class Week
         return s;
     }
 
+
+    public void BFS()
+    {
+        for(int i = 1; i<= 5; i++) 
+        {
+            dagen[i].BFS();
+        }
+    }
+
     
-    public void Load(int dag, int bus, int seq, Bedrijf b)
+    public void Load(int dag, int bus, Bedrijf b)
     {
        dagen[dag].bussen[bus].Load(b);
     }
