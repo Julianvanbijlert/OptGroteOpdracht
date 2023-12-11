@@ -26,7 +26,7 @@ public class Bus
     public void Load(Bedrijf b)
     {
         //als het stort is maak je gwn een nieuwe aan en stop je daarna 
-        if (b == Setup.stort)
+        if (b == Setup.stort || rijmomenten.Count == 0)
         {
             VoegRijmomentToe();
             return;
