@@ -16,6 +16,11 @@ public class Output
 
 
     //loads solution from file, should return a "week"
+
+    /*
+     * NOTE: Dit werkt alleen als er een geldige solution in de text file staat.
+     * Er is geen error handling, en als hij niet langs 0 gaat dan zijn we de lul. 
+     */
     public Week loadSolution(string fileNaam, List<Bedrijf> bedrijven)
     {
         Week w = new Week();
@@ -26,13 +31,13 @@ public class Output
             string[] list = regel.Split(';');
             int bus = int.Parse(list[0]) - 1;
             int dag = int.Parse(list[1]);
-            int seq = int.Parse(list[2]);
             int ord = int.Parse(list[3]);
 
 
             Bedrijf b = Setup.VindBedrijf(ord, bedrijven);
+            b.wordtBezocht = true;
 
-            w.Load(dag, bus, seq, b);
+           w.Load(dag, bus, b);
         }
         sr.Close();
 

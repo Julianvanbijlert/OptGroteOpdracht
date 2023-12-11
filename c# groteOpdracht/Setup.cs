@@ -31,30 +31,25 @@ public class Setup
         List<Bedrijf> bedrijven = vulBedrijven(orderbestandFileNaam);
 
         Output oup = new Output(scoreFile, bestScores);
-        Week werkWeek = oup.loadSolution(scoreFile, bedrijven);
+        Week werkWeek = new Week();
+        //Week werkWeek = oup.loadSolution(scoreFile, bedrijven);
         //vulSolution
         Random r = new Random(); // voor alles wat een random nodig heeft
         
 
-        //StelBeginoplossingIn(bedrijven, werkWeek);
+        StelBeginoplossingIn(bedrijven, werkWeek);
 
         //ILS ils = new ILS(werkWeek);
 
-        ZoekAlgoritme za = new ZoekAlgoritme(werkWeek);
-        za.BFS();
+        //ZoekAlgoritme za = new ZoekAlgoritme(werkWeek);
+        //za.BFS();
+
 
         
         oup.PrintSolution(werkWeek);
-       // oup.PrintSolutionToFile(werkWeek);
+        //oup.PrintSolutionToFile(werkWeek);
         //oup.MakeNewBestFile(werkWeek);
     }
-
-
-
-
-
-
-
     static List<Bedrijf> vulBedrijven(string fileNaam) // heb het naar een list verandert zodat we kunnen verwijderen voor sorteren
     {
         List<Bedrijf> bedrijven = new List<Bedrijf>();
@@ -71,7 +66,6 @@ public class Setup
         return bedrijven;
 
     }
-
     static int[,] vulMatrix(string fileNaam)
     {
         int[,] matrix = new int[matrixIds, matrixIds];
@@ -87,17 +81,14 @@ public class Setup
         }
         return matrix;
     }
-
     static (int, int, int) ParseMatrix(string s)
     {
         char separator = ';';
         string[] list = s.Split(separator);
 
-
         //maybe try catch for parsing, maar is niet nodig omdat we de input weten
         return (int.Parse(list[0]), int.Parse(list[1]), int.Parse(list[3]));
     }
-
     static List<Bedrijf> SorteerBedrijven(List<Bedrijf> bedrijven)
     {
         List<Bedrijf> bedrijvenSorted = new List<Bedrijf>();
@@ -131,10 +122,10 @@ public class Setup
 
         return bedrijvenSorted;
     }
-
     public static List<Bedrijf>[] VulBedrijvenPerFreq(List<Bedrijf> bedrijven)
     {
         List<Bedrijf>[] bedrijvenPerFreq = new List<Bedrijf>[5];
+
         for (int i = 1; i <= 4; i++)
             bedrijvenPerFreq[i] = new List<Bedrijf>();
 
