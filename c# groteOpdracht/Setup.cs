@@ -47,7 +47,7 @@ public class Setup
 
         
         oup.PrintSolution(werkWeek);
-        //oup.PrintSolutionToFile(werkWeek);
+        oup.PrintSolutionToFile(werkWeek);
         //oup.MakeNewBestFile(werkWeek);
     }
     static List<Bedrijf> vulBedrijven(string fileNaam) // heb het naar een list verandert zodat we kunnen verwijderen voor sorteren
@@ -186,7 +186,7 @@ public class Setup
                         if (bedrijvenPerFreq[1].Count == 0) return;
                         bedrijf = bedrijvenPerFreq[1][0];
                         extratijd = huidig.ExtraTijdskostenBijToevoegen(bedrijf, huidig.eindnode.Previous, huidig.eindnode);
-                        if (bus.tijd + extratijd > 36500)
+                        if (bus.tijd + extratijd > 43200)
                         {
                             andereBus = true;
                             if (huidig.beginnode.Next == huidig.eindnode)
