@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Globalization;
+using System;
 
 namespace rommelrouterakkers;
 //comment
@@ -10,7 +10,7 @@ public class Bedrijf
     public int frequentie;
     public int volume; //totale volume niet volume per container
     public int matrixId;
-    public double ledigingsDuur;
+    public int ledigingsDuur;
     public bool wordtBezocht;
 
     public List<Node> Locaties;
@@ -25,7 +25,7 @@ public class Bedrijf
         frequentie = f;
         volume = v * aantalBakken;
         matrixId = mId;
-        ledigingsDuur = ledD;
+        ledigingsDuur = (int) Math.Ceiling(ledD*60);
         wordtBezocht = false;
         FillNodesLocatie(frequentie);
     }

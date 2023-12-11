@@ -41,12 +41,15 @@ public class Setup
 
         //ILS ils = new ILS(werkWeek);
 
-        //ZoekAlgoritme za = new ZoekAlgoritme(werkWeek);
-        //za.BFS();
+        ZoekAlgoritme za = new ZoekAlgoritme(werkWeek);
+        za.BFS();
+        werkWeek.LeesKostenIn(bedrijven);
 
-
-        
         oup.PrintSolution(werkWeek);
+        Console.WriteLine("score: "+ werkWeek.kosten / 60);
+        Console.WriteLine("Ik heb alle ledigingsduren naar boven afgerond. hierdoor valt de score ongeveer +/- 5 hoger uit \n" +
+                          "dan zou moeten, maar daardoor bouwen we geen afrondfouten op, wat vervelend is bij controleren \n" +
+                          "of tijden groter of kleiner zijn dan 0. een iets hoger uitvallende score is opzich geen enorme ramp");
         oup.PrintSolutionToFile(werkWeek);
         //oup.MakeNewBestFile(werkWeek);
     }
@@ -141,7 +144,7 @@ public class Setup
         List<Bedrijf>[] bedrijvenPerFreq = VulBedrijvenPerFreq(bedrijven);
 
         
-        double extratijd;
+        int extratijd;
         bedrijvenPerFreq[2] = SorteerBedrijven(bedrijvenPerFreq[2]);
 
         Bus bus0 = werkWeek.dagen[1].bussen[0];
@@ -161,6 +164,7 @@ public class Setup
             extratijd = huidig1.ExtraTijdskostenBijToevoegen(bedr, huidig1.eindnode.Previous, huidig1.eindnode);
             huidig1.ToevoegenVoor(bedr.Locaties[0], huidig1.eindnode, extratijd);
             huidig2.ToevoegenVoor(bedr.Locaties[1], huidig2.eindnode, extratijd);
+            bedr.wordtBezocht = true;
         }
         
 
@@ -198,6 +202,7 @@ public class Setup
                             break; 
                         }
                         huidig.ToevoegenVoor(bedrijf.Locaties[0], huidig.eindnode, extratijd);
+                        bedrijf.wordtBezocht = true;
                         bedrijvenPerFreq[1].RemoveAt(0);
                     }
 

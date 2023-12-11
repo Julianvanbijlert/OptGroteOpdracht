@@ -12,19 +12,7 @@ public class ZoekAlgoritme
 
     public void BFS()
     {
-        for (int i = 1; i <= 5; i++)//Dag d in week.dagen)
-        {
-            Dag d = week.dagen[i];
-            for (int j = 0; j <= 1; j++)
-            {
-                Bus b = d.bussen[j];
-                for (int k = 0; k < b.rijmomenten.Count; k++)
-                {
-                    b.rijmomenten[k].RijBFS();
-                }
-                //miss moet je de variabele elke keer toekennen aan de plek, maar weet niet
-            }
-        }
+        week.BFS();
     }
 }
 
@@ -52,3 +40,9 @@ public class ILS
  
  */
 
+// willen we anders eerst op klein niveau optimaliseren (alleen wisselen/toevoegen/verwijderen)
+// en dan als dat niks oplevert naar inter rijmoment shit? zie dat variable neighbourhood descent(?) ofzo in powerpoint
+// of variable neighbourhood search ofzo
+// dan zitten we niet te kutten met verhoudingen
+
+// zorgen dat na acties alle tijden goed worden aangepast (bustijden, totale kosten)

@@ -7,7 +7,7 @@ public class Dag
 
     public Dag()
     {
-        bussen = new Bus[3];
+        bussen = new Bus[2];
         bussen[0] = new Bus();
         bussen[1] = new Bus();
     }

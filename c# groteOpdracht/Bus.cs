@@ -7,7 +7,7 @@ using System;
 public class Bus
 {
     public List<Rijmoment> rijmomenten;
-    public double tijd = 0;
+    public int tijd = 0;
 
     public Bus()
     {
@@ -18,7 +18,7 @@ public class Bus
     {
         int welkMoment = r.Next(0, rijmomenten.Count);
         Rijmoment huidig = rijmomenten[welkMoment];
-        double extratijd = huidig.ExtraTijdskostenBijToevoegen(nieuw.bedrijf, huidig.eindnode.Previous, huidig.eindnode);
+        int extratijd = huidig.ExtraTijdskostenBijToevoegen(nieuw.bedrijf, huidig.eindnode.Previous, huidig.eindnode);
         tijd += extratijd;
         huidig.ToevoegenVoor(nieuw, huidig.eindnode, extratijd);
     }
@@ -37,7 +37,7 @@ public class Bus
         Rijmoment huidig = rijmomenten[laatsteRijmoment];
 
         //bereken de tijd die daarvoor wordt toegevoegd
-        double extratijd = huidig.ExtraTijdskostenBijToevoegen(b, huidig.eindnode.Previous, huidig.eindnode);
+        int extratijd = huidig.ExtraTijdskostenBijToevoegen(b, huidig.eindnode.Previous, huidig.eindnode);
         tijd += extratijd;
 
         huidig.LaatstToevoegen(b.FindUnusedNode(), extratijd);
@@ -59,9 +59,9 @@ public class Bus
 
     public void BFS()
     {
-        for (int i = 0; i < rijmomenten.Count; i++)
-        {
-            rijmomenten[i] = rijmomenten[i].RijBFS(); //voelt onnodig als je gwn kan veranderen is handiger
+        foreach (Rijmoment rijmoment in rijmomenten)
+        { 
+            rijmoment.RijBFS();
         }
     }
 

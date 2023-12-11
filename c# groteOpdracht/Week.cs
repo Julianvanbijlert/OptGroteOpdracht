@@ -3,15 +3,33 @@ namespace rommelrouterakkers;
 using System;
 using System.Collections.Generic;
 
-public class Week
+public class Week 
 {
     //index from 1 to 5, not 0 to 4
     public Dag[] dagen = new Dag[6];
+    public int kosten = 0;
 
     public Week()
     {
         for (int i = 1; i <= 5; i++)
             dagen[i] = new Dag();
+    }
+
+    public void LeesKostenIn(List<Bedrijf> bedrijven)
+    {
+        foreach (Bedrijf bedrijf in bedrijven)
+        {
+            if (!bedrijf.wordtBezocht)
+            {
+                kosten += 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
+            }
+        }
+
+        for (int i = 1; i <= 5; i++)
+        {
+            kosten += dagen[i].bussen[0].tijd;
+            kosten += dagen[i].bussen[1].tijd;
+        }
     }
 
     public void Pick(Bedrijf b, Random r)
@@ -37,6 +55,21 @@ public class Week
         b.wordtBezocht = false;
         
     }
+
+    public void Bezocht(Bedrijf b, Random r)
+    {
+        if (b.wordtBezocht == true)
+        {
+            Delete(b);
+        }
+        else
+        {
+            Insert(b, r);
+
+
+        }
+    }
+
 
     public void Insert(Bedrijf b, Random r)
     {

@@ -22,7 +22,7 @@ public class Rijmoment
         eindnode.Previous = beginnode;
     }
 
-    public void ToevoegenVoor(Node nieuw, Node volgende, double extratijd)
+    public void ToevoegenVoor(Node nieuw, Node volgende, int extratijd)
     {
         bus.tijd += extratijd;
         volume += nieuw.bedrijf.volume;
@@ -35,12 +35,12 @@ public class Rijmoment
     }
 
     
-    public void LaatstToevoegen(Node nieuw, double extratijd)
+    public void LaatstToevoegen(Node nieuw, int extratijd)
     {
         ToevoegenVoor(nieuw, eindnode, extratijd);
     }
 
-    public void Verwijderen(Node weg, double extratijd)
+    public void Verwijderen(Node weg, int extratijd)
     {
         volume -= weg.bedrijf.volume;
         bus.tijd += extratijd;
@@ -50,7 +50,7 @@ public class Rijmoment
         weg.Next.Previous = weg.Previous;
     }
 
-    public void Load(Bedrijf b, double extratijd)
+    public void Load(Bedrijf b, int extratijd)
     {
         //stop bedrijf in dit rijmoment
         LaatstToevoegen(new Node(b), extratijd);
@@ -59,100 +59,53 @@ public class Rijmoment
 
     }
 
-    public double ExtraTijdskostenBijToevoegen(Bedrijf bedrijf, Node vorige, Node volgende)
+    public int ExtraTijdskostenBijToevoegen(Bedrijf bedrijf, Node vorige, Node volgende)
     { 
-        double extra = 0;
+        int extra = 0;
         extra += Setup.aMatrix.lookup(vorige.bedrijf, bedrijf);
         extra += Setup.aMatrix.lookup(bedrijf, volgende.bedrijf);
         extra -= Setup.aMatrix.lookup(vorige.bedrijf, volgende.bedrijf);
-        extra += bedrijf.ledigingsDuur * 60;
+        extra += bedrijf.ledigingsDuur;
         return extra;
     }
 
-    public double ExtraTijdskostenBijVerwijderen(Node node)
+    public int ExtraTijdskostenBijVerwijderen(Node node)
     {
-        double extra = 0;
+        int extra = 0;
         extra -= Setup.aMatrix.lookup(node.Previous.bedrijf, node.bedrijf);
         extra -= Setup.aMatrix.lookup(node.bedrijf, node.Next.bedrijf);
         extra += Setup.aMatrix.lookup(node.Previous.bedrijf, node.Next.bedrijf);
-        extra -= node.bedrijf.ledigingsDuur * 60;
+        extra -= node.bedrijf.ledigingsDuur;
         return extra;
     }
 
-    //Zoekt de beste plek voor alle nodes binnen dat rijmoment op
-    // dit volgende week omgooien. zorg dat de random nodes kiezen O(1) is, dus misschien pick gwn 2 random bedrijven en wissel hun 2 nodes van een dag om, al zitten ze niet in het zelfde rijmoment
-    public Rijmoment RijBFS()
+    public void RijBFS()
     {
-        Rijmoment best = this;
-        Rijmoment Current = this;
+        if (Count < 2) return;
+        int extratijd;
 
-        Node beginNode = Current.beginnode;
-        Node wisselNode = Current.beginnode.Next;
-
-        while (beginNode.Next != eindnode)
-        {
-            while (wisselNode.Next != beginnode)
-            {
-                /*
-                if (beginNode != wisselNode)
-                    Current.Wisselen(beginNode, wisselNode);
-
-                if (best.tijd > Current.tijd)
-                {
-                    best = Current;
-                    beginNode = Current.beginnode;
-                    wisselNode = Current.beginnode.Next;
-                }
-                */
-                wisselNode = wisselNode.Next;
-            }
-            beginNode.Next = wisselNode;
-
-        }
-
-        return best;
-    }
-
-    public void RijmomentenLocalSearch()
-    {
-    Random r = new Random();
-    if (Count < 2) return;
-    double T = 100; //parameters niet helemaal lekker
-    int random;
-    int random2;
-    double extratijd;
-    int zelfde = 0;
-    while (true)
-    {
         Node node1 = beginnode.Next;
-        Node node2 = beginnode.Next;
+        Node node2 = node1.Next;
 
-        random = r.Next(0, Count);
-        for (int j = 0; j < random; j++)
-            node1 = node1.Next;
-        random2 = random;
-        while (random == random2)
-            random2 = r.Next(0, Count);
-        for (int j = 0; j < random2; j++)
-            node2 = node2.Next;
-
-        extratijd = ExtraTijdsKostenBijWisselen(node1, node2);
-
-        if (extratijd < 0 || (extratijd != 0 && -extratijd / T > -21 &&
-                              r.Next(0, (int)(1 / Math.Exp(-extratijd / T))) == 0 && bus.tijd + extratijd <= 43200))
+        while (node1.Next != eindnode)
         {
-            Wisselen(node1, node2, extratijd);
-            zelfde = 0;
-        }
-
-        zelfde++;
-        T = 0.999 * T;
-        if (zelfde == 500)
-            return;
+            while (node2 != eindnode)
+            {
+                extratijd = ExtraTijdsKostenBijWisselen(node1, node2);
+                if (extratijd < 0)
+                {
+                    Wisselen(node1, node2, extratijd);
+                    node1 = beginnode.Next;
+                    node2 = node1;
+                }
+                node2 = node2.Next;
+            }
+            node1 = node1.Next;
+            node2 = node1.Next;
         }
     }
 
-public void Wisselen(Node node, Node node2, double extratijd)
+    public void Wisselen(Node node, Node node2, int extratijd)
     {
         if (node.Next == node2)
             WisselNaastElkaar(node, node2);
@@ -172,7 +125,7 @@ public void Wisselen(Node node, Node node2, double extratijd)
         bus.tijd += extratijd;
     }
 
-    public double ExtraTijdsKostenBijWisselen(Node node, Node node2)
+    public int ExtraTijdsKostenBijWisselen(Node node, Node node2)
     {
         if (node.Next == node2)
             return ExtraTijdsKostenBijNaastWisselen(node, node2);
@@ -187,7 +140,7 @@ public void Wisselen(Node node, Node node2, double extratijd)
         }
     }
 
-    public double ExtraTijdsKostenBijNaastWisselen(Node node, Node node2)
+    public int ExtraTijdsKostenBijNaastWisselen(Node node, Node node2)
     {
         return ExtraTijdskostenBijVerwijderen(node) + 
                ExtraTijdskostenBijToevoegen(node.bedrijf, node2, node2.Next);
