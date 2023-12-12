@@ -69,8 +69,18 @@ public class Output
         }
         sr.Close();
 
+        foreach (Bedrijf bedrijf in bedrijven)
+        {
+            if (!bedrijf.wordtBezocht)
+            {
+                w.kosten += 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
+            }
+        }
+        
         return w;
     }
+
+
 
 
     public void PrintSolution(Week w)

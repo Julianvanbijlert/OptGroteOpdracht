@@ -24,7 +24,10 @@ public class Rijmoment
 
     public void ToevoegenVoor(Node nieuw, Node volgende, int extratijd)
     {
+        nieuw.rijmoment = this;
+        
         bus.tijd += extratijd;
+        bus.week.kosten += extratijd;
         volume += nieuw.bedrijf.volume;
         Count++;
 
@@ -44,6 +47,7 @@ public class Rijmoment
     {
         volume -= weg.bedrijf.volume;
         bus.tijd += extratijd;
+        bus.week.kosten += extratijd;
         Count--;
 
         weg.Previous.Next = weg.Next;
@@ -66,16 +70,6 @@ public class Rijmoment
         extra += Setup.aMatrix.lookup(bedrijf, volgende.bedrijf);
         extra -= Setup.aMatrix.lookup(vorige.bedrijf, volgende.bedrijf);
         extra += bedrijf.ledigingsDuur;
-        return extra;
-    }
-
-    public int ExtraTijdskostenBijVerwijderen(Node node)
-    {
-        int extra = 0;
-        extra -= Setup.aMatrix.lookup(node.Previous.bedrijf, node.bedrijf);
-        extra -= Setup.aMatrix.lookup(node.bedrijf, node.Next.bedrijf);
-        extra += Setup.aMatrix.lookup(node.Previous.bedrijf, node.Next.bedrijf);
-        extra -= node.bedrijf.ledigingsDuur;
         return extra;
     }
 
@@ -123,6 +117,7 @@ public class Rijmoment
             ToevoegenVoor(node2, next1, 0);
         }
         bus.tijd += extratijd;
+        bus.week.kosten += extratijd;
     }
 
     public int ExtraTijdsKostenBijWisselen(Node node, Node node2)
@@ -133,8 +128,8 @@ public class Rijmoment
             return ExtraTijdsKostenBijNaastWisselen(node2, node);
         else
         {
-            return ExtraTijdskostenBijVerwijderen(node) +
-                   ExtraTijdskostenBijVerwijderen(node2) +
+            return node.ExtraTijdskostenBijVerwijderen() +
+                   node2.ExtraTijdskostenBijVerwijderen() +
                    ExtraTijdskostenBijToevoegen(node.bedrijf, node2.Previous, node2.Next) +
                    ExtraTijdskostenBijToevoegen(node2.bedrijf, node.Previous, node.Next);
         }
@@ -142,7 +137,7 @@ public class Rijmoment
 
     public int ExtraTijdsKostenBijNaastWisselen(Node node, Node node2)
     {
-        return ExtraTijdskostenBijVerwijderen(node) + 
+        return node.ExtraTijdskostenBijVerwijderen() + 
                ExtraTijdskostenBijToevoegen(node.bedrijf, node2, node2.Next);
     }
 
@@ -172,6 +167,7 @@ public class Node
     public Node Previous = null;
     public Node Next = null;
     public Bedrijf bedrijf;
+    public Rijmoment rijmoment;
 
     public Node(Bedrijf bedrijf)
     {
@@ -180,8 +176,18 @@ public class Node
 
     public void Verwijder()
     {
-        this.Previous.Next = this.Next;
-        this.Next.Previous = this.Previous;
+        int extratijd = ExtraTijdskostenBijVerwijderen();
+        rijmoment.Verwijderen(this, extratijd);
+    }
+
+    public int ExtraTijdskostenBijVerwijderen()
+    {
+        int extra = 0;
+        extra -= Setup.aMatrix.lookup(Previous.bedrijf, bedrijf);
+        extra -= Setup.aMatrix.lookup(bedrijf, Next.bedrijf);
+        extra += Setup.aMatrix.lookup(Previous.bedrijf, Next.bedrijf);
+        extra -= bedrijf.ledigingsDuur;
+        return extra;
     }
 
     public string ToString(string str)

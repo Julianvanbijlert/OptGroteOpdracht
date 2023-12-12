@@ -2,7 +2,7 @@ namespace rommelrouterakkers;
 
 using System;
 using System.Collections.Generic;
-using System.Net.Mime;
+using System.Linq;
 
 public class Week 
 {
@@ -13,24 +13,7 @@ public class Week
     public Week()
     {
         for (int i = 1; i <= 5; i++)
-            dagen[i] = new Dag();
-    }
-
-    public void LeesKostenIn(List<Bedrijf> bedrijven)
-    {
-        foreach (Bedrijf bedrijf in bedrijven)
-        {
-            if (!bedrijf.wordtBezocht)
-            {
-                kosten += 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
-            }
-        }
-
-        for (int i = 1; i <= 5; i++)
-        {
-            kosten += dagen[i].bussen[0].tijd;
-            kosten += dagen[i].bussen[1].tijd;
-        }
+            dagen[i] = new Dag(this);
     }
 
     public void Pick(Bedrijf b, Random r)
@@ -45,41 +28,66 @@ public class Week
         }
 
         b.wordtBezocht = !b.wordtBezocht;
+
+        // als een insert of delete niet lukt wordt ie geskipt, er wordt niet gezocht naar een andere mogelijkheid
     }
 
     public void Delete(Bedrijf b)
     {
-        foreach (Node n in b.Locaties)
+        int[] extratijd = new int[b.Locaties.Count];
+        Node n;
+        int extraTijd;
+        for (int i = 0; i < b.Locaties.Count; i++)
         {
-            n.Verwijder();
+            n = b.Locaties[i];
+            extraTijd = n.ExtraTijdskostenBijVerwijderen();
+            if (n.rijmoment.bus.tijd + extraTijd > 43200)
+                return;
+            extratijd[i] = extraTijd;
         }
-        b.wordtBezocht = false;
         
+        for (int i = 0; i < b.Locaties.Count; i++)
+        {
+            n = b.Locaties[i];
+            n.rijmoment.Verwijderen(n, extratijd[i]);
+        }
+
+        b.wordtBezocht = false;
+        kosten += 3 * b.frequentie * b.ledigingsDuur;
     }
 
     public void Insert(Bedrijf b, Random r)
     {
-        DoeInDagen(b, r);
-
-    }
-    public void DoeInDagen(Bedrijf b, Random r)
-    {
+        int bustijd;
         switch (b.frequentie)
         {
-            case 1: AddDag1(b, r);break;
-            case 2: AddDag2(b,r); break;
-            case 3: AddDag3(b, r); break;
-            case 4: AddDag4(b, r); break;
-            default: break;
+            case 1: bustijd = AddDag1(b, r); break;
+            case 2: bustijd = AddDag2(b, r); break;
+            case 3: bustijd = AddDag3(b, r); break;
+            case 4: bustijd = AddDag4(b, r); break;
+            default: bustijd = 50000; break;
         }
+
+        if (bustijd > 43200)
+        {
+            foreach (Node node in b.Locaties)
+                if (node.Next != null && node.Next.Previous == node) // als ie uberhaupt net is toegevoegd en niet geblocked omdat de bus leeg was qua rijmomenten
+                    node.Verwijder();
+            return;
+        }
+        kosten -= 3 * b.frequentie * b.ledigingsDuur;
         b.wordtBezocht = true;
     }
-    public void AddDag1(Bedrijf b, Random r)
+    public int AddDag1(Bedrijf b, Random r)
     {
         int dag = r.Next(1, 6);
-        dagen[dag].Insert(b.Locaties[0], r);
+
+        Node node = b.Locaties[0];
+        int bustijd = dagen[dag].Insert(node, r);
+        return bustijd;
+
     }
-    public void AddDag2(Bedrijf b, Random r)
+    public int AddDag2(Bedrijf b, Random r)
     {
         int dag1, dag2;
         int welke = r.Next(0, 2);
@@ -94,28 +102,34 @@ public class Week
             dag1 = 2; 
             dag2 = 5;
         }
-        dagen[dag1].Insert(b.Locaties[0], r);
-        dagen[dag2].Insert(b.Locaties[1], r);
+        Node node1 = b.Locaties[0];
+        Node node2 = b.Locaties[1];
+        int bustijd = dagen[dag1].Insert(node1, r);
+        bustijd = Math.Max(bustijd, dagen[dag2].Insert(node2, r));
+        return bustijd;
     }
-    public void AddDag3(Bedrijf b, Random r)
+    public int AddDag3(Bedrijf b, Random r)
     {
-        dagen[1].Insert(b.Locaties[0], r);
-        dagen[3].Insert(b.Locaties[1], r);
-        dagen[5].Insert(b.Locaties[2], r);
-
+        int bustijd = dagen[1].Insert(b.Locaties[0], r);
+        bustijd = Math.Max(bustijd, dagen[3].Insert(b.Locaties[1], r));
+        bustijd = Math.Max(bustijd, dagen[5].Insert(b.Locaties[2], r));
+        return bustijd;
     }
-    public void AddDag4(Bedrijf b, Random r)
+
+    public int AddDag4(Bedrijf b, Random r)
     {
         int dag = r.Next(1, 6);
-        int j;
+        int j = 0;
+        int[] bustijd = new int[4];
         for (int i = 1; i < 6; i++)
         {
             if (dag != i)
             {
-                j = dag > i ? i - 2 : i - 1;
-                dagen[i].Insert(b.Locaties[j], r);
+                bustijd[j] = dagen[i].Insert(b.Locaties[j], r);
+                j++;
             }
         }
+        return bustijd.Max();
     }
     public override string ToString()
     {

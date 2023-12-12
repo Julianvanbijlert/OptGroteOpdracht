@@ -46,3 +46,7 @@ public class ILS
 // dan zitten we niet te kutten met verhoudingen
 
 // zorgen dat na acties alle tijden goed worden aangepast (bustijden, totale kosten)
+
+// drie niveaus: eerst zoveel mogelijk swappen. lang niks nieuws? bedrijven toevoegen/ verwidjeren. lang niks nieuws? rijmoment toevoegen/verwijderen
+
+// hashtabel met ordernummers -> bedrijven? dan gaat dat tenminste in O(1)

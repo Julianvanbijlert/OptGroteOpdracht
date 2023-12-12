@@ -8,19 +8,23 @@ public class Bus
 {
     public List<Rijmoment> rijmomenten;
     public int tijd = 0;
+    public Week week;
 
-    public Bus()
+    public Bus(Week werkWeek)
     {
         rijmomenten = new List<Rijmoment>();
+        week = werkWeek;
     }
 
-    public void Insert(Node nieuw, Random r) // nog nieuw rijmoment aanmaken als hij vol is
+    public int Insert(Node nieuw, Random r) // nog nieuw rijmoment aanmaken als hij vol is
     {
+        if (rijmomenten.Count == 0) return int.MaxValue;
         int welkMoment = r.Next(0, rijmomenten.Count);
         Rijmoment huidig = rijmomenten[welkMoment];
         int extratijd = huidig.ExtraTijdskostenBijToevoegen(nieuw.bedrijf, huidig.eindnode.Previous, huidig.eindnode);
-        tijd += extratijd;
+        
         huidig.ToevoegenVoor(nieuw, huidig.eindnode, extratijd);
+        return tijd;
     }
 
     public void Load(Bedrijf b, bool stortIngelezen)
@@ -49,12 +53,14 @@ public class Bus
         Rijmoment nieuw = new Rijmoment(this);
         rijmomenten.Add(nieuw);
         tijd += 1800;
+        week.kosten += 1800;
         return nieuw;
     }
 
     public void VerwijderLeegRijmoment(Rijmoment rijmoment) // kijken hoe we dit gaan doen, hoe access je het rijmoment en bus als je alleen de nodes hebt?
     {
         tijd -= 1800;
+        week.kosten -= 1800;
         rijmomenten.Remove(rijmoment);
     }
 
@@ -77,6 +83,6 @@ public class Bus
             count = c;
             s += s2;
         }
-         return s;
+        return s;
     }
 }

@@ -1,13 +1,8 @@
 namespace rommelrouterakkers;
-using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics.Metrics;
 using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
+
 
 public class Setup
 {
@@ -33,10 +28,11 @@ public class Setup
 
         Output oup = new Output(scoreFile, bestScores);
         
+        //Week werkWeek = new Week();
         Week werkWeek = oup.loadSolution(scoreFile, bedrijven);
         //vulSolution
         Random r = new Random(); // voor alles wat een random nodig heeft
-        
+
 
         //StelBeginoplossingIn(bedrijven, werkWeek);
 
@@ -44,10 +40,15 @@ public class Setup
 
         ZoekAlgoritme za = new ZoekAlgoritme(werkWeek);
         za.BFS();
-        werkWeek.LeesKostenIn(bedrijven);
+
+        //testje: alles verwijderen en dan weer toevoegen
+        //for (int i = 0; i < bedrijven.Count; i++)
+        //    if (bedrijven[i].frequentie < 3)
+        //        werkWeek.Delete(bedrijven[i]);
+        //for (int i = 0; i < bedrijven.Count; i++)
+        //    werkWeek.Insert(bedrijven[i], r);
 
         oup.PrintSolution(werkWeek);
-
         //oup.PrintSolutionToFile(werkWeek);
         //oup.MakeNewBestFile(werkWeek);
     }
@@ -140,8 +141,14 @@ public class Setup
     static void StelBeginoplossingIn(List<Bedrijf> bedrijven, Week werkWeek)
     {
         List<Bedrijf>[] bedrijvenPerFreq = VulBedrijvenPerFreq(bedrijven);
+        Bedrijf bedrijf;
 
-        
+        foreach (Bedrijf b in bedrijvenPerFreq[3])
+            if (!b.wordtBezocht)
+                werkWeek.kosten += 3 * b.frequentie * b.ledigingsDuur;
+        bedrijf = bedrijvenPerFreq[4][0];
+        werkWeek.kosten += 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
+
         int extratijd;
         bedrijvenPerFreq[2] = SorteerBedrijven(bedrijvenPerFreq[2]);
 
@@ -169,7 +176,6 @@ public class Setup
         Rijmoment huidig;
         Bus bus;
         Dag dag;
-        Bedrijf bedrijf;
         bool andereBus;
 
         for (int i = 1; i <= 5; i++)

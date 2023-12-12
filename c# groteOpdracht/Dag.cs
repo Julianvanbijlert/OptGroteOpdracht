@@ -5,11 +5,11 @@ public class Dag
 {
     public Bus[] bussen;
 
-    public Dag()
+    public Dag(Week werkWeek)
     {
         bussen = new Bus[2];
-        bussen[0] = new Bus();
-        bussen[1] = new Bus();
+        bussen[0] = new Bus(werkWeek);
+        bussen[1] = new Bus(werkWeek);
     }
 
     // manier vinden hoe je rijmoment verwijdert wanneer een rijmoment leeg is
@@ -26,10 +26,10 @@ public class Dag
         //toevoeging moet wel passen qua tijd natuurlijk
     }
 
-    public void Insert(Node nieuw, Random r)
-    {
+    public int Insert(Node nieuw, Random r)
+    {  
         int welkeBus = r.Next(0, 2);
-        bussen[welkeBus].Insert(nieuw, r);
+        return bussen[welkeBus].Insert(nieuw, r);
     }
 
     public string ToString(string i)
