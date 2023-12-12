@@ -22,6 +22,7 @@ public class Setup
     //bestsolutionvariable
     public static Bedrijf stort = new Bedrijf(0, 0, 0, 0, 287, 0);
     public static AfstandMatrix aMatrix;
+    public Week werkWeek = new Week();
 
 
     public Setup()
@@ -31,13 +32,13 @@ public class Setup
         List<Bedrijf> bedrijven = vulBedrijven(orderbestandFileNaam);
 
         Output oup = new Output(scoreFile, bestScores);
-        Week werkWeek = new Week();
-        //Week werkWeek = oup.loadSolution(scoreFile, bedrijven);
+        
+        Week werkWeek = oup.loadSolution(scoreFile, bedrijven);
         //vulSolution
         Random r = new Random(); // voor alles wat een random nodig heeft
         
 
-        StelBeginoplossingIn(bedrijven, werkWeek);
+        //StelBeginoplossingIn(bedrijven, werkWeek);
 
         //ILS ils = new ILS(werkWeek);
 
@@ -46,11 +47,8 @@ public class Setup
         werkWeek.LeesKostenIn(bedrijven);
 
         oup.PrintSolution(werkWeek);
-        Console.WriteLine("score: "+ werkWeek.kosten / 60);
-        Console.WriteLine("Ik heb alle ledigingsduren naar boven afgerond. hierdoor valt de score ongeveer +/- 5 hoger uit \n" +
-                          "dan zou moeten, maar daardoor bouwen we geen afrondfouten op, wat vervelend is bij controleren \n" +
-                          "of tijden groter of kleiner zijn dan 0. een iets hoger uitvallende score is opzich geen enorme ramp");
-        oup.PrintSolutionToFile(werkWeek);
+
+        //oup.PrintSolutionToFile(werkWeek);
         //oup.MakeNewBestFile(werkWeek);
     }
     static List<Bedrijf> vulBedrijven(string fileNaam) // heb het naar een list verandert zodat we kunnen verwijderen voor sorteren

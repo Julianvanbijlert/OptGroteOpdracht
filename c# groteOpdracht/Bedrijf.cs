@@ -66,7 +66,7 @@ public class Bedrijf
     {
         foreach (Node node in Locaties)
         {
-            if (node == null)
+            if (node.Next == null)
             {
                 return node;
             }

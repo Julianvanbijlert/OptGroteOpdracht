@@ -131,7 +131,7 @@ public class Week
             }
         }
     }
-    public string ToString()
+    public override string ToString()
     {
         string s = "";
         for(int i = 1; i <= 5 ; i++)

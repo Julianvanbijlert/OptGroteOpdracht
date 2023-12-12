@@ -26,14 +26,19 @@ public class Bus
     public void Load(Bedrijf b)
     {
         //als het stort is maak je gwn een nieuwe aan en stop je daarna 
-        if (b == Setup.stort || rijmomenten.Count == 0)
+        if (b == Setup.stort)
         {
             VoegRijmomentToe();
             return;
         }
+        
+        if (rijmomenten.Count == 0)
+        {
+            VoegRijmomentToe();
+        }
 
         //als dat niet zo is pak het laatste rijmoment en voeg hem daar aan toe
-        int laatsteRijmoment = rijmomenten.Count;
+        int laatsteRijmoment = rijmomenten.Count - 1;
         Rijmoment huidig = rijmomenten[laatsteRijmoment];
 
         //bereken de tijd die daarvoor wordt toegevoegd

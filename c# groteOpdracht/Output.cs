@@ -2,6 +2,8 @@ namespace rommelrouterakkers;
 using System;
 using System.Collections.Generic;
 using System.IO;
+
+//Eigenlijk zou dit een static class moeten zijn
 public class Output
 {
     private readonly string _scoreFile;
@@ -26,18 +28,38 @@ public class Output
         Week w = new Week();
         StreamReader sr = new StreamReader(fileNaam);
         string regel;
+        string[] list;
+        int bus;
+        int dag;
+        int ord;
+        Bedrijf b;
+
         while ((regel = sr.ReadLine()) != null)
         {
-            string[] list = regel.Split(';');
-            int bus = int.Parse(list[0]) - 1;
-            int dag = int.Parse(list[1]);
-            int ord = int.Parse(list[3]);
+            try
+            {
+                list = regel.Split(';');
+                bus = int.Parse(list[0]) - 1;
+                dag = int.Parse(list[1]);
+                ord = int.Parse(list[3]);
 
+                
 
-            Bedrijf b = Setup.VindBedrijf(ord, bedrijven);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("SkippedLine due to error, check file");
+                break;
+
+            }
+
+            b = Setup.VindBedrijf(ord, bedrijven);
             b.wordtBezocht = true;
 
-           w.Load(dag, bus, b);
+            w.Load(dag, bus, b);
+
+
+
         }
         sr.Close();
 
@@ -59,6 +81,11 @@ public class Output
            1; 1; 4; 30
          */
         Console.WriteLine(w.ToString());
+
+        Console.WriteLine("score: " + w.kosten / 60 / 60);
+        Console.WriteLine("Ik heb alle ledigingsduren naar boven afgerond. hierdoor valt de score ongeveer +/- 5 hoger uit \n" +
+                          "dan zou moeten, maar daardoor bouwen we geen afrondfouten op, wat vervelend is bij controleren \n" +
+                          "of tijden groter of kleiner zijn dan 0. een iets hoger uitvallende score is opzich geen enorme ramp");
     }
 
     public void PrintSolutionToFile(Week w)
