@@ -33,6 +33,7 @@ public class Output
         int dag;
         int ord;
         Bedrijf b;
+        bool stortIngelezen = true;
 
         while ((regel = sr.ReadLine()) != null)
         {
@@ -52,13 +53,18 @@ public class Output
                 break;
 
             }
+            if (ord == 0)
+            {
+                stortIngelezen = true;
+            }
+            else
+            {
+                b = Setup.VindBedrijf(ord, bedrijven);
+                b.wordtBezocht = true;
 
-            b = Setup.VindBedrijf(ord, bedrijven);
-            b.wordtBezocht = true;
-
-            w.Load(dag, bus, b);
-
-
+                w.Load(dag, bus, b, stortIngelezen);
+                stortIngelezen = false;
+            }
 
         }
         sr.Close();
@@ -82,7 +88,7 @@ public class Output
          */
         Console.WriteLine(w.ToString());
 
-        Console.WriteLine("score: " + w.kosten / 60 / 60);
+        Console.WriteLine("score: " + w.kosten / 60);
         Console.WriteLine("Ik heb alle ledigingsduren naar boven afgerond. hierdoor valt de score ongeveer +/- 5 hoger uit \n" +
                           "dan zou moeten, maar daardoor bouwen we geen afrondfouten op, wat vervelend is bij controleren \n" +
                           "of tijden groter of kleiner zijn dan 0. een iets hoger uitvallende score is opzich geen enorme ramp");

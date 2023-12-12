@@ -2,6 +2,7 @@ namespace rommelrouterakkers;
 
 using System;
 using System.Collections.Generic;
+using System.Net.Mime;
 
 public class Week 
 {
@@ -55,21 +56,6 @@ public class Week
         b.wordtBezocht = false;
         
     }
-
-    public void Bezocht(Bedrijf b, Random r)
-    {
-        if (b.wordtBezocht == true)
-        {
-            Delete(b);
-        }
-        else
-        {
-            Insert(b, r);
-
-
-        }
-    }
-
 
     public void Insert(Bedrijf b, Random r)
     {
@@ -151,9 +137,9 @@ public class Week
     }
 
     
-    public void Load(int dag, int bus, Bedrijf b)
+    public void Load(int dag, int bus, Bedrijf b, bool stortIngelezen)
     {
-       dagen[dag].bussen[bus].Load(b);
+       dagen[dag].bussen[bus].Load(b, stortIngelezen);
     }
     
 }

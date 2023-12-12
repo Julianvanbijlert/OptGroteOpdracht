@@ -23,19 +23,16 @@ public class Bus
         huidig.ToevoegenVoor(nieuw, huidig.eindnode, extratijd);
     }
 
-    public void Load(Bedrijf b)
+    public void Load(Bedrijf b, bool stortIngelezen)
     {
         //als het stort is maak je gwn een nieuwe aan en stop je daarna 
-        if (b == Setup.stort)
+        //ik heb het iets aangepast, hij moet pas een nieuwe aanmaken als er ook werkelijk een nieuw bedrijf wordt toegevoegd
+
+        if (stortIngelezen)
         {
             VoegRijmomentToe();
-            return;
         }
         
-        if (rijmomenten.Count == 0)
-        {
-            VoegRijmomentToe();
-        }
 
         //als dat niet zo is pak het laatste rijmoment en voeg hem daar aan toe
         int laatsteRijmoment = rijmomenten.Count - 1;
@@ -43,7 +40,6 @@ public class Bus
 
         //bereken de tijd die daarvoor wordt toegevoegd
         int extratijd = huidig.ExtraTijdskostenBijToevoegen(b, huidig.eindnode.Previous, huidig.eindnode);
-        tijd += extratijd;
 
         huidig.LaatstToevoegen(b.FindUnusedNode(), extratijd);
     }

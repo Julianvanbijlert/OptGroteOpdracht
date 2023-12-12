@@ -62,11 +62,11 @@ public class Bedrijf
         return wordtBezocht;
     }
 
-    public Node FindUnusedNode()
+    public Node FindUnusedNode() 
     {
         foreach (Node node in Locaties)
         {
-            if (node.Next == null)
+            if (node.Next == null || node != node.Next.Previous) //iets aangepast, anders zou het alleen werken bij inlezen. nu werkt het ook tussendoor
             {
                 return node;
             }

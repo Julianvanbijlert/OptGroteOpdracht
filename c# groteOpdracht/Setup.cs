@@ -214,10 +214,6 @@ public class Setup
 
     public static Bedrijf VindBedrijf(int ord, List<Bedrijf> bedrijven)
     {
-        if (ord == 0)
-        {
-            return stort;
-        }
         foreach (Bedrijf b in bedrijven)
             if (b.orderNummer == ord)
                 return b;
