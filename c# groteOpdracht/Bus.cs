@@ -18,7 +18,7 @@ public class Bus
 
     public int Insert(Node nieuw, Random r) // nog nieuw rijmoment aanmaken als hij vol is
     {
-        if (rijmomenten.Count == 0) return int.MaxValue;
+        if (rijmomenten.Count == 0) return int.MaxValue; // zorgt dat de hele actie gecanceld wordt
         int welkMoment = r.Next(0, rijmomenten.Count);
         Rijmoment huidig = rijmomenten[welkMoment];
         int extratijd = huidig.ExtraTijdskostenBijToevoegen(nieuw.bedrijf, huidig.eindnode.Previous, huidig.eindnode);
