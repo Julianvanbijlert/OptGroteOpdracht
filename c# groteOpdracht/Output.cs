@@ -4,16 +4,17 @@ using System.Collections.Generic;
 using System.IO;
 
 //Eigenlijk zou dit een static class moeten zijn
-public class Output
+public static class IO
 {
-    private readonly string _scoreFile;
-    private readonly string _bestScores;
 
-    public Output(string sf, string bs)
-    {
-        _scoreFile = sf;
-        _bestScores = bs;
-    }
+
+    private static readonly string filepath = "../../../../";
+    public static readonly string matrixFileNaam = filepath + "AfstandenMatrix.txt";
+    public static readonly string orderbestandFileNaam = filepath + "Orderbestand.txt";
+    private static readonly string _scoreFile = filepath + "Scores.txt";
+    private static readonly string _bestScores = filepath + " ";
+
+
     //VrachtwagenNummer ; Dagnummer ; hoeveelste adres ; id van dat adres (odernummer?) afstorten is 0
 
 
@@ -23,7 +24,7 @@ public class Output
      * NOTE: Dit werkt alleen als er een geldige solution in de text file staat.
      * Er is geen error handling, en als hij niet langs 0 gaat dan zijn we de lul. 
      */
-    public Week loadSolution(string fileNaam, List<Bedrijf> bedrijven)
+    public static Week loadSolution(string fileNaam, List<Bedrijf> bedrijven)
     {
         Week w = new Week();
         StreamReader sr = new StreamReader(fileNaam);
@@ -83,7 +84,7 @@ public class Output
 
 
 
-    public void PrintSolution(Week w)
+    public static void PrintSolution(Week w)
     {
         /*
          * 1.      Vrachtautonummer (1 of 2)
@@ -104,7 +105,7 @@ public class Output
                           "of tijden groter of kleiner zijn dan 0. een iets hoger uitvallende score is opzich geen enorme ramp");
     }
 
-    public void PrintSolutionToFile(Week w)
+    public static void PrintSolutionToFile(Week w)
     {
         //pak de beste solution variabele
         //schrijf die naar de file met pad scoreFile
@@ -114,7 +115,7 @@ public class Output
 
     }
 
-    public void MakeNewBestFile(Week w)
+    public static void MakeNewBestFile(Week w)
     {
         FileStream fs = File.Create(_bestScores);
         StreamWriter wr = new StreamWriter(fs);

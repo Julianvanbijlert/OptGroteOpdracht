@@ -8,12 +8,8 @@ public class Setup
 {
     private static int aantalOrders = 1177;
     private static int matrixIds = 1099;
-    private static string filepath = "../../../../";
-    private static string matrixFileNaam = filepath + "AfstandenMatrix.txt";
-    private static string orderbestandFileNaam = filepath + "Orderbestand.txt";
     //private static List<Rijmoment>[] dagen = new List<Rijmoment>[6]; //BELANGRIJK: dagindexen zijn 1-5, niet 0-4 (hebben we al in week)
-    private static string scoreFile = filepath + "Scores.txt";
-    private static string bestScores = filepath + " ";
+ 
     //bestsolutionvariable
     public static Bedrijf stort = new Bedrijf(0, 0, 0, 0, 287, 0);
     public static AfstandMatrix aMatrix;
@@ -22,14 +18,14 @@ public class Setup
 
     public Setup()
     {
-        aMatrix = new AfstandMatrix(vulMatrix(matrixFileNaam)); //afstanden niet in
+        aMatrix = new AfstandMatrix(vulMatrix(IO.matrixFileNaam)); //afstanden niet in
 
-        List<Bedrijf> bedrijven = vulBedrijven(orderbestandFileNaam);
+        List<Bedrijf> bedrijven = vulBedrijven(IO.orderbestandFileNaam);
 
-        Output oup = new Output(scoreFile, bestScores);
+        
         
         //Week werkWeek = new Week();
-        Week werkWeek = oup.loadSolution(scoreFile, bedrijven);
+        Week werkWeek = IO.loadSolution("../../../../Scores.txt",bedrijven);
         //vulSolution
         Random r = new Random(); // voor alles wat een random nodig heeft
 
@@ -39,6 +35,7 @@ public class Setup
         //ILS ils = new ILS(werkWeek);
 
         ZoekAlgoritme za = new ZoekAlgoritme(werkWeek);
+        za.ILS();
         za.BFS();
 
         //testje: alles verwijderen en dan weer toevoegen
@@ -48,9 +45,9 @@ public class Setup
         //for (int i = 0; i < bedrijven.Count; i++)
         //    werkWeek.Insert(bedrijven[i], r);
 
-        oup.PrintSolution(werkWeek);
-        //oup.PrintSolutionToFile(werkWeek);
-        //oup.MakeNewBestFile(werkWeek);
+        IO.PrintSolution(werkWeek);
+        //Output.PrintSolutionToFile(werkWeek);
+        //Output.MakeNewBestFile(werkWeek);
     }
     static List<Bedrijf> vulBedrijven(string fileNaam) // heb het naar een list verandert zodat we kunnen verwijderen voor sorteren
     {

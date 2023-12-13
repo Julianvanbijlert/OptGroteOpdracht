@@ -1,19 +1,76 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 
 namespace rommelrouterakkers;
 
 public class ZoekAlgoritme
 {
+    private List<(int, string)> oplossingen;
     private Week week;
+    private int bestOplossing;
+    private Stopwatch timer;
     public ZoekAlgoritme(Week w)
     {
         week = w;
+        oplossingen = new List<(int, string)>();
+        timer = new Stopwatch();
     }
 
     public void BFS()
     {
         week.BFS();
     }
+
+    public void ILS()
+    {
+        timer.Start();
+        int oplossing = Int32.MaxValue;
+        int iteratiesSindsVeranderd = 0; //hoe lang geleden het is sinds de laatste verandering
+        int totIteraties = 0;
+        int justASmallScore = 5300;
+        const int maxAmountOfItt = 1000;
+
+        while (oplossing >= justASmallScore)
+        {
+
+            //dostuff
+
+            //checkscore
+            if (oplossing < bestOplossing)
+            {
+                bestOplossing = oplossing;
+                iteratiesSindsVeranderd = 0;
+                continue;
+                //sla op in bestOplossing / naar file
+            }
+
+            totIteraties++;
+            iteratiesSindsVeranderd++;
+            if (iteratiesSindsVeranderd >= maxAmountOfItt)
+            {
+                //randomwalk();
+                iteratiesSindsVeranderd = 0;
+            }
+
+            PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
+        }
+        timer.Stop();
+    }
+
+    public void PrintVoortgang(int i,int t, int s)
+    {
+        Console.Clear();
+        Console.WriteLine($"Beste oplossingsscore is:  {bestOplossing} \n" +
+                          $"Huidige Score:             {s}             \n" +
+                          $"Aantal iteraties :         {i}             \n" +
+                          $"Totale iteraties :         {t}             \n" +
+                          $"Time elapsed :             {timer.Elapsed}");
+        
+    }
+
 }
 
 public class ILS
