@@ -32,7 +32,7 @@ public class Week
         // als een insert of delete niet lukt wordt ie geskipt, er wordt niet gezocht naar een andere mogelijkheid
     }
 
-    public void Delete(Bedrijf b)
+    public bool Delete(Bedrijf b)
     {
         int[] extratijd = new int[b.Locaties.Count];
         Node n;
@@ -42,7 +42,7 @@ public class Week
             n = b.Locaties[i];
             extraTijd = n.ExtraTijdskostenBijVerwijderen();
             if (n.rijmoment.bus.tijd + extraTijd > 43200)
-                return;
+                return false;
             extratijd[i] = extraTijd;
         }
         
@@ -54,9 +54,40 @@ public class Week
 
         b.wordtBezocht = false;
         kosten += 3 * b.frequentie * b.ledigingsDuur;
+        return true;
     }
 
-    public void Insert(Bedrijf b, Random r)
+    /* public bool Swap(Node node1, Node node2)
+    {
+        int extratijd1;
+        int extratijd2;
+        if (node1.rijmoment == node2.rijmoment)
+        {
+            extratijd1 = node1.rijmoment.ExtraTijdsKostenBijWisselen(node1, node2);
+            if (node1.rijmoment.bus.tijd + extratijd1 > 43200) return false;
+            node1.rijmoment.Wisselen(node1, node2, extratijd1);
+            return true;
+        }
+
+        extratijd1 = node1.ExtraTijdskostenBijVerwijderen();
+        extratijd1 += node1.rijmoment.ExtraTijdskostenBijToevoegen(node2.bedrijf, node1.Previous, node1.Next);
+
+        extratijd2 = node2.ExtraTijdskostenBijVerwijderen();
+        extratijd2 += node2.rijmoment.ExtraTijdskostenBijToevoegen(node1.bedrijf, node2.Previous, node2.Next);
+
+        if (node1.rijmoment.bus == node2.rijmoment.bus)
+            return node1.rijmoment.bus.InterRijmomentSwap(node1, node2, extratijd1, extratijd2);
+        if (node1.rijmoment.bus.dag == node2.rijmoment.bus.dag)
+            return node1.rijmoment.bus.dag.InterBusSwap(node1, node2, extratijd1, extratijd2);
+        return InterDagSwap(node1, node2, extratijd1, extratijd2);
+    } */
+
+    public bool InterDagSwap(Node node1, Node node2)
+    {
+        return true; // ga ik nog aanpassen
+    }
+
+    public bool Insert(Bedrijf b, Random r)
     {
         int bustijd;
         switch (b.frequentie)
@@ -73,10 +104,11 @@ public class Week
             foreach (Node node in b.Locaties)
                 if (node.Next != null && node.Next.Previous == node) // als ie uberhaupt net is toegevoegd en niet geblocked omdat de bus leeg was qua rijmomenten
                     node.Verwijder();
-            return;
+            return false;
         }
         kosten -= 3 * b.frequentie * b.ledigingsDuur;
         b.wordtBezocht = true;
+        return true;
     }
     public int AddDag1(Bedrijf b, Random r)
     {

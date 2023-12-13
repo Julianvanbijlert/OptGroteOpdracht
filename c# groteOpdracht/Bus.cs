@@ -9,11 +9,13 @@ public class Bus
     public List<Rijmoment> rijmomenten;
     public int tijd = 0;
     public Week week;
+    public Dag dag;
 
-    public Bus(Week werkWeek)
+    public Bus(Week werkWeek, Dag werkdag)
     {
         rijmomenten = new List<Rijmoment>();
         week = werkWeek;
+        dag = werkdag;
     }
 
     public int Insert(Node nieuw, Random r) // nog nieuw rijmoment aanmaken als hij vol is
@@ -26,6 +28,12 @@ public class Bus
         
         huidig.ToevoegenVoor(nieuw, huidig.eindnode, extratijd);
         return tijd;
+    }
+
+    public bool InterRijmomentSwap(Node node1, Node node2, int extratijd1, int extratijd2)
+    {
+        if (tijd + extratijd1 + extratijd2 > 43200) return false;
+        return true; // ga ik nog aanpassen
     }
 
     public void Load(Bedrijf b, bool stortIngelezen)

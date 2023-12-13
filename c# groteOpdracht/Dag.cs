@@ -8,8 +8,8 @@ public class Dag
     public Dag(Week werkWeek)
     {
         bussen = new Bus[2];
-        bussen[0] = new Bus(werkWeek);
-        bussen[1] = new Bus(werkWeek);
+        bussen[0] = new Bus(werkWeek, this);
+        bussen[1] = new Bus(werkWeek, this);
     }
 
     // manier vinden hoe je rijmoment verwijdert wanneer een rijmoment leeg is

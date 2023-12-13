@@ -24,18 +24,18 @@ public class Setup
 
         
         
-        //Week werkWeek = new Week();
-        Week werkWeek = IO.loadSolution("../../../../Scores.txt",bedrijven);
+        Week werkWeek = new Week();
+        //Week werkWeek = IO.loadSolution("../../../../Scores.txt",bedrijven);
         //vulSolution
         Random r = new Random(); // voor alles wat een random nodig heeft
 
 
-        //StelBeginoplossingIn(bedrijven, werkWeek);
+        StelBeginoplossingIn(bedrijven, werkWeek);
 
         //ILS ils = new ILS(werkWeek);
 
         ZoekAlgoritme za = new ZoekAlgoritme(werkWeek);
-        za.ILS();
+        //za.ILS();
         za.BFS();
 
         //testje: alles verwijderen en dan weer toevoegen
@@ -46,7 +46,7 @@ public class Setup
         //    werkWeek.Insert(bedrijven[i], r);
 
         IO.PrintSolution(werkWeek);
-        //Output.PrintSolutionToFile(werkWeek);
+        IO.PrintSolutionToFile(werkWeek);
         //Output.MakeNewBestFile(werkWeek);
     }
     static List<Bedrijf> vulBedrijven(string fileNaam) // heb het naar een list verandert zodat we kunnen verwijderen voor sorteren
@@ -140,51 +140,66 @@ public class Setup
         List<Bedrijf>[] bedrijvenPerFreq = VulBedrijvenPerFreq(bedrijven);
         Bedrijf bedrijf;
 
-        foreach (Bedrijf b in bedrijvenPerFreq[3])
-            if (!b.wordtBezocht)
-                werkWeek.kosten += 3 * b.frequentie * b.ledigingsDuur;
-        bedrijf = bedrijvenPerFreq[4][0];
-        werkWeek.kosten += 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
+        //foreach (Bedrijf b in bedrijvenPerFreq[3])
+        //    werkWeek.kosten += 3 * b.frequentie * b.ledigingsDuur;
+        //bedrijf = bedrijvenPerFreq[4][0];
+        //werkWeek.kosten += 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
 
         int extratijd;
         bedrijvenPerFreq[2] = SorteerBedrijven(bedrijvenPerFreq[2]);
 
-        Bus bus0 = werkWeek.dagen[1].bussen[0];
-        Bus bus1 = werkWeek.dagen[4].bussen[0];
-        Rijmoment huidig1 = bus0.VoegRijmomentToe();
-        Rijmoment huidig2 = bus1.VoegRijmomentToe();
+        Rijmoment[] huidigen = new Rijmoment[6];
+        for (int i = 1; i <= 5; i++)
+            huidigen[i] = werkWeek.dagen[i].bussen[0].VoegRijmomentToe();
 
+        int k = 1;
         foreach (Bedrijf bedr in bedrijvenPerFreq[2])
         {
-            if (huidig1.volume + bedr.volume > 100000)
-            {
-                bus0 = werkWeek.dagen[2].bussen[0];
-                bus1 = werkWeek.dagen[5].bussen[0];
-                huidig1 = bus0.VoegRijmomentToe();
-                huidig2 = bus1.VoegRijmomentToe();
-            }    
-            extratijd = huidig1.ExtraTijdskostenBijToevoegen(bedr, huidig1.eindnode.Previous, huidig1.eindnode);
-            huidig1.ToevoegenVoor(bedr.Locaties[0], huidig1.eindnode, extratijd);
-            huidig2.ToevoegenVoor(bedr.Locaties[1], huidig2.eindnode, extratijd);
+            if (huidigen[k].volume + bedr.volume > 100000)
+                k++;
+            extratijd = huidigen[k].ExtraTijdskostenBijToevoegen(bedr, huidigen[k].eindnode.Previous, huidigen[k].eindnode);
+            huidigen[k].LaatstToevoegen(bedr.Locaties[0], extratijd);
+            huidigen[k + 3].LaatstToevoegen(bedr.Locaties[1], extratijd);
             bedr.wordtBezocht = true;
         }
-        
+
+        bedrijvenPerFreq[3] = SorteerBedrijven(bedrijvenPerFreq[3]);
+        foreach (Bedrijf bedr in bedrijvenPerFreq[3])
+        {
+            for (int i = 0; i <= 2; i++)
+            {
+                extratijd = huidigen[2 * i + 1].ExtraTijdskostenBijToevoegen(bedr, huidigen[2 * i + 1].eindnode.Previous, huidigen[2 * i + 1].eindnode);
+                huidigen[2 * i + 1].LaatstToevoegen(bedr.Locaties[i], extratijd);
+            }
+            bedr.wordtBezocht = true;
+        }
+
+        Bedrijf bedr4 = bedrijvenPerFreq[4][0];
+        for (int i = 1; i <= 4; i++)
+        {
+            extratijd = huidigen[i].ExtraTijdskostenBijToevoegen(bedr4, huidigen[i].eindnode.Previous, huidigen[i].eindnode);
+            huidigen[i].LaatstToevoegen(bedr4.Locaties[i - 1], extratijd);
+        }
+        bedr4.wordtBezocht = true;
 
         Rijmoment huidig;
         Bus bus;
         Dag dag;
         bool andereBus;
+        bool nieuweAanmaken;
 
         for (int i = 1; i <= 5; i++)
         {
+            huidig = huidigen[i];
             dag = werkWeek.dagen[i];
+            nieuweAanmaken = false;
             for (int j = 0; j <= 1; j++)
             {
                 bus = dag.bussen[j];
                 andereBus = false;
                 while (!andereBus && bus.tijd + 1800 <= 43200)
                 {
-                    huidig = bus.VoegRijmomentToe(); // dit uiteindelijk allemaal nog efficienter maken, kan door nieuwe variabele 'bus' van rijmoment
+                    if (nieuweAanmaken) huidig = bus.VoegRijmomentToe();
                     bedrijvenPerFreq[1] = SorteerBedrijven(bedrijvenPerFreq[1]);
                     while (true)
                     {
@@ -195,18 +210,18 @@ public class Setup
                         {
                             andereBus = true;
                             if (huidig.beginnode.Next == huidig.eindnode)
-                                bus.rijmomenten.RemoveAt(bus.rijmomenten.Count - 1);
+                                bus.VerwijderLeegRijmoment(huidig);
                             break;
                         }
                         if (huidig.volume + bedrijf.volume > 100000) //wellicht op 80000 ofzo zetten om het programma speling te geven
                         {
                             break; 
                         }
-                        huidig.ToevoegenVoor(bedrijf.Locaties[0], huidig.eindnode, extratijd);
+                        huidig.LaatstToevoegen(bedrijf.Locaties[0], extratijd);
                         bedrijf.wordtBezocht = true;
                         bedrijvenPerFreq[1].RemoveAt(0);
                     }
-
+                    nieuweAanmaken = true;
                 }
             }
         }
