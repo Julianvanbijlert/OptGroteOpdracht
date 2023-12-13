@@ -49,12 +49,8 @@ public class Bus
 
         //als dat niet zo is pak het laatste rijmoment en voeg hem daar aan toe
         int laatsteRijmoment = rijmomenten.Count - 1;
-        Rijmoment huidig = rijmomenten[laatsteRijmoment];
+        rijmomenten[laatsteRijmoment].Load(b);
 
-        //bereken de tijd die daarvoor wordt toegevoegd
-        int extratijd = huidig.ExtraTijdskostenBijToevoegen(b, huidig.eindnode.Previous, huidig.eindnode);
-
-        huidig.LaatstToevoegen(b.FindUnusedNode(), extratijd);
     }
 
     public Rijmoment VoegRijmomentToe() 

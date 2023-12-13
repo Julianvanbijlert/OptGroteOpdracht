@@ -54,14 +54,19 @@ public class Rijmoment
         weg.Next.Previous = weg.Previous;
     }
 
-    public void Load(Bedrijf b, int extratijd)
+    public void Load(Bedrijf b)
     {
-        //stop bedrijf in dit rijmoment
-        LaatstToevoegen(new Node(b), extratijd);
 
+        //bereken de tijd die daarvoor wordt toegevoegd
+        int extratijd = ExtraTijdskostenBijToevoegen(b, eindnode.Previous, eindnode);
+
+        LaatstToevoegen(b.FindUnusedNode(), extratijd);
+        //stop bedrijf in dit rijmoment
         //voeg pointers toe van bedrijf naar deze node?
 
     }
+
+
 
     public int ExtraTijdskostenBijToevoegen(Bedrijf bedrijf, Node vorige, Node volgende)
     { 
