@@ -12,11 +12,17 @@ public class ZoekAlgoritme
     private Week week;
     private int bestOplossing;
     private Stopwatch timer;
-    public ZoekAlgoritme(Week w)
+    public Random r;
+    private List<Bedrijf> bedrijven;
+
+
+    public ZoekAlgoritme(Week w, List<Bedrijf> b)
     {
         week = w;
         oplossingen = new List<(int, string)>();
         timer = new Stopwatch();
+        r = new Random();
+        bedrijven = b;
     }
 
     public void BFS()
@@ -32,11 +38,12 @@ public class ZoekAlgoritme
         int totIteraties = 0;
         int justASmallScore = 5300;
         const int maxAmountOfItt = 1000;
+        int showIn = 0; //wanneer het print
 
         while (oplossing >= justASmallScore)
         {
-
-            //dostuff
+            totIteraties++;
+            oplossing = PickAction(week, r);
 
             //checkscore
             if (oplossing < bestOplossing)
@@ -47,15 +54,23 @@ public class ZoekAlgoritme
                 //sla op in bestOplossing / naar file
             }
 
-            totIteraties++;
-            iteratiesSindsVeranderd++;
-            if (iteratiesSindsVeranderd >= maxAmountOfItt)
+            
+
+            if (++iteratiesSindsVeranderd >= maxAmountOfItt)
             {
                 //randomwalk();
                 iteratiesSindsVeranderd = 0;
             }
+            
+            if (--showIn <= 0)
+            {
+                /* Don't measure printing to console, we're only interested in
+                 * the performance of the local search */
+                PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
 
-            PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
+                showIn = 10000;
+            }
+            
         }
         timer.Stop();
     }
@@ -69,6 +84,35 @@ public class ZoekAlgoritme
                           $"Totale iteraties :         {t}             \n" +
                           $"Time elapsed :             {timer.Elapsed}");
         
+    }
+
+    public int PickAction(Week w, Random r)
+    {
+        float chanceDelete = 0;
+        float chanceInsert = 1;
+        float chanceSwap = 1 - chanceDelete - chanceInsert;
+
+        Bedrijf b = GetBedrijf(r);
+
+        if (r.NextDouble() >= chanceSwap)
+        {
+            w.Pick(b, r);
+            return w.Evaluate();
+        }
+
+        //w.Swap(b, r);
+
+        return w.Evaluate();
+    }
+
+    public Bedrijf GetBedrijf(Random r)
+    {
+        return bedrijven[r.Next(0,bedrijven.Count)];
+    }
+
+    public void RandomWalk(int i, Random r)
+    {
+
     }
 
 }

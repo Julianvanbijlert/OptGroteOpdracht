@@ -14,27 +14,19 @@ public class Setup
     public static Bedrijf stort = new Bedrijf(0, 0, 0, 0, 287, 0);
     public static AfstandMatrix aMatrix;
     public Week werkWeek = new Week();
+    public List<Bedrijf> bedrijven;
 
 
     public Setup()
     {
         aMatrix = new AfstandMatrix(vulMatrix(IO.matrixFileNaam)); //afstanden niet in
+        bedrijven = vulBedrijven(IO.orderbestandFileNaam);
 
-        List<Bedrijf> bedrijven = vulBedrijven(IO.orderbestandFileNaam);
-
-        
-        
-        //Week werkWeek = new Week();
-        Week werkWeek = IO.loadSolution("../../../../Scores.txt",bedrijven);
-        //vulSolution
-        Random r = new Random(); // voor alles wat een random nodig heeft
-
-
+        Week werkWeek = IO.loadSolution("../../../../Scores.txt", bedrijven);
         //StelBeginoplossingIn(bedrijven, werkWeek);
 
-        //ILS ils = new ILS(werkWeek);
 
-        ZoekAlgoritme za = new ZoekAlgoritme(werkWeek);
+        ZoekAlgoritme za = new ZoekAlgoritme(werkWeek, bedrijven);
         za.ILS();
         za.BFS();
 
