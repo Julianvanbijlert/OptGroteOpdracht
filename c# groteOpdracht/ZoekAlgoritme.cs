@@ -126,7 +126,9 @@ public class ZoekAlgoritme
         //    return w.Eval;  // w.Evaluate(bedrijven); 
         //}  
 
-        int kostenTemp = w.Eval;
+        int kostenTemp = w.Eval;  // stuk hieronder is allemaal redelijk tijdelijk,
+                                  // (en alleen goed voor lokaal optimum)
+                                  // maar was vooral om te testen
         Bedrijf b;
         Bedrijf b2;
 
