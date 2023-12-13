@@ -6,13 +6,13 @@ using System.IO;
 //Eigenlijk zou dit een static class moeten zijn
 public static class IO
 {
-
-
     private static readonly string filepath = "../../../../";
+
     public static readonly string matrixFileNaam = filepath + "AfstandenMatrix.txt";
     public static readonly string orderbestandFileNaam = filepath + "Orderbestand.txt";
+
+    private static readonly string _scoreMap = "../../../scorefiles/";
     private static readonly string _scoreFile = filepath + "Scores.txt";
-    private static readonly string _bestScores = filepath + " ";
 
 
     //VrachtwagenNummer ; Dagnummer ; hoeveelste adres ; id van dat adres (odernummer?) afstorten is 0
@@ -81,6 +81,7 @@ public static class IO
         return w;
     }
 
+   
 
 
 
@@ -115,11 +116,23 @@ public static class IO
 
     }
 
-    public static void MakeNewBestFile(Week w)
+    public static void CreateBest(Week w)
     {
-        FileStream fs = File.Create(_bestScores);
-        StreamWriter wr = new StreamWriter(fs);
-        wr.WriteLine(w.ToString());
-        wr.Close();
+        string s = w.ToString();
+        try
+        {
+            // Combine the location and the filename (using the integer as the filename)
+            string filePath = Path.Combine(_scoreMap, $"{w.kosten / 60}.txt");
+
+            // Write the string content to the file
+            File.WriteAllText(filePath, s);
+
+            Console.WriteLine($"Printed score {w.kosten / 60} succesfully");
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating the file: {ex.Message}");
+        }
     }
 }

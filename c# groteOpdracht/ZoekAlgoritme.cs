@@ -33,7 +33,7 @@ public class ZoekAlgoritme
     public void ILS()
     {
         timer.Start();
-        int oplossing = Int32.MaxValue;
+        int oplossing = week.Eval;
         int iteratiesSindsVeranderd = 0; //hoe lang geleden het is sinds de laatste verandering
         int totIteraties = 0;
         int justASmallScore = 5300;
@@ -69,22 +69,34 @@ public class ZoekAlgoritme
                 PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
 
                 showIn = 10000;
-            }
-            
-        }
+            }  
+        } 
+        PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
+        //IO.CreateBest(week);
         timer.Stop();
     }
 
-    public void PrintVoortgang(int i,int t, int s)
+
+     public void PrintVoortgang(int i, int t, int s)
     {
+        double milToMin = 1.66666667 * Math.Pow(10, -5);
         Console.Clear();
         Console.WriteLine($"Beste oplossingsscore is:  {bestOplossing} \n" +
                           $"Huidige Score:             {s}             \n" +
                           $"Aantal iteraties :         {i}             \n" +
                           $"Totale iteraties :         {t}             \n" +
+                          $"Iteraties per minuut:      {t / timer.Elapsed.TotalMilliseconds * milToMin} \n" +
                           $"Time elapsed :             {timer.Elapsed}");
-        
-    }
+        /*
+         if(prev < s)
+						Console.ForegroundColor = ConsoleColor.Green;
+					else if(prev > s)
+						Console.ForegroundColor = ConsoleColor.Red;
+				;
+				Console.ResetColor();
+         */ 
+    } 
+
 
     public int PickAction(Week w, Random r)
     {
@@ -96,13 +108,15 @@ public class ZoekAlgoritme
 
         if (r.NextDouble() >= chanceSwap)
         {
-            w.Pick(b, r);
-            return w.Evaluate();
-        }
+            w.Pick(b, r); 
+            return w.Eval;  // w.Evaluate(bedrijven); 
+        }  
+        Bedrijf b2;
+        while ((b2 = GetBedrijf(r)) == b) ;
+        
+        //w.Swap(b, b2, r);
 
-        //w.Swap(b, r);
-
-        return w.Evaluate();
+        return w.Eval;      //w.Evaluate(bedrijven);
     }
 
     public Bedrijf GetBedrijf(Random r)

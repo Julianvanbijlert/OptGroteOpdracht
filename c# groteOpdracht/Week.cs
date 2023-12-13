@@ -4,31 +4,35 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public class Week 
+public class Week
 {
     //index from 1 to 5, not 0 to 4
     public Dag[] dagen = new Dag[6];
     public int kosten = 0;
+    public int tijd = 0;
 
     public Week()
     {
         for (int i = 1; i <= 5; i++)
-            dagen[i] = new Dag(this);
+            dagen[i] = new Dag(this, i);
     }
 
     public void Pick(Bedrijf b, Random r)
     {
+        bool gelukt;
         if (b.wordtBezocht)
         {
-            Delete(b);
+            gelukt = Delete(b);
         }
         else
         {
-            Insert(b, r);
+            gelukt = Insert(b, r);
         }
 
-        b.wordtBezocht = !b.wordtBezocht;
-
+        if (gelukt)
+        {
+            b.wordtBezocht = !b.wordtBezocht;
+        }
         // als een insert of delete niet lukt wordt ie geskipt, er wordt niet gezocht naar een andere mogelijkheid
     }
     public bool Delete(Bedrijf b)
@@ -45,11 +49,11 @@ public class Week
                 return false;
             extratijd[i] = extraTijd;
         }
-        
+
         for (int i = 0; i < b.Locaties.Count; i++)
         {
             n = b.Locaties[i];
-            n.rijmoment.Verwijderen(n, extratijd[i]);
+            n.Verwijder(extratijd[i]);
         }
 
         b.wordtBezocht = false;
@@ -58,8 +62,11 @@ public class Week
     }
 
 
-    /* public bool Swap(Node node1, Node node2)
+    public bool Swap(Node node1, Node node2)
     {
+        if (node1.bedrijf == node2.bedrijf) return false;
+
+        bool gelukt;
         int extratijd1;
         int extratijd2;
         if (node1.rijmoment == node2.rijmoment)
@@ -76,16 +83,54 @@ public class Week
         extratijd2 = node2.ExtraTijdskostenBijVerwijderen();
         extratijd2 += node2.rijmoment.ExtraTijdskostenBijToevoegen(node1.bedrijf, node2.Previous, node2.Next);
 
-        if (node1.rijmoment.bus == node2.rijmoment.bus)
-            return node1.rijmoment.bus.InterRijmomentSwap(node1, node2, extratijd1, extratijd2);
-        if (node1.rijmoment.bus.dag == node2.rijmoment.bus.dag)
-            return node1.rijmoment.bus.dag.InterBusSwap(node1, node2, extratijd1, extratijd2);
-        return InterDagSwap(node1, node2, extratijd1, extratijd2);
-    } */
+        Node node1n = node1.Next;
+        Node node2n = node2.Next;
 
-    public bool InterDagSwap(Node node1, Node node2)
+        if (node1.rijmoment.bus == node2.rijmoment.bus)
+            gelukt = node1.rijmoment.bus.InterRijmomentSwapCheck(node1, node2, extratijd1, extratijd2);
+        else if (node1.rijmoment.bus.dag == node2.rijmoment.bus.dag)
+            gelukt = Dag.InterBusSwapCheck(node1, node2, extratijd1, extratijd2);
+        else gelukt = InterDagSwapCheck(node1, node2, extratijd1, extratijd2);
+
+        if (!gelukt) return false;
+
+        node1.Verwijder(0); 
+        node2.Verwijder(0); 
+
+        node1n.rijmoment.ToevoegenVoor(node2, node1n, extratijd1);
+        node2n.rijmoment.ToevoegenVoor(node1, node2n, extratijd2);
+
+        return true;
+    }
+
+    public bool FreqCheck(Node node, Dag nieuweDag)
     {
-        return true; // ga ik nog aanpassen
+        if (node.bedrijf.frequentie == 3) 
+            return false;    
+        if (node.bedrijf.frequentie == 1) 
+            return true;
+
+        foreach (Node n in node.bedrijf.Locaties) // voor freq 2,3,4
+            if (n.rijmoment.bus.dag == nieuweDag) 
+                return false;
+
+        if (node.bedrijf.frequentie == 2)
+        {
+            Node node2 = node.bedrijf.Locaties[0] == node ? node.bedrijf.Locaties[1] : node.bedrijf.Locaties[0];
+            if (Math.Abs(nieuweDag.getal - node2.rijmoment.bus.dag.getal) == 3) 
+                return true;
+            return false;
+        }
+
+        return true; // dan is het freq 4
+    }
+
+    public bool InterDagSwapCheck(Node node1, Node node2, int extratijd1, int extratijd2)
+    {
+        bool gelukt = FreqCheck(node1, node2.rijmoment.bus.dag) && FreqCheck(node2, node1.rijmoment.bus.dag);
+        if (!gelukt) return false;
+
+        return Dag.InterBusSwapCheck(node1, node2, extratijd1, extratijd2);
     }
 
 
@@ -105,7 +150,7 @@ public class Week
         {
             foreach (Node node in b.Locaties)
                 if (node.Next != null && node.Next.Previous == node) // als ie uberhaupt net is toegevoegd en niet geblocked omdat de bus leeg was qua rijmomenten
-                    node.Verwijder();
+                    node.Verwijder(node.ExtraTijdskostenBijVerwijderen());
             return false;
         }
         kosten -= 3 * b.frequentie * b.ledigingsDuur;
@@ -133,7 +178,7 @@ public class Week
         }
         else
         {
-            dag1 = 2; 
+            dag1 = 2;
             dag2 = 5;
         }
         Node node1 = b.Locaties[0];
@@ -167,7 +212,7 @@ public class Week
     public override string ToString()
     {
         string s = "";
-        for(int i = 1; i <= 5 ; i++)
+        for (int i = 1; i <= 5; i++)
         {
             s += dagen[i].ToString(i.ToString());
         }
@@ -177,18 +222,50 @@ public class Week
 
     public void BFS()
     {
-        for(int i = 1; i<= 5; i++) 
+        for (int i = 1; i <= 5; i++)
         {
             dagen[i].BFS();
         }
     }
 
-    
+
     public void Load(int dag, int bus, Bedrijf b, bool stortIngelezen)
     {
-       dagen[dag].bussen[bus].Load(b, stortIngelezen);
+        dagen[dag].bussen[bus].Load(b, stortIngelezen);
     }
 
-    public int Evaluate(){return kosten; }
+    public int Eval { get
+        {
+            return kosten / 60;  // jo kan je ff die error fixen van
+        } 
+    }
+    
+    public int Evaluate(List<Bedrijf> b)
+    {
+        int t = 0;
+        for (int i = 1; i <= 5; i++)
+        {
+            t += dagen[i].tijd;
+        } 
+        
+        t += StrafKosten(b); 
+        
+        
+        tijd = t; 
+        return t / 60;  
+    }
 
-}
+    public int StrafKosten(List<Bedrijf> bedrijven)
+    {
+        int k = 0;
+        foreach (Bedrijf b in bedrijven)
+        {
+            if (!b.wordtBezocht)
+            {
+                k += 3 * b.frequentie * b.ledigingsDuur; 
+            }
+        }
+        return k;
+    }
+} 
+

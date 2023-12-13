@@ -4,12 +4,15 @@ using System;
 public class Dag
 {
     public Bus[] bussen;
+    public int getal;
+    public int tijd { get { return bussen[0].tijd + bussen[1].tijd; }  }
 
-    public Dag(Week werkWeek)
+    public Dag(Week werkWeek, int i)
     {
         bussen = new Bus[2];
         bussen[0] = new Bus(werkWeek, this);
         bussen[1] = new Bus(werkWeek, this);
+        getal = i;
     }
 
     // manier vinden hoe je rijmoment verwijdert wanneer een rijmoment leeg is
@@ -24,6 +27,16 @@ public class Dag
         //om rijmomenten zoveel mogelijk te spreiden
 
         //toevoeging moet wel passen qua tijd natuurlijk
+    }
+
+    public static bool InterBusSwapCheck(Node node1, Node node2, int extratijd1, int extratijd2)
+    {
+        if (node1.rijmoment.bus.tijd + extratijd1 > 43200 ||
+            node2.rijmoment.bus.tijd + extratijd2 > 43200 || 
+            node1.rijmoment.volume - node1.bedrijf.volume + node2.bedrijf.volume > 100000 ||
+            node2.rijmoment.volume - node2.bedrijf.volume + node1.bedrijf.volume > 100000)
+            return false;
+        return true;
     }
 
     public int Insert(Node nieuw, Random r)

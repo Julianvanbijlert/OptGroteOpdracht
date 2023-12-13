@@ -2,7 +2,7 @@ namespace rommelrouterakkers;
 using System;
 using System.Collections.Generic;
 using System.IO;
-
+using System.Reflection.Metadata;
 
 public class Setup
 {
@@ -22,11 +22,13 @@ public class Setup
         aMatrix = new AfstandMatrix(vulMatrix(IO.matrixFileNaam)); //afstanden niet in
         bedrijven = vulBedrijven(IO.orderbestandFileNaam);
 
-        Week werkWeek = IO.loadSolution("../../../../Scores.txt", bedrijven);
-        //StelBeginoplossingIn(bedrijven, werkWeek);
+        werkWeek = new Week();
+        //werkWeek = IO.loadSolution("../../../../Scores.txt", bedrijven);
+        StelBeginoplossingIn(bedrijven, werkWeek);
 
 
         ZoekAlgoritme za = new ZoekAlgoritme(werkWeek, bedrijven);
+        // ik zou hem van tevoren ook ff bfs'en
         za.ILS();
         za.BFS();
 
@@ -39,7 +41,7 @@ public class Setup
 
         IO.PrintSolution(werkWeek);
         IO.PrintSolutionToFile(werkWeek);
-        //Output.MakeNewBestFile(werkWeek);
+        //Output.MakeNewBestFile(werkWeek); 
     }
     static List<Bedrijf> vulBedrijven(string fileNaam) // heb het naar een list verandert zodat we kunnen verwijderen voor sorteren
     {
@@ -57,6 +59,7 @@ public class Setup
         return bedrijven;
 
     }
+    
     static int[,] vulMatrix(string fileNaam)
     {
         int[,] matrix = new int[matrixIds, matrixIds];
@@ -72,6 +75,7 @@ public class Setup
         }
         return matrix;
     }
+
     static (int, int, int) ParseMatrix(string s)
     {
         char separator = ';';
@@ -80,6 +84,7 @@ public class Setup
         //maybe try catch for parsing, maar is niet nodig omdat we de input weten
         return (int.Parse(list[0]), int.Parse(list[1]), int.Parse(list[3]));
     }
+
     static List<Bedrijf> SorteerBedrijven(List<Bedrijf> bedrijven)
     {
         List<Bedrijf> bedrijvenSorted = new List<Bedrijf>();
@@ -113,6 +118,7 @@ public class Setup
 
         return bedrijvenSorted;
     }
+
     public static List<Bedrijf>[] VulBedrijvenPerFreq(List<Bedrijf> bedrijven)
     {
         List<Bedrijf>[] bedrijvenPerFreq = new List<Bedrijf>[5];
@@ -218,9 +224,6 @@ public class Setup
             }
         }
     }
-
-
-    
 
     public static Bedrijf VindBedrijf(int ord, List<Bedrijf> bedrijven)
     {

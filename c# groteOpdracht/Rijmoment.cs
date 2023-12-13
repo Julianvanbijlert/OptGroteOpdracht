@@ -5,6 +5,7 @@ using System;
 public class Rijmoment
 {
     public int volume;
+    public int tijd;
     public Node beginnode;
     public Node eindnode;
     public Bus bus;
@@ -165,6 +166,11 @@ public class Rijmoment
         }
         return (count,s);
     }
+
+    public int Evaluate()
+    {
+        return 1;
+    }
 }
 
 public class Node
@@ -179,20 +185,20 @@ public class Node
         this.bedrijf = bedrijf;
     }
 
-    public void Verwijder()
+    public void Verwijder(int extratijd)
     {
-        int extratijd = ExtraTijdskostenBijVerwijderen();
         rijmoment.Verwijderen(this, extratijd);
     }
 
+    //errorfull function
     public int ExtraTijdskostenBijVerwijderen()
-    {
-        int extra = 0;
-        extra -= Setup.aMatrix.lookup(Previous.bedrijf, bedrijf);
-        extra -= Setup.aMatrix.lookup(bedrijf, Next.bedrijf);
+    { 
+        int extra = 0; 
+        extra -= Setup.aMatrix.lookup(Previous.bedrijf, bedrijf); // da fak, ik zal ff kijken wat er fout kan zijn shit man
+        extra -= Setup.aMatrix.lookup(bedrijf, Next.bedrijf); //ik heb nog niet echt iets met kosten gedaan
         extra += Setup.aMatrix.lookup(Previous.bedrijf, Next.bedrijf);
         extra -= bedrijf.ledigingsDuur;
-        return extra;
+        return extra; 
     }
 
     public string ToString(string str)

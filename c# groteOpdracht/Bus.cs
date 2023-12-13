@@ -30,10 +30,13 @@ public class Bus
         return tijd;
     }
 
-    public bool InterRijmomentSwap(Node node1, Node node2, int extratijd1, int extratijd2)
+    public bool InterRijmomentSwapCheck(Node node1, Node node2, int extratijd1, int extratijd2)
     {
-        if (tijd + extratijd1 + extratijd2 > 43200) return false;
-        return true; // ga ik nog aanpassen
+        if (tijd + extratijd1 + extratijd2 > 43200 ||
+            node1.rijmoment.volume - node1.bedrijf.volume + node2.bedrijf.volume > 100000 ||
+            node2.rijmoment.volume - node2.bedrijf.volume + node1.bedrijf.volume > 100000) 
+            return false;
+        return true;
     }
 
     public void Load(Bedrijf b, bool stortIngelezen)
@@ -75,6 +78,16 @@ public class Bus
         { 
             rijmoment.RijBFS();
         }
+    }
+
+    public int Evaluate()
+    {
+        int k = 0;
+        foreach(Rijmoment r in rijmomenten)
+        {
+           k += r.Evaluate();
+        }
+        return k;
     }
 
     public string ToString(string i)
