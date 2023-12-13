@@ -31,8 +31,8 @@ public class Week
 
         // als een insert of delete niet lukt wordt ie geskipt, er wordt niet gezocht naar een andere mogelijkheid
     }
-
     public bool Delete(Bedrijf b)
+
     {
         int[] extratijd = new int[b.Locaties.Count];
         Node n;
@@ -56,6 +56,7 @@ public class Week
         kosten += 3 * b.frequentie * b.ledigingsDuur;
         return true;
     }
+
 
     /* public bool Swap(Node node1, Node node2)
     {
@@ -86,6 +87,7 @@ public class Week
     {
         return true; // ga ik nog aanpassen
     }
+
 
     public bool Insert(Bedrijf b, Random r)
     {
@@ -147,7 +149,6 @@ public class Week
         bustijd = Math.Max(bustijd, dagen[5].Insert(b.Locaties[2], r));
         return bustijd;
     }
-
     public int AddDag4(Bedrijf b, Random r)
     {
         int dag = r.Next(1, 6);
@@ -187,5 +188,7 @@ public class Week
     {
        dagen[dag].bussen[bus].Load(b, stortIngelezen);
     }
-    
+
+    public int Evaluate(){return kosten; }
+
 }
