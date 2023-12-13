@@ -24,23 +24,18 @@ public class Setup
 
         werkWeek = new Week();
         //werkWeek = IO.loadSolution("../../../../Scores.txt", bedrijven);
-        StelBeginoplossingIn(bedrijven, werkWeek);
-
+        StelBeginoplossingIn(bedrijven, werkWeek); 
 
         ZoekAlgoritme za = new ZoekAlgoritme(werkWeek, bedrijven);
-        // ik zou hem van tevoren ook ff bfs'en
+
+        // ik zou hem van tevoren ook ff bfs'en voor de zekerheid, kost niet veel tijd
+
+        za.BFS();
         za.ILS();
         za.BFS();
 
-        //testje: alles verwijderen en dan weer toevoegen
-        //for (int i = 0; i < bedrijven.Count; i++)
-        //    if (bedrijven[i].frequentie < 3)
-        //        werkWeek.Delete(bedrijven[i]);
-        //for (int i = 0; i < bedrijven.Count; i++)
-        //    werkWeek.Insert(bedrijven[i], r);
-
         IO.PrintSolution(werkWeek);
-        IO.PrintSolutionToFile(werkWeek);
+        //IO.PrintSolutionToFile(werkWeek);
         //Output.MakeNewBestFile(werkWeek); 
     }
     static List<Bedrijf> vulBedrijven(string fileNaam) // heb het naar een list verandert zodat we kunnen verwijderen voor sorteren
@@ -71,7 +66,7 @@ public class Setup
         while ((regel = sr.ReadLine()) != null)
         {
             (int a, int b, int c) i = ParseMatrix(regel);
-            matrix[i.a, i.b] = i.c;
+            matrix[i.a, i.b] = i.c * 1000;
         }
         return matrix;
     }
@@ -195,7 +190,7 @@ public class Setup
             {
                 bus = dag.bussen[j];
                 andereBus = false;
-                while (!andereBus && bus.tijd + 1800 <= 43200)
+                while (!andereBus && bus.tijd + 1800 * 1000 <= 39000 * 1000)
                 {
                     if (nieuweAanmaken) huidig = bus.VoegRijmomentToe();
                     bedrijvenPerFreq[1] = SorteerBedrijven(bedrijvenPerFreq[1]);
@@ -204,7 +199,7 @@ public class Setup
                         if (bedrijvenPerFreq[1].Count == 0) return;
                         bedrijf = bedrijvenPerFreq[1][0];
                         extratijd = huidig.ExtraTijdskostenBijToevoegen(bedrijf, huidig.eindnode.Previous, huidig.eindnode);
-                        if (bus.tijd + extratijd > 43200)
+                        if (bus.tijd + extratijd > 39000 * 1000)
                         {
                             andereBus = true;
                             if (huidig.beginnode.Next == huidig.eindnode)

@@ -30,11 +30,9 @@ public class Bus
         return tijd;
     }
 
-    public bool InterRijmomentSwapCheck(Node node1, Node node2, int extratijd1, int extratijd2)
+    public bool InterRijmomentSwapCheck(int extratijd)
     {
-        if (tijd + extratijd1 + extratijd2 > 43200 ||
-            node1.rijmoment.volume - node1.bedrijf.volume + node2.bedrijf.volume > 100000 ||
-            node2.rijmoment.volume - node2.bedrijf.volume + node1.bedrijf.volume > 100000) 
+        if (tijd + extratijd > 43200 * 1000) 
             return false;
         return true;
     }
@@ -60,17 +58,13 @@ public class Bus
     {
         Rijmoment nieuw = new Rijmoment(this);
         rijmomenten.Add(nieuw);
-        tijd += 1800;
-        week.kosten += 1800;
         return nieuw;
     }
 
     public void VerwijderLeegRijmoment(Rijmoment rijmoment) // kijken hoe we dit gaan doen, hoe access je het rijmoment en bus als je alleen de nodes hebt?
     {
-        tijd -= 1800;
-        week.kosten -= 1800;
         rijmomenten.Remove(rijmoment);
-    }
+    } 
 
     public void BFS()
     {

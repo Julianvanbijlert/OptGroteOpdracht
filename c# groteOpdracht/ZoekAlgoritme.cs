@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics.X86;
 using System.Security.Cryptography.X509Certificates;
 
 namespace rommelrouterakkers;
@@ -42,7 +43,7 @@ public class ZoekAlgoritme
         const int maxAmountOfItt = 1000;
         int showIn = 0; //wanneer het print
 
-        while (oplossing >= justASmallScore)
+        while (oplossing >= justASmallScore && totIteraties < 10000000) // stop anders stopt ie nooit
         {
             totIteraties++;
             oplossing = PickAction(week, r);
@@ -72,7 +73,7 @@ public class ZoekAlgoritme
                  * the performance of the local search */
                 PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
                 
-                showIn = 10000;
+                showIn = 1000000; // heb ff veranderd naar miljoen, anders was het amper leesbaar
             }  
         } 
         PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
@@ -83,7 +84,7 @@ public class ZoekAlgoritme
     public void ChangeBest(int b, int t)
     {
 
-        best = week; //klopt dit?
+        best = week; //klopt dit? helaas niet, dat wordt een reference. je moet dan gwn een file met de beste solution opslaan
         bestOplossing = b;
         Console.ForegroundColor = ConsoleColor.Green;
         PrintVoortgang(b, 0, t);
@@ -109,17 +110,34 @@ public class ZoekAlgoritme
         float chanceInsert = 1;
         float chanceSwap = 1 - chanceDelete - chanceInsert;
 
-        Bedrijf b = GetBedrijf(r);
+        //Bedrijf b = GetBedrijf(r);
 
-        if (r.NextDouble() >= chanceSwap)
-        {
-            w.Pick(b, r); 
-            return w.Eval;  // w.Evaluate(bedrijven); 
-        }  
+        // we kunnen dit helemaal anders aanpakken. ten eerste, we kunnen er voor zorgen dat altijd maximaal 100 bedrijven
+        // tegelijk er niet in zitten, meer eruit halen is niet nodig (variabele bijhouden).
+        // dan ga je standaard eerst swappen/verplaatsen met simulated annealing. na een 
+        // hoog aantal iteraties daarvan daan we een willekeurig bedrijf toevoegen/verwijderen (dat is een random walk)
+        // verder dacht ik: wat nou als we gwn een vast aantal rijmomenten
+        // per vrachtauto per dag doen, dan hoeven we er niet meer/ minder te maken. teveel is niet erg, kost 0 punten.
+        // af en toe wel de rijmomenten optimaal verwisselen natuurlijk
+
+        //if (r.NextDouble() >= chanceSwap)
+        //{
+        //    w.Pick(b, r); 
+        //    return w.Eval;  // w.Evaluate(bedrijven); 
+        //}  
+
+        int kostenTemp = w.Eval;
+        Bedrijf b;
         Bedrijf b2;
-        while ((b2 = GetBedrijf(r)) == b){}
 
-        //w.Swap(b, b2, r);
+        while ((b = GetBedrijf(r)).wordtBezocht == false);
+        while ((b2 = GetBedrijf(r)) == b || b2.wordtBezocht == false);
+        Node node1 = GetBedrijfNode(b, r);
+        Node node2 = GetBedrijfNode(b2, r);
+
+        (bool legaal, int extratijd1, int extratijd2) = w.VerplaatsCheck(node1, node2); //SwapCheck
+        if (legaal && extratijd1+extratijd2 < 0)
+            w.Verplaats(node1, node2, extratijd1, extratijd2); //Swap
 
         return w.Eval;      //w.Evaluate(bedrijven);
     }
@@ -127,6 +145,11 @@ public class ZoekAlgoritme
     public Bedrijf GetBedrijf(Random r)
     {
         return bedrijven[r.Next(0,bedrijven.Count)];
+    }
+
+    public Node GetBedrijfNode(Bedrijf b, Random r)
+    {
+        return b.Locaties[r.Next(0, b.Locaties.Count)];
     }
 
     public void RandomWalk(int i, Random r)
@@ -169,8 +192,9 @@ public class ILS
 // of variable neighbourhood search ofzo
 // dan zitten we niet te kutten met verhoudingen
 
-// zorgen dat na acties alle tijden goed worden aangepast (bustijden, totale kosten)
 
 // drie niveaus: eerst zoveel mogelijk swappen. lang niks nieuws? bedrijven toevoegen/ verwidjeren. lang niks nieuws? rijmoment toevoegen/verwijderen
 
 // hashtabel met ordernummers -> bedrijven? dan gaat dat tenminste in O(1)
+
+// toevoegen niet in een rijmoment doen, maar juist na een willekeurige andere node? dan is het tenminste echt willekeurig en kunnen we simulated annealing doen

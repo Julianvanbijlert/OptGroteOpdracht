@@ -100,7 +100,7 @@ public static class IO
          */
         Console.WriteLine(w.ToString());
 
-        Console.WriteLine("score: " + w.kosten / 60);
+        Console.WriteLine("score: " + w.kosten / 60000);
         Console.WriteLine("Ik heb alle ledigingsduren naar boven afgerond. hierdoor valt de score ongeveer +/- 5 hoger uit \n" +
                           "dan zou moeten, maar daardoor bouwen we geen afrondfouten op, wat vervelend is bij controleren \n" +
                           "of tijden groter of kleiner zijn dan 0. een iets hoger uitvallende score is opzich geen enorme ramp");
@@ -122,12 +122,12 @@ public static class IO
         try
         {
             // Combine the location and the filename (using the integer as the filename)
-            string filePath = Path.Combine(_scoreMap, $"{w.kosten / 60}.txt");
+            string filePath = Path.Combine(_scoreMap, $"{w.kosten / 60000}.txt");
 
             // Write the string content to the file
             File.WriteAllText(filePath, s);
 
-            Console.WriteLine($"Printed score {w.kosten / 60} succesfully");
+            Console.WriteLine($"Printed score {w.kosten / 60000} succesfully");
 
         }
         catch (Exception ex)

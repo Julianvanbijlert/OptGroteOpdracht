@@ -25,7 +25,7 @@ public class Bedrijf
         frequentie = f;
         volume = v * aantalBakken;
         matrixId = mId;
-        ledigingsDuur = (int) Math.Ceiling(ledD*60);
+        ledigingsDuur = (int) Math.Ceiling(ledD*60*1000);
         wordtBezocht = false;
         FillNodesLocatie(frequentie);
     }

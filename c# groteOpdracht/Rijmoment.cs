@@ -1,7 +1,9 @@
 //using System.Threading;
 
 namespace rommelrouterakkers;
-using System; 
+using System;
+using System.IO;
+
 public class Rijmoment
 {
     public int volume;
@@ -21,6 +23,8 @@ public class Rijmoment
         eindnode  = new Node(Setup.stort);
         beginnode.Next = eindnode;
         eindnode.Previous = beginnode;
+        beginnode.rijmoment = this;
+        eindnode.rijmoment = this;
     }
 
     public void ToevoegenVoor(Node nieuw, Node volgende, int extratijd)
@@ -76,6 +80,11 @@ public class Rijmoment
         extra += Setup.aMatrix.lookup(bedrijf, volgende.bedrijf);
         extra -= Setup.aMatrix.lookup(vorige.bedrijf, volgende.bedrijf);
         extra += bedrijf.ledigingsDuur;
+
+        if (vorige == beginnode && volgende == eindnode)
+        {
+            extra += 1800 * 1000;
+        }
         return extra;
     }
 
@@ -198,6 +207,12 @@ public class Node
         extra -= Setup.aMatrix.lookup(bedrijf, Next.bedrijf); //ik heb nog niet echt iets met kosten gedaan
         extra += Setup.aMatrix.lookup(Previous.bedrijf, Next.bedrijf);
         extra -= bedrijf.ledigingsDuur;
+
+        if (Previous == rijmoment.beginnode && Next == rijmoment.eindnode)
+        {
+            extra -= 1800 * 1000;
+        }
+
         return extra; 
     }
 
