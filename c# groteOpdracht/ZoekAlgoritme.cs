@@ -10,6 +10,7 @@ public class ZoekAlgoritme
 {
     private List<(int, string)> oplossingen;
     private Week week;
+    private Week best;
     private int bestOplossing;
     private Stopwatch timer;
     public Random r;
@@ -82,6 +83,7 @@ public class ZoekAlgoritme
     public void ChangeBest(int b, int t)
     {
 
+        best = week; //klopt dit?
         bestOplossing = b;
         Console.ForegroundColor = ConsoleColor.Green;
         PrintVoortgang(b, 0, t);
