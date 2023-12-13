@@ -37,6 +37,7 @@ public class ZoekAlgoritme
         int iteratiesSindsVeranderd = 0; //hoe lang geleden het is sinds de laatste verandering
         int totIteraties = 0;
         int justASmallScore = 5300;
+        int amountOfRandomWalks = 5;
         const int maxAmountOfItt = 1000;
         int showIn = 0; //wanneer het print
 
@@ -48,17 +49,19 @@ public class ZoekAlgoritme
             //checkscore
             if (oplossing < bestOplossing)
             {
-                bestOplossing = oplossing;
+                //sla op in bestOplossing / naar file
+                ChangeBest(oplossing, totIteraties);
                 iteratiesSindsVeranderd = 0;
                 continue;
-                //sla op in bestOplossing / naar file
             }
 
             
 
             if (++iteratiesSindsVeranderd >= maxAmountOfItt)
             {
-                //randomwalk();
+                //misschien ++ vervangen door x / totaleIteraties, zodat je meer doet hoe langer bezig
+                RandomWalk(++amountOfRandomWalks, r);
+
                 iteratiesSindsVeranderd = 0;
             }
             
@@ -67,7 +70,7 @@ public class ZoekAlgoritme
                 /* Don't measure printing to console, we're only interested in
                  * the performance of the local search */
                 PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
-
+                
                 showIn = 10000;
             }  
         } 
@@ -76,7 +79,14 @@ public class ZoekAlgoritme
         timer.Stop();
     }
 
+    public void ChangeBest(int b, int t)
+    {
 
+        bestOplossing = b;
+        Console.ForegroundColor = ConsoleColor.Green;
+        PrintVoortgang(b, 0, t);
+        Console.ResetColor();
+    }
      public void PrintVoortgang(int i, int t, int s)
     {
         double milToMin = 1.66666667 * Math.Pow(10, -5);
@@ -87,14 +97,7 @@ public class ZoekAlgoritme
                           $"Totale iteraties :         {t}             \n" +
                           $"Iteraties per minuut:      {t / timer.Elapsed.TotalMilliseconds * milToMin} \n" +
                           $"Time elapsed :             {timer.Elapsed}");
-        /*
-         if(prev < s)
-						Console.ForegroundColor = ConsoleColor.Green;
-					else if(prev > s)
-						Console.ForegroundColor = ConsoleColor.Red;
-				;
-				Console.ResetColor();
-         */ 
+      
     } 
 
 
@@ -112,8 +115,8 @@ public class ZoekAlgoritme
             return w.Eval;  // w.Evaluate(bedrijven); 
         }  
         Bedrijf b2;
-        while ((b2 = GetBedrijf(r)) == b) ;
-        
+        while ((b2 = GetBedrijf(r)) == b){}
+
         //w.Swap(b, b2, r);
 
         return w.Eval;      //w.Evaluate(bedrijven);
@@ -126,6 +129,10 @@ public class ZoekAlgoritme
 
     public void RandomWalk(int i, Random r)
     {
+        for (int j = 0; j <= i; j++)
+        {
+            _ = PickAction(week, r);
+        }
 
     }
 
