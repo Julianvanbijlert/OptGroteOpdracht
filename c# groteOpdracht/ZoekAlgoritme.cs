@@ -55,7 +55,7 @@ public class ZoekAlgoritme
             oplossing = PickAction(week, r);
 
             //checkscore
-            if (oplossing <= bestOplossing) 
+            if (oplossing <= bestOplossing)  
             {
                 //sla op in bestOplossing / naar file
                 ChangeBest(oplossing, totIteraties);
@@ -85,7 +85,7 @@ public class ZoekAlgoritme
             }  
         } 
         PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
-        IO.CreateBest(week);
+        //IO.CreateBest(week); ff weggecomment zodat ie nu nog niet duizenden files maakt
         timer.Stop();
     }
 
@@ -247,7 +247,7 @@ public class ZoekAlgoritme
         return b.Locaties[r.Next(0, b.Locaties.Count)];
     }
 
-    public void RandomWalk(int i, Random r)
+    public void RandomWalk(int i, Random r) // maakt het programma heel sloom naarmate het aantal iteraties groter wordt
     {
         for (int j = 0; j <= i; j++)
         {
