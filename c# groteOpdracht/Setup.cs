@@ -31,7 +31,7 @@ public class Setup
         // ik zou hem van tevoren ook ff bfs'en voor de zekerheid, kost niet veel tijd
 
         za.BFS();
-        za.ILS2();
+        za.ILS();
         za.BFS();
 
         IO.PrintSolution(werkWeek);
