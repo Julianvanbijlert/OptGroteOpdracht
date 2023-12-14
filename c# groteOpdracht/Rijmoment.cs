@@ -12,6 +12,7 @@ public class Rijmoment
     public Node eindnode;
     public Bus bus;
     public int Count;
+
     
     public Rijmoment(Bus buss)
     {

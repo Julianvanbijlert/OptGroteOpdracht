@@ -60,7 +60,7 @@ public static class IO
             }
             else
             {
-                b = Setup.VindBedrijf(ord, bedrijven);
+                b = Setup.VindBedrijf(ord);
                 b.wordtBezocht = true;
 
                 w.Load(dag, bus, b, stortIngelezen);

@@ -14,13 +14,15 @@ public class Setup
     public static Bedrijf stort = new Bedrijf(0, 0, 0, 0, 287, 0);
     public static AfstandMatrix aMatrix;
     public Week werkWeek = new Week();
-    public List<Bedrijf> bedrijven;
+    public static List<Bedrijf> bedrijven = new List<Bedrijf>();
+    public static Dictionary<int, Bedrijf> bedrijvenDict = new Dictionary<int, Bedrijf>();
 
 
     public Setup()
     {
         aMatrix = new AfstandMatrix(vulMatrix(IO.matrixFileNaam)); //afstanden niet in
-        bedrijven = vulBedrijven(IO.orderbestandFileNaam);
+        vulBedrijven(IO.orderbestandFileNaam);
+        vulDict();
 
         werkWeek = new Week();
         //werkWeek = IO.loadSolution("../../../../Scores.txt", bedrijven);
@@ -38,9 +40,16 @@ public class Setup
         //IO.PrintSolutionToFile(werkWeek);
         //Output.MakeNewBestFile(werkWeek); 
     }
-    static List<Bedrijf> vulBedrijven(string fileNaam) // heb het naar een list verandert zodat we kunnen verwijderen voor sorteren
+    static void vulDict()
     {
-        List<Bedrijf> bedrijven = new List<Bedrijf>();
+        foreach (Bedrijf bedrijf in bedrijven)
+        {
+            bedrijvenDict.Add(bedrijf.orderNummer, bedrijf);
+        }
+    }
+
+    static void vulBedrijven(string fileNaam) // heb het naar een list verandert zodat we kunnen verwijderen voor sorteren
+    {
 
         StreamReader sr = new StreamReader(fileNaam);
         string regel = sr.ReadLine();
@@ -51,7 +60,6 @@ public class Setup
             Bedrijf b = Bedrijf.parseBedrijf(regel);
             bedrijven.Add(b);
         }
-        return bedrijven;
 
     }
     
@@ -190,7 +198,7 @@ public class Setup
             {
                 bus = dag.bussen[j];
                 andereBus = false;
-                while (!andereBus && bus.tijd + 1800 * 1000 <= 39000 * 1000)
+                while (!andereBus && bus.tijd + 1800 * 1000 <= 39100 * 1000)
                 {
                     if (nieuweAanmaken) huidig = bus.VoegRijmomentToe();
                     bedrijvenPerFreq[1] = SorteerBedrijven(bedrijvenPerFreq[1]);
@@ -199,7 +207,7 @@ public class Setup
                         if (bedrijvenPerFreq[1].Count == 0) return;
                         bedrijf = bedrijvenPerFreq[1][0];
                         extratijd = huidig.ExtraTijdskostenBijToevoegen(bedrijf, huidig.eindnode.Previous, huidig.eindnode);
-                        if (bus.tijd + extratijd > 39000 * 1000)
+                        if (bus.tijd + extratijd > 39100 * 1000)
                         {
                             andereBus = true;
                             if (huidig.beginnode.Next == huidig.eindnode)
@@ -220,18 +228,9 @@ public class Setup
         }
     }
 
-    public static Bedrijf VindBedrijf(int ord, List<Bedrijf> bedrijven)
+    public static Bedrijf VindBedrijf(int ord)
     {
-        foreach (Bedrijf b in bedrijven)
-            if (b.orderNummer == ord)
-                return b;
-
-        return null;
+        return bedrijvenDict[ord];
     }
-
-
-
-
-
 }
 

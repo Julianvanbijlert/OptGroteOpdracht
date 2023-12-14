@@ -49,13 +49,13 @@ public class ZoekAlgoritme
 
         double T = 100; //temperatuur
 
-        while (oplossing >= justASmallScore && totIteraties < 10000000) // stop anders stopt ie nooit, dat is toch de bedoeling?
+        while (oplossing >= justASmallScore && totIteraties < 10000000) // stop anders stopt ie nooit, dat is toch de bedoeling? ja maar voor het testen ff
         {
             totIteraties++;
             oplossing = PickAction(week, r);
 
             //checkscore
-            if (oplossing <= bestOplossing)
+            if (oplossing <= bestOplossing) 
             {
                 //sla op in bestOplossing / naar file
                 ChangeBest(oplossing, totIteraties);
@@ -81,23 +81,23 @@ public class ZoekAlgoritme
                  * the performance of the local search */
                 PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
                 
-                showIn = 50000; // heb ff veranderd naar miljoen, anders was het amper leesbaar
+                showIn = 1000000; // heb ff veranderd naar miljoen, anders was het amper leesbaar
             }  
         } 
         PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
-        //IO.CreateBest(week);
+        IO.CreateBest(week);
         timer.Stop();
     }
 
-    public void ChangeBest(int b, int t)
+    public void ChangeBest(int b, int t) // voor het testen ff wat dingen weggecomment, anders was het niet leesbaar in de console
     {
-        IO.CreateBest(week);
+        //IO.CreateBest(week);
         best = week; 
         bestOplossing = b;
         
-        Console.ForegroundColor = ConsoleColor.Green;
-        PrintVoortgang(b, 0, t);
-        Console.ResetColor();
+        //Console.ForegroundColor = ConsoleColor.Green;
+        //PrintVoortgang(b, 0, t);
+        //Console.ForegroundColor = ConsoleColor.White;
     }
 
     public void ChangeBest(Week w, int t)
@@ -157,10 +157,13 @@ public class ZoekAlgoritme
         Node node2 = GetBedrijfNode(b2, r);
 
         (bool legaal, int extratijd1, int extratijd2) = w.VerplaatsCheck(node1, node2); //SwapCheck
-        if (legaal && extratijd1+extratijd2 < 0)
+        if (legaal && extratijd1 + extratijd2 < 0)
+        {
             w.Verplaats(node1, node2, extratijd1, extratijd2); //Swap
+            return w.Eval;
+        }
 
-        return w.Eval;      //w.Evaluate(bedrijven);
+        return w.Eval + extratijd1 + extratijd2;      //w.Evaluate(bedrijven);
     }
 
 
@@ -199,10 +202,15 @@ public class ZoekAlgoritme
             totItt++;
         }
     }
-    public Week PickAction2(Week w, Random r)
+    public Week PickAction2(Week w, Random r) 
+        // dit is denk ik alsnog veel te veel insert en delete. we gaan verplaats/swap
+        // de standaard acties moeten maken, en insert/delete als we niks beters kunnen vinden.
+        // en zorgen dat insert/delete ook met score afhankelijke kansen gaat, zodat er niet teveel 
+        // bedrijven worden gedelete
     {
         Week w1 = (Week)w.Clone();
         //chances, we start with empty week, so addition is high
+        // nee we beginnen bij de beginoplossing? die zit op 6222
         float chanceSwap = 0.19f;
         float chanceInsert = 0.8f; //f maakt het een float
         float chanceDelete = 1 - chanceSwap - chanceInsert; 
