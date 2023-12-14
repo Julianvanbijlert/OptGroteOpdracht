@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
-public class Week
+public class Week : ICloneable
 {
     //index from 1 to 5, not 0 to 4
     public Dag[] dagen = new Dag[6];
@@ -327,6 +327,15 @@ public class Week
             }
         }
         return k;
+    }
+
+    public void Swap2(Node n, Node n2, Random r)
+    {
+
+    }
+    public Object Clone()
+    {
+        return this.MemberwiseClone();
     }
 } 
 

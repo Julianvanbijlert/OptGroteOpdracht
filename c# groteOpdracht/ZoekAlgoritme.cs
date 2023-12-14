@@ -16,6 +16,9 @@ public class ZoekAlgoritme
     private Stopwatch timer;
     public Random r;
     private List<Bedrijf> bedrijven;
+    private double tempVerkleining = 0.99;
+    private double stopCriteria = 0.01;
+
 
 
     public ZoekAlgoritme(Week w, List<Bedrijf> b)
@@ -25,6 +28,7 @@ public class ZoekAlgoritme
         timer = new Stopwatch();
         r = new Random();
         bedrijven = b;
+        bestOplossing = w.Eval;
     }
 
     public void BFS()
@@ -43,19 +47,23 @@ public class ZoekAlgoritme
         const int maxAmountOfItt = 1000;
         int showIn = 0; //wanneer het print
 
-        while (oplossing >= justASmallScore && totIteraties < 10000000) // stop anders stopt ie nooit
+        double T = 100; //temperatuur
+
+        while (oplossing >= justASmallScore && totIteraties < 10000000) // stop anders stopt ie nooit, dat is toch de bedoeling?
         {
             totIteraties++;
             oplossing = PickAction(week, r);
 
             //checkscore
-            if (oplossing < bestOplossing)
+            if (oplossing <= bestOplossing)
             {
                 //sla op in bestOplossing / naar file
                 ChangeBest(oplossing, totIteraties);
                 iteratiesSindsVeranderd = 0;
                 continue;
             }
+            
+
 
             
 
@@ -73,7 +81,7 @@ public class ZoekAlgoritme
                  * the performance of the local search */
                 PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
                 
-                showIn = 1000000; // heb ff veranderd naar miljoen, anders was het amper leesbaar
+                showIn = 50000; // heb ff veranderd naar miljoen, anders was het amper leesbaar
             }  
         } 
         PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
@@ -83,22 +91,33 @@ public class ZoekAlgoritme
 
     public void ChangeBest(int b, int t)
     {
-
-        best = week; //klopt dit? helaas niet, dat wordt een reference. je moet dan gwn een file met de beste solution opslaan
+        IO.CreateBest(week);
+        best = week; 
         bestOplossing = b;
+        
         Console.ForegroundColor = ConsoleColor.Green;
         PrintVoortgang(b, 0, t);
         Console.ResetColor();
     }
-     public void PrintVoortgang(int i, int t, int s)
+
+    public void ChangeBest(Week w, int t)
     {
-        double milToMin = 1.66666667 * Math.Pow(10, -5);
+        IO.CreateBest(w);
+        best = w;
+        bestOplossing = w.Eval;
+
+        Console.ForegroundColor = ConsoleColor.Green;
+        PrintVoortgang(w.Eval, 0, t);
+        Console.ResetColor();
+    }
+    public void PrintVoortgang(int i, int t, int s)
+    {
         Console.Clear();
         Console.WriteLine($"Beste oplossingsscore is:  {bestOplossing} \n" +
                           $"Huidige Score:             {s}             \n" +
                           $"Aantal iteraties :         {i}             \n" +
                           $"Totale iteraties :         {t}             \n" +
-                          $"Iteraties per minuut:      {t / timer.Elapsed.TotalMilliseconds * milToMin} \n" +
+                          $"Iteraties per seconde:      {t / timer.Elapsed.TotalSeconds} \n" +
                           $"Time elapsed :             {timer.Elapsed}");
       
     } 
@@ -142,6 +161,72 @@ public class ZoekAlgoritme
             w.Verplaats(node1, node2, extratijd1, extratijd2); //Swap
 
         return w.Eval;      //w.Evaluate(bedrijven);
+    }
+
+
+    public void ILS2()
+    {
+        Week w = new Week();
+
+        double T = 100; //temperatuur
+        double acceptKans;
+
+        Week fx = w;
+        Week fy;
+
+        int totItt = 0;
+
+        while (T >= stopCriteria)
+        {
+            fy = PickAction2(w, r);
+
+            if (fy.Eval < bestOplossing)
+            {
+                ChangeBest(fy, totItt);
+            }
+
+            acceptKans = double.Exp((fx.Eval - fy.Eval) / T);
+            if (fy.Eval <= fx.Eval || acceptKans > r.NextDouble())
+            {
+                fx = fy;
+            }
+
+            
+            
+            T *= tempVerkleining;
+
+
+            totItt++;
+        }
+    }
+    public Week PickAction2(Week w, Random r)
+    {
+        Week w1 = (Week)w.Clone();
+        //chances, we start with empty week, so addition is high
+        float chanceSwap = 0.19f;
+        float chanceInsert = 0.8f; //f maakt het een float
+        float chanceDelete = 1 - chanceSwap - chanceInsert; 
+
+        Bedrijf b = GetBedrijf(r);
+        double random = r.NextDouble();
+
+        if (chanceDelete >= random)
+            w1.Delete(b);
+        else if (chanceSwap >= random)  
+        {
+            Bedrijf b2 = GetBedrijf(r);
+
+            Node n1 = GetBedrijfNode(b, r);
+            Node n2 = GetBedrijfNode(b2, r);
+
+            (bool bo, int i, int j) = w1.SwapCheck(n1, n2 );
+
+            w1.Swap(n1, n2, i, j);
+        }
+        else if(chanceInsert >= random)
+            w1.Insert(b, r);
+
+        return w1;
     }
 
     public Bedrijf GetBedrijf(Random r)
