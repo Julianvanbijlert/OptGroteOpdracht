@@ -85,13 +85,13 @@ public class ZoekAlgoritme
             }  
         } 
         PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
-        //IO.CreateBest(week); ff weggecomment zodat ie nu nog niet duizenden files maakt
+        IO.CreateBest(week); 
         timer.Stop();
     }
 
     public void ChangeBest(int b, int t) // voor het testen ff wat dingen weggecomment, anders was het niet leesbaar in de console
     {
-        //IO.CreateBest(week);
+        //IO.CreateBest(week); ff weggecomment zodat ie nu nog niet duizenden files maakt
         best = week; 
         bestOplossing = b;
         
@@ -157,7 +157,7 @@ public class ZoekAlgoritme
         Node node2 = GetBedrijfNode(b2, r);
 
         (bool legaal, int extratijd1, int extratijd2) = w.VerplaatsCheck(node1, node2); //SwapCheck
-        if (legaal && extratijd1 + extratijd2 < 0)
+        if (legaal && extratijd1 + extratijd2 <= 0)
         {
             w.Verplaats(node1, node2, extratijd1, extratijd2); //Swap
             return w.Eval;

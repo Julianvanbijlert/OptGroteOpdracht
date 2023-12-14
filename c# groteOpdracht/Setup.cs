@@ -24,9 +24,9 @@ public class Setup
         vulBedrijven(IO.orderbestandFileNaam);
         vulDict();
 
-        werkWeek = new Week();
-        //werkWeek = IO.loadSolution("../../../../Scores.txt", bedrijven);
-        StelBeginoplossingIn(bedrijven, werkWeek); 
+        //werkWeek = new Week();
+        werkWeek = IO.loadSolution("../../../../Scores.txt", bedrijven); // dat is voor nu de beginoplossing
+        //StelBeginoplossingIn(bedrijven, werkWeek); 
 
         ZoekAlgoritme za = new ZoekAlgoritme(werkWeek, bedrijven);
 
