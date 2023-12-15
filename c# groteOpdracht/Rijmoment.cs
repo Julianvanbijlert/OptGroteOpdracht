@@ -179,7 +179,7 @@ public class Rijmoment
 
     public int Evaluate()
     {
-        return 1;
+        return tijd;
     }
 }
 

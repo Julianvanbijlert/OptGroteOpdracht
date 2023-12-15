@@ -106,6 +106,7 @@ public class Week : ICloneable
         bool gelukt;
         int extratijd1;
         int extratijd2;
+
         if (node1.rijmoment == node2.rijmoment)
         {
             extratijd1 = node1.rijmoment.ExtraTijdsKostenBijWisselen(node1, node2);
@@ -130,7 +131,7 @@ public class Week : ICloneable
             gelukt = Dag.InterBusSwapCheck(node1, node2, extratijd1, extratijd2);
         else gelukt = InterDagSwapCheck(node1, node2, extratijd1, extratijd2);
 
-        if (!gelukt)
+        if (!gelukt) //kan je niet gwn doen return gelukt??
         {
             return (false, 0, 0);
         }

@@ -19,7 +19,13 @@ public class ZoekAlgoritme
     private double tempVerkleining = 0.99;
     private double stopCriteria = 0.01;
 
+    //chances, we start with empty week, so addition is high
+    // nee we beginnen bij de beginoplossing? die zit op 6222
+    private static float chanceSwap = 0.98f;
+    private static float chanceInsert = 0.015f; //f maakt het een float
+    private static float chanceDelete = 1 - chanceSwap - chanceInsert;
 
+    private int sweeps = 1;
 
     public ZoekAlgoritme(Week w, List<Bedrijf> b)
     {
@@ -44,28 +50,24 @@ public class ZoekAlgoritme
         int totIteraties = 0;
         int justASmallScore = 5300;
         int amountOfRandomWalks = 5;
-        const int maxAmountOfItt = 1000;
+        const int maxAmountOfItt = 100000000;
         int showIn = 0; //wanneer het print
 
         double T = 100; //temperatuur
 
-        while (oplossing >= justASmallScore && totIteraties < 10000000) // stop anders stopt ie nooit, dat is toch de bedoeling? ja maar voor het testen ff
+        while (oplossing >= justASmallScore && totIteraties < 10_000_000) // stop anders stopt ie nooit, dat is toch de bedoeling? ja maar voor het testen ff
         {
             totIteraties++;
             oplossing = PickAction(week, r);
 
             //checkscore
-            if (oplossing <= bestOplossing)  
+            if (oplossing < bestOplossing)  
             {
                 //sla op in bestOplossing / naar file
                 ChangeBest(oplossing, totIteraties);
                 iteratiesSindsVeranderd = 0;
                 continue;
             }
-            
-
-
-            
 
             if (++iteratiesSindsVeranderd >= maxAmountOfItt)
             {
@@ -81,17 +83,22 @@ public class ZoekAlgoritme
                  * the performance of the local search */
                 PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
                 
-                showIn = 1000000; // heb ff veranderd naar miljoen, anders was het amper leesbaar
+                showIn = 1_000_000; // heb ff veranderd naar miljoen, anders was het amper leesbaar
             }  
         } 
         PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
-        IO.CreateBest(week); 
+        IO.CreateBest(week);
         timer.Stop();
     }
 
     public void ChangeBest(int b, int t) // voor het testen ff wat dingen weggecomment, anders was het niet leesbaar in de console
     {
-        //IO.CreateBest(week); ff weggecomment zodat ie nu nog niet duizenden files maakt
+
+        if (b < 6100)
+        {
+            IO.CreateBest(week); //ff weggecomment zodat ie nu nog niet duizenden files maakt
+        }
+        
         best = week; 
         bestOplossing = b;
         
@@ -117,17 +124,20 @@ public class ZoekAlgoritme
                           $"Huidige Score:             {s}             \n" +
                           $"Aantal iteraties :         {i}             \n" +
                           $"Totale iteraties :         {t}             \n" +
-                          $"Iteraties per seconde:      {t / timer.Elapsed.TotalSeconds} \n" +
+                          $"Iteraties per seconde:     {t / timer.Elapsed.TotalSeconds} \n" +
+     //                     $"Amount of sweeps           {sweeps}        \n" +
                           $"Time elapsed :             {timer.Elapsed}");
       
-    } 
+    }
 
 
+    Bedrijf b;
+    Bedrijf b2;
+    private int kostenTemp;
+    private Node node1;
+    private Node node2;
     public int PickAction(Week w, Random r)
     {
-        float chanceDelete = 0;
-        float chanceInsert = 1;
-        float chanceSwap = 1 - chanceDelete - chanceInsert;
 
         //Bedrijf b = GetBedrijf(r);
 
@@ -145,16 +155,15 @@ public class ZoekAlgoritme
         //    return w.Eval;  // w.Evaluate(bedrijven); 
         //}  
 
-        int kostenTemp = w.Eval;  // stuk hieronder is allemaal redelijk tijdelijk,
+        kostenTemp = w.Eval;  // stuk hieronder is allemaal redelijk tijdelijk,
                                   // (en alleen goed voor lokaal optimum)
                                   // maar was vooral om te testen
-        Bedrijf b;
-        Bedrijf b2;
+        
 
         while ((b = GetBedrijf(r)).wordtBezocht == false);
         while ((b2 = GetBedrijf(r)) == b || b2.wordtBezocht == false);
-        Node node1 = GetBedrijfNode(b, r);
-        Node node2 = GetBedrijfNode(b2, r);
+        node1 = GetBedrijfNode(b, r);
+        node2 = GetBedrijfNode(b2, r);
 
         (bool legaal, int extratijd1, int extratijd2) = w.VerplaatsCheck(node1, node2); //SwapCheck
         if (legaal && extratijd1 + extratijd2 <= 0)
@@ -165,61 +174,54 @@ public class ZoekAlgoritme
 
         return w.Eval + extratijd1 + extratijd2;      //w.Evaluate(bedrijven);
     }
-
-
-    public void ILS2()
+    public void ILSinf()
     {
-        Week w = new Week();
+        Week w = week;
 
         double T = 100; //temperatuur
-        double acceptKans;
-
-        Week fx = w;
-        Week fy;
+        int fy;
 
         int totItt = 0;
 
+        timer.Start();
         while (T >= stopCriteria)
         {
-            fy = PickAction2(w, r);
+            fy = PickAction2(w, r, T);
 
-            if (fy.Eval < bestOplossing)
+            if (fy < bestOplossing)
             {
-                ChangeBest(fy, totItt);
-            }
-
-            acceptKans = double.Exp((fx.Eval - fy.Eval) / T);
-            if (fy.Eval <= fx.Eval || acceptKans > r.NextDouble())
-            {
-                fx = fy;
+                ChangeBest(w, totItt);
             }
 
             
-            
-            T *= tempVerkleining;
-
-
             totItt++;
+
+            if (totItt % 1_000_000 == 0)
+            {
+                T *= tempVerkleining;
+                PrintVoortgang(totItt,totItt,w.Eval);
+            }
         }
-    }
-    public Week PickAction2(Week w, Random r) 
-        // dit is denk ik alsnog veel te veel insert en delete. we gaan verplaats/swap
-        // de standaard acties moeten maken, en insert/delete als we niks beters kunnen vinden.
-        // en zorgen dat insert/delete ook met score afhankelijke kansen gaat, zodat er niet teveel 
-        // bedrijven worden gedelete
+
+        sweeps++;
+        PrintVoortgang(totItt, totItt, w.Eval);
+        timer.Stop();
+        T = 100;
+        if (bestOplossing >= 5200)
+        {
+            ILSinf();
+        }
+    } 
+    public int PickAction2(Week w, Random r, double T) 
     {
-        Week w1 = (Week)w.Clone();
-        //chances, we start with empty week, so addition is high
-        // nee we beginnen bij de beginoplossing? die zit op 6222
-        float chanceSwap = 0.19f;
-        float chanceInsert = 0.8f; //f maakt het een float
-        float chanceDelete = 1 - chanceSwap - chanceInsert; 
 
         Bedrijf b = GetBedrijf(r);
         double random = r.NextDouble();
 
-        if (chanceDelete >= random)
-            w1.Delete(b);
+        
+
+        if (chanceDelete >= random && b.wordtBezocht)
+            w.Delete(b);
         else if (chanceSwap >= random)  
         {
             Bedrijf b2 = GetBedrijf(r);
@@ -227,14 +229,25 @@ public class ZoekAlgoritme
             Node n1 = GetBedrijfNode(b, r);
             Node n2 = GetBedrijfNode(b2, r);
 
-            (bool bo, int i, int j) = w1.SwapCheck(n1, n2 );
-
-            w1.Swap(n1, n2, i, j);
+            (bool bo, int i, int j) = w.SwapCheck(n1, n2 );
+            if (bo && AcceptatieKans(i, j, T, r))
+            {
+                w.Swap(n1, n2, i, j);
+            }
+            
         }
-        else if(chanceInsert >= random)
-            w1.Insert(b, r);
+        else if(chanceInsert >= random && !b.wordtBezocht)
+            w.Insert(b, r);
 
-        return w1;
+        return w.Eval;
+    }
+
+    public bool AcceptatieKans(int i, int j, double T, Random r)
+    {
+
+        double acceptKans = double.Exp((i + j) / T);
+        return i + j <= 0 || acceptKans > r.NextDouble();
+
     }
 
     public Bedrijf GetBedrijf(Random r)
