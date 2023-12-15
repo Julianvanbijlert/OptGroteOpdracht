@@ -55,7 +55,7 @@ public class ZoekAlgoritme
 
         double T = 100; //temperatuur
 
-        while (oplossing >= justASmallScore && totIteraties < 10_000_000) // stop anders stopt ie nooit, dat is toch de bedoeling? ja maar voor het testen ff
+        while (oplossing >= justASmallScore && totIteraties < 100_000_000) // stop anders stopt ie nooit, dat is toch de bedoeling? ja maar voor het testen ff
         {
             totIteraties++;
             oplossing = PickAction(week, r);
