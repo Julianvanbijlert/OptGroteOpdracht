@@ -55,7 +55,7 @@ public class ZoekAlgoritme
 
         double T = 100; //temperatuur
 
-        while (oplossing >= justASmallScore && totIteraties < 10_000_000) // stop anders stopt ie nooit, dat is toch de bedoeling? ja maar voor het testen ff
+        while (oplossing >= justASmallScore && totIteraties < 1_000_000_000) // stop anders stopt ie nooit, dat is toch de bedoeling? ja maar voor het testen ff
         {
             totIteraties++;
             oplossing = PickAction(week, r);
@@ -87,7 +87,7 @@ public class ZoekAlgoritme
             }  
         } 
         PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
-        IO.CreateBest(week);
+        //IO.CreateBest(week);
         timer.Stop();
     }
 
@@ -102,9 +102,9 @@ public class ZoekAlgoritme
         best = week; 
         bestOplossing = b;
         
-        //Console.ForegroundColor = ConsoleColor.Green;
-        //PrintVoortgang(b, 0, t);
-        //Console.ForegroundColor = ConsoleColor.White;
+        Console.ForegroundColor = ConsoleColor.Green;
+        PrintVoortgang(b, 0, t);
+        Console.ForegroundColor = ConsoleColor.White;
     }
 
     public void ChangeBest(Week w, int t)
