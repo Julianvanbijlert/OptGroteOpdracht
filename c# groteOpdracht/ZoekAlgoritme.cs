@@ -197,7 +197,7 @@ public class ZoekAlgoritme
         //delete and add
         if (sweeps % 100 == 0)
         {
-            //dodelete or add
+            //do delete or add
         }
         //random reset
         if (sweeps % 1000 == 0)
@@ -234,7 +234,7 @@ public class ZoekAlgoritme
 
             totItt++;
 
-            if (totItt % 10_000 == 0)
+            if (totItt % 100_000 == 0)
             {
                 PrintVoortgang(totItt, totItt, week.Eval);
                 T *= tempVerkleining;
