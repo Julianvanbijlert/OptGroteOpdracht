@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection.Metadata;
+using System.Text.RegularExpressions;
 
 public class Setup
 {
@@ -28,15 +29,16 @@ public class Setup
         werkWeek = IO.loadSolution("../../../../Scores.txt", bedrijven); // dat is voor nu de beginoplossing
         //StelBeginoplossingIn(bedrijven, werkWeek); 
 
+
         ZoekAlgoritme za = new ZoekAlgoritme(werkWeek, bedrijven);
 
         // ik zou hem van tevoren ook ff bfs'en voor de zekerheid, kost niet veel tijd
 
         za.BFS();
-        za.ILS();
+        za.ILSinf();
         za.BFS();
 
-        IO.PrintSolution(werkWeek);
+        //IO.PrintSolution(werkWeek);
         //IO.PrintSolutionToFile(werkWeek);
         //Output.MakeNewBestFile(werkWeek); 
     }

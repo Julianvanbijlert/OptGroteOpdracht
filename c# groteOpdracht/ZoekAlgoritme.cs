@@ -18,6 +18,7 @@ public class ZoekAlgoritme
     private List<Bedrijf> bedrijven;
     private double tempVerkleining = 0.99;
     private double stopCriteria = 0.01;
+    private int totItt = 0;
 
     //chances, we start with empty week, so addition is high
     // nee we beginnen bij de beginoplossing? die zit op 6222
@@ -86,7 +87,7 @@ public class ZoekAlgoritme
                 showIn = 1_000_000; // heb ff veranderd naar miljoen, anders was het amper leesbaar
             }  
         } 
-        PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
+        //PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
         //IO.CreateBest(week);
         timer.Stop();
     }
@@ -125,7 +126,7 @@ public class ZoekAlgoritme
                           $"Aantal iteraties :         {i}             \n" +
                           $"Totale iteraties :         {t}             \n" +
                           $"Iteraties per seconde:     {t / timer.Elapsed.TotalSeconds} \n" +
-     //                     $"Amount of sweeps           {sweeps}        \n" +
+                          $"Amount of sweeps           {sweeps}        \n" +
                           $"Time elapsed :             {timer.Elapsed}");
       
     }
@@ -176,42 +177,71 @@ public class ZoekAlgoritme
     }
     public void ILSinf()
     {
-        Week w = week;
-
-        double T = 100; //temperatuur
-        int fy;
-
-        int totItt = 0;
-
+        
         timer.Start();
-        while (T >= stopCriteria)
+
+
+        //reset t
+        IlSitt(); //automatically resets t
+        
+        sweeps++;
+        //if it goes out of the ilsitt that means that there have been a lot of itterations, so something has to change
+
+
+        //random walk
+        if (sweeps % 10 == 0)
         {
-            fy = PickAction2(w, r, T);
-
-            if (fy < bestOplossing)
-            {
-                ChangeBest(w, totItt);
-            }
-
-            
-            totItt++;
-
-            if (totItt % 1_000_000 == 0)
-            {
-                T *= tempVerkleining;
-                PrintVoortgang(totItt,totItt,w.Eval);
-            }
+            //sweeps / 10 zorgt dat hij steeds meer random walked zodat hij verder uit het minimum kan komen
+            RandomWalk(sweeps/10, r); 
+        }
+        //delete and add
+        if (sweeps % 100 == 0)
+        {
+            //dodelete or add
+        }
+        //random reset
+        if (sweeps % 1000 == 0)
+        {
+            //load old file
+            sweeps = 0;
         }
 
-        sweeps++;
-        PrintVoortgang(totItt, totItt, w.Eval);
-        timer.Stop();
-        T = 100;
-        if (bestOplossing >= 5200)
+        //ff 0 gemaakt door verkeerde berekening score, dus gaat eeuwig door
+        if (bestOplossing >= 0)
         {
             ILSinf();
         }
-    } 
+        timer.Stop();
+
+    }
+
+    public void IlSitt()
+    {
+        double T = 100; //temperatuur
+        int fy;
+
+        //gets hit after 917 tempverkleinings
+        while (T >= stopCriteria)
+        {
+            //fy = PickAction2(week, r, T);
+            fy = Swap(T);
+
+            if (fy < bestOplossing)
+            {
+                ChangeBest(week, totItt);
+            }
+
+
+            totItt++;
+
+            if (totItt % 10_000 == 0)
+            {
+                PrintVoortgang(totItt, totItt, week.Eval);
+                T *= tempVerkleining;
+            }
+            
+        }
+    }
     public int PickAction2(Week w, Random r, double T) 
     {
 
@@ -241,6 +271,23 @@ public class ZoekAlgoritme
 
         return w.Eval;
     }
+    public int Swap(double T)
+    {
+        Bedrijf b = GetBedrijf(r);
+        Bedrijf b2 = GetBedrijf(r);
+        //double random = r.NextDouble();
+
+        Node n1 = GetBedrijfNode(b, r);
+        Node n2 = GetBedrijfNode(b2, r);
+
+        (bool bo, int i, int j) = week.SwapCheck(n1, n2);
+        if (bo && AcceptatieKans(i, j, T, r))
+        {
+            week.Swap(n1, n2, i, j);
+        }
+
+        return week.Eval;
+    }
 
     public bool AcceptatieKans(int i, int j, double T, Random r)
     {
@@ -264,7 +311,7 @@ public class ZoekAlgoritme
     {
         for (int j = 0; j <= i; j++)
         {
-            _ = PickAction(week, r);
+            _ = Swap(0.00000000000001);
         }
 
     }
