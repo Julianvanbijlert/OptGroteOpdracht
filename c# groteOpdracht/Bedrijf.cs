@@ -73,5 +73,14 @@ public class Bedrijf
         }
         return null;
     }
+
+    public void ResetNodes()
+    {
+        foreach (Node n in Locaties)
+        {
+            n.Next = null;
+            n.Previous = null;
+        }
+    }
 }
 

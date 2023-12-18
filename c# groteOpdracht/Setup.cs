@@ -28,10 +28,11 @@ public class Setup
         vulDict();
 
         //werkWeek = new Week();
-        werkWeek = IO.loadSolution("../../../../Scores.txt", bedrijven); // dat is voor nu de beginoplossing
+        //werkWeek = IO.loadSolution("../../../../Scores.txt", bedrijven); // dat is voor nu de beginoplossing
         //StelBeginoplossingIn(bedrijven, werkWeek); 
 
 
+        werkWeek = IO.LoadSolutionAuto();
         ZoekAlgoritme za = new ZoekAlgoritme(werkWeek, bedrijven);
 
         // ik zou hem van tevoren ook ff bfs'en voor de zekerheid, kost niet veel tijd
@@ -42,7 +43,7 @@ public class Setup
 
         //IO.PrintSolution(werkWeek);
         //IO.PrintSolutionToFile(werkWeek);
-        //Output.MakeNewBestFile(werkWeek); 
+        //IO.MakeNewBestFile(werkWeek); 
     }
     static void vulDict()
     {
@@ -239,6 +240,15 @@ public class Setup
     public static Bedrijf VindBedrijf(int ord)
     {
         return bedrijvenDict[ord];
+    }
+
+    public static void ResetBedrijven()
+    {
+        foreach (Bedrijf b in bedrijven)
+        {
+            b.wordtBezocht = false;
+            b.ResetNodes();
+        }
     }
 }
 

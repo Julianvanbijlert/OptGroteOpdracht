@@ -192,6 +192,7 @@ public class ZoekAlgoritme
         //random walk
         if (sweeps % 10 == 0)
         {
+            
             //sweeps / 10 zorgt dat hij steeds meer random walked zodat hij verder uit het minimum kan komen
             RandomWalk(sweeps / 10, r);
         }
@@ -204,6 +205,8 @@ public class ZoekAlgoritme
         if (sweeps % 1000 == 0)
         {
             //load old file
+            Setup.ResetBedrijven();
+            week = IO.LoadSolutionAuto();
             sweeps = 0;
         }
 
@@ -400,7 +403,7 @@ public class ZoekAlgoritme
     {
         for (int j = 0; j <= i; j++)
         {
-            //_ = Swap(0.00000000000001);
+            Swap(10000000000);
         } // dit werkt niet, die T moet juist heel hoog zijn, en ik weet ook niet of het tactisch is om het aantal swaps af te laten hangen van T. daar moet een max aan zitten
 
     }
