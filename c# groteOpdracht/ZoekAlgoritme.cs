@@ -317,12 +317,12 @@ public class ZoekAlgoritme
         }
         else if (i == 20)
             return;
-        else // if (!AcceptatieKans(week.Eval - kostenTemp, T, r))
+        else if (!AcceptatieKans(week.Eval - kostenTemp, T, r))
         {
             week.Delete(bedrijf);
-        //}
-        //else
-        //{
+        }
+        else
+        {
             week.bedrijvenWel.Add(bedrijf.orderNummer, bedrijf);
             week.bedrijvenNiet.Remove(bedrijf.orderNummer);
         }
@@ -343,7 +343,7 @@ public class ZoekAlgoritme
         if (i == 20) return;
         int extraTijd = extratijd.Sum();
 
-        if (extraTijd < 0) // || AcceptatieKans(extraTijd, T, r))
+        if (extraTijd < 0 || AcceptatieKans(extraTijd, T, r))
         {
             week.bedrijvenNiet.Add(bedrijf.orderNummer, bedrijf);
             week.bedrijvenWel.Remove(bedrijf.orderNummer);
