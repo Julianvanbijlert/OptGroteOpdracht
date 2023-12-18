@@ -2,10 +2,11 @@ namespace rommelrouterakkers;
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Xml.Linq;
 
-public class Week : ICloneable
+public class Week
 {
     //index from 1 to 5, not 0 to 4
     public Dag[] dagen = new Dag[6];
@@ -74,6 +75,38 @@ public class Week : ICloneable
         hierVoor.rijmoment.ToevoegenVoor(mover, hierVoor, extratijd2);
     }
 
+    public (bool, int[]) DeleteCheck(Bedrijf b)
+    {
+        int[] extratijd = new int[b.Locaties.Count];
+        Node n;
+        int extraTijd;
+        for (int i = 0; i < b.Locaties.Count; i++)
+        {
+            n = b.Locaties[i];
+            extraTijd = n.ExtraTijdskostenBijVerwijderen();
+            if (n.rijmoment.bus.tijd + extraTijd > 43200 * 1000)
+            {
+                return (false, null);
+            }
+            extratijd[i] = extraTijd;
+        }
+
+        return (true, extratijd);
+    }
+
+    public void Delete(Bedrijf b, int[] extratijd)
+    {
+        Node n;
+        for (int i = 0; i < b.Locaties.Count; i++)
+        {
+            n = b.Locaties[i];
+            n.Verwijder(extratijd[i]);
+        }
+
+        b.wordtBezocht = false;
+        kosten += 3 * b.frequentie * b.ledigingsDuur;
+    }
+
     public bool Delete(Bedrijf b)
     {
         int[] extratijd = new int[b.Locaties.Count];
@@ -98,8 +131,6 @@ public class Week : ICloneable
         
         b.wordtBezocht = false;
         kosten += 3 * b.frequentie * b.ledigingsDuur;
-        bedrijvenNiet.Add(b.orderNummer, b);
-        bedrijvenWel.Remove(b.orderNummer);
         return true;
     }
 
@@ -221,8 +252,6 @@ public class Week : ICloneable
         }
         kosten -= 3 * b.frequentie * b.ledigingsDuur;
         b.wordtBezocht = true;
-        bedrijvenWel.Add(b.orderNummer, b);
-        bedrijvenNiet.Remove(b.orderNummer);
         return true;
     }
     public int AddDag1(Bedrijf b, Random r)

@@ -14,7 +14,7 @@ public static class IO
     private static readonly string _scoreMap = "../../../scorefiles/";
     private static readonly string _scoreFile = filepath + "Scores.txt";
 
-
+    
     //VrachtwagenNummer ; Dagnummer ; hoeveelste adres ; id van dat adres (odernummer?) afstorten is 0
 
 
@@ -124,20 +124,27 @@ public static class IO
     public static void CreateBest(Week w)
     {
         string s = w.ToString();
+        DateTime currentDateTime = DateTime.Now;
+        string dateTimeString = currentDateTime.ToString("MM-dd_HH-mm-ss"); // Using underscores instead of colons
         try
         {
             // Combine the location and the filename (using the integer as the filename)
-            string filePath = Path.Combine(_scoreMap, $"{w.Eval}.txt");
+            string filePath = Path.Combine(_scoreMap, $"{w.Eval}________{dateTimeString}.txt");
 
             // Write the string content to the file
             File.WriteAllText(filePath, s);
 
-            Console.WriteLine($"Printed score {w.Eval} succesfully");
+            Console.WriteLine($"Printed score {w.Eval} successfully");
 
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error creating the file: {ex.Message}");
         }
+    }
+
+    public static void OpenPrevFile()
+    {
+        
     }
 }

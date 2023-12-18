@@ -218,23 +218,16 @@ public class ZoekAlgoritme
 
     public void IlSitt()
     {
-        double T = 100; //temperatuur
+        double T = 20_000; //temperatuur
         int fy;
         int geenVerbetering = 0;
+        int bestHuidig = int.MaxValue;
         int welk;
 
         //gets hit after 917 tempverkleinings
-        while (geenVerbetering < 5_000_000) //(T >= stopCriteria)
+        while (geenVerbetering < 20_000_000) //(T >= stopCriteria)
         {
             //fy = PickAction2(week, r, T);
-            
-            //welk = r.Next(0, 10);
-            //if (welk < 2)
-            //    Insert(T);
-            //else if (welk == 2)
-            //    Delete(T);
-            //else
-            //    Swap(T);
 
             Swap(T);
 
@@ -244,6 +237,11 @@ public class ZoekAlgoritme
             {
                 ChangeBest(week, totItt);
                 geenVerbetering = 0;
+            }
+            else if (fy < bestHuidig)
+            {
+                geenVerbetering = 0;
+                bestHuidig = fy;
             }
             else
             {
@@ -258,6 +256,15 @@ public class ZoekAlgoritme
                 PrintVoortgang(totItt, totItt, week.Eval);
                 T *= tempVerkleining;
             }
+
+            //if (geenVerbetering == 10_000_000)
+            //{
+            //    welk = r.Next(0, 3);
+            //    if (welk < 2)
+            //        Insert(T);
+            //    else if (welk == 2)
+            //        Delete(T);
+            //}
         }
     }
     public int PickAction2(Week w, Random r, double T) 
@@ -295,9 +302,28 @@ public class ZoekAlgoritme
         if (week.bedrijvenNiet.Count == 0) return;
         int i = 0;
         int kostenTemp = week.Eval;
-        while (i < 20 && !week.Insert(week.bedrijvenNiet[r.Next(0, week.bedrijvenNiet.Count)], r))
+        Bedrijf bedrijf = Setup.stort; // tijdelijk, waarom kan je hem niet zonder assignment gebruiken
+        
+        while (i < 20 && !week.Insert(bedrijf = week.bedrijvenNiet.ElementAt(r.Next(0, week.bedrijvenNiet.Count)).Value, r))
             i++;
-        // nog maken dat ie het wellicht terugzet als acceptatiekans false
+
+        if (week.Eval - kostenTemp < 0)
+        {
+            week.bedrijvenWel.Add(bedrijf.orderNummer, bedrijf);
+            week.bedrijvenNiet.Remove(bedrijf.orderNummer);
+        }
+        else if (i == 20)
+            return;
+        else // if (!AcceptatieKans(week.Eval - kostenTemp, T, r))
+        {
+            week.Delete(bedrijf);
+        //}
+        //else
+        //{
+            week.bedrijvenWel.Add(bedrijf.orderNummer, bedrijf);
+            week.bedrijvenNiet.Remove(bedrijf.orderNummer);
+        }
+
         return;
     }
 
@@ -305,10 +331,21 @@ public class ZoekAlgoritme
     {
         if (week.bedrijvenWel.Count == 0) return;
         int i = 0;
-        while (i < 20 && !week.Delete(week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)]))
+        int[] extratijd = new int[0];
+        Bedrijf bedrijf = Setup.stort;
+
+        while (i < 20 && !((_, extratijd) = week.DeleteCheck(bedrijf = week.bedrijvenWel.ElementAt(r.Next(0, week.bedrijvenWel.Count)).Value)).Item1)
             i++;
-        // zelfde
-        return;
+
+        if (i == 20) return;
+        int extraTijd = extratijd.Sum();
+
+        if (extraTijd < 0) // || AcceptatieKans(extraTijd, T, r))
+        {
+            week.bedrijvenNiet.Add(bedrijf.orderNummer, bedrijf);
+            week.bedrijvenWel.Remove(bedrijf.orderNummer);
+            week.Delete(bedrijf, extratijd);
+        }
     }
     public void Swap(double T)
     {
