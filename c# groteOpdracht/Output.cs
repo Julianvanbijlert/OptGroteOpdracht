@@ -22,57 +22,88 @@ public static class IO
 
     /*
      * NOTE: Dit werkt alleen als er een geldige solution in de text file staat.
-     * Er is geen error handling, en als hij niet langs 0 gaat dan zijn we de lul. 
+     * Er is geen error handling, en als hij niet langs 0 gaat dan zijn we de lul.
      */
-    public static Week loadSolution(string fileNaam, List<Bedrijf> bedrijven)
+    public static Week LoadSolutionAuto()
     {
         Week w = new Week();
-        StreamReader sr = new StreamReader(fileNaam);
-        string regel;
-        string[] list;
-        int bus;
-        int dag;
-        int ord;
-        Bedrijf b;
-        bool stortIngelezen = true;
-
-        while ((regel = sr.ReadLine()) != null)
+        try
         {
-            try
-            {
-                list = regel.Split(';');
-                bus = int.Parse(list[0]) - 1;
-                dag = int.Parse(list[1]);
-                ord = int.Parse(list[3]);
+            string[] files = Directory.GetFiles(_scoreMap);
 
-                
-
-            }
-            catch(Exception e)
+            if (files.Length == 0)
             {
-                Console.WriteLine("SkippedLine due to error, check file");
-                break;
-
-            }
-            if (ord == 0)
-            {
-                stortIngelezen = true;
-            }
-            else
-            {
-                b = Setup.VindBedrijf(ord);
-                if (!b.wordtBezocht)
-                {
-                    b.wordtBezocht = true;
-                    w.bedrijvenWel.Add(b.orderNummer, b);
-                }
-
-                w.Load(dag, bus, b, stortIngelezen);
-                stortIngelezen = false;
+                Console.WriteLine("No files found in the specified directory.");
+                return null; // or throw an exception or handle the case as appropriate
             }
 
+            string firstFilePath = files[0];
+            w = LoadSolution(firstFilePath, Setup.bedrijven);
         }
-        sr.Close();
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading solution: {ex.Message}");
+            return null; // or throw an exception or handle the case as appropriate
+        }
+
+        return w;
+    }
+
+    public static Week LoadSolution(string fileNaam, List<Bedrijf> bedrijven)
+    {
+        Week w = new Week();
+
+        try
+        {
+            using (StreamReader sr = new StreamReader(fileNaam))
+            {
+                string regel;
+                string[] list;
+                int bus;
+                int dag;
+                int ord;
+                Bedrijf b;
+                bool stortIngelezen = true;
+
+                while ((regel = sr.ReadLine()) != null)
+                {
+                    try
+                    {
+                        list = regel.Split(';');
+                        bus = int.Parse(list[0]) - 1;
+                        dag = int.Parse(list[1]);
+                        ord = int.Parse(list[3]);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("SkippedLine due to error, check file");
+                        break;
+                    }
+
+                    if (ord == 0)
+                    {
+                        stortIngelezen = true;
+                    }
+                    else
+                    {
+                        b = Setup.VindBedrijf(ord);
+                        if (!b.wordtBezocht)
+                        {
+                            b.wordtBezocht = true;
+                            w.bedrijvenWel.Add(b.orderNummer, b);
+                        }
+
+                        w.Load(dag, bus, b, stortIngelezen);
+                        stortIngelezen = false;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading solution: {ex.Message}");
+            return null; // or throw an exception or handle the case as appropriate
+        }
 
         foreach (Bedrijf bedrijf in bedrijven)
         {
@@ -82,11 +113,10 @@ public static class IO
                 w.bedrijvenNiet.Add(bedrijf.orderNummer, bedrijf);
             }
         }
-        
+
         return w;
     }
 
-   
 
 
 
@@ -106,9 +136,10 @@ public static class IO
         Console.WriteLine(w.ToString());
 
         Console.WriteLine("score: " + w.Eval);
-        Console.WriteLine("Ik heb alle ledigingsduren naar boven afgerond. hierdoor valt de score ongeveer +/- 5 hoger uit \n" +
-                          "dan zou moeten, maar daardoor bouwen we geen afrondfouten op, wat vervelend is bij controleren \n" +
-                          "of tijden groter of kleiner zijn dan 0. een iets hoger uitvallende score is opzich geen enorme ramp");
+        Console.WriteLine(
+            "Ik heb alle ledigingsduren naar boven afgerond. hierdoor valt de score ongeveer +/- 5 hoger uit \n" +
+            "dan zou moeten, maar daardoor bouwen we geen afrondfouten op, wat vervelend is bij controleren \n" +
+            "of tijden groter of kleiner zijn dan 0. een iets hoger uitvallende score is opzich geen enorme ramp");
     }
 
     public static void PrintSolutionToFile(Week w)
@@ -124,15 +155,17 @@ public static class IO
     public static void CreateBest(Week w)
     {
         string s = w.ToString();
+        DateTime currentDateTime = DateTime.Now;
+        string dateTimeString = currentDateTime.ToString("MM-dd_HH-mm-ss"); // Using underscores instead of colons
         try
         {
             // Combine the location and the filename (using the integer as the filename)
-            string filePath = Path.Combine(_scoreMap, $"{w.Eval}.txt");
+            string filePath = Path.Combine(_scoreMap, $"{w.Eval}________{dateTimeString}.txt");
 
             // Write the string content to the file
             File.WriteAllText(filePath, s);
 
-            Console.WriteLine($"Printed score {w.Eval} succesfully");
+            Console.WriteLine($"Printed score {w.Eval} successfully");
 
         }
         catch (Exception ex)
