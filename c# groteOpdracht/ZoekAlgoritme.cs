@@ -62,7 +62,7 @@ public class ZoekAlgoritme
             oplossing = PickAction(week, r);
 
             //checkscore
-            if (oplossing < bestOplossing)  
+            if (oplossing < bestOplossing)
             {
                 //sla op in bestOplossing / naar file
                 ChangeBest(oplossing, totIteraties);
@@ -77,16 +77,16 @@ public class ZoekAlgoritme
 
                 iteratiesSindsVeranderd = 0;
             }
-            
+
             if (--showIn <= 0)
             {
                 /* Don't measure printing to console, we're only interested in
                  * the performance of the local search */
                 PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
-                
+
                 showIn = 1_000_000; // heb ff veranderd naar miljoen, anders was het amper leesbaar
-            }  
-        } 
+            }
+        }
         //PrintVoortgang(iteratiesSindsVeranderd, totIteraties, oplossing);
         //IO.CreateBest(week);
         timer.Stop();
@@ -99,10 +99,10 @@ public class ZoekAlgoritme
         {
             IO.CreateBest(week); //ff weggecomment zodat ie nu nog niet duizenden files maakt
         }
-        
-        best = week; 
+
+        best = week;
         bestOplossing = b;
-        
+
         Console.ForegroundColor = ConsoleColor.Green;
         PrintVoortgang(b, 0, t);
         Console.ForegroundColor = ConsoleColor.White;
@@ -128,7 +128,7 @@ public class ZoekAlgoritme
                           $"Iteraties per seconde:     {t / timer.Elapsed.TotalSeconds} \n" +
                           $"Amount of sweeps           {sweeps}        \n" +
                           $"Time elapsed :             {timer.Elapsed}");
-      
+
     }
 
 
@@ -157,12 +157,12 @@ public class ZoekAlgoritme
         //}  
 
         kostenTemp = w.Eval;  // stuk hieronder is allemaal redelijk tijdelijk,
-                                  // (en alleen goed voor lokaal optimum)
-                                  // maar was vooral om te testen
-        
+                              // (en alleen goed voor lokaal optimum)
+                              // maar was vooral om te testen
 
-        while ((b = GetBedrijf(r)).wordtBezocht == false);
-        while ((b2 = GetBedrijf(r)) == b || b2.wordtBezocht == false);
+
+        while ((b = GetBedrijf(r)).wordtBezocht == false) ;
+        while ((b2 = GetBedrijf(r)) == b || b2.wordtBezocht == false) ;
         node1 = GetBedrijfNode(b, r);
         node2 = GetBedrijfNode(b2, r);
 
@@ -177,13 +177,13 @@ public class ZoekAlgoritme
     }
     public void ILSinf()
     {
-        
+
         timer.Start();
 
 
         //reset t
         IlSitt(); //automatically resets t
-        
+
         sweeps++;
         //if it goes out of the ilsitt that means that there have been a lot of itterations, so something has to change
 
@@ -192,7 +192,7 @@ public class ZoekAlgoritme
         if (sweeps % 10 == 0)
         {
             //sweeps / 10 zorgt dat hij steeds meer random walked zodat hij verder uit het minimum kan komen
-            RandomWalk(sweeps/10, r); 
+            RandomWalk(sweeps / 10, r);
         }
         //delete and add
         if (sweeps % 100 == 0)
@@ -219,27 +219,41 @@ public class ZoekAlgoritme
     {
         double T = 100; //temperatuur
         int fy;
+        int geenVerbetering = 0;
+        int welk;
 
         //gets hit after 917 tempverkleinings
-        while (T >= stopCriteria)
+        while (geenVerbetering < 5_000_000) //(T >= stopCriteria)
         {
             //fy = PickAction2(week, r, T);
+            //welk = r.Next(0, 10);
+            //if (welk < 2)
+            //    fy = Insert(T);
+            //else if (welk == 2)
+            //    fy = Delete(T);
+            //else 
+            //    fy = Swap(T);
+
             fy = Swap(T);
 
             if (fy < bestOplossing)
             {
                 ChangeBest(week, totItt);
+                geenVerbetering = 0;
+            }
+            else
+            {
+                geenVerbetering++;
             }
 
 
             totItt++;
 
-            if (totItt % 100_000 == 0)
+            if (totItt % 1_000_000 == 0)
             {
                 PrintVoortgang(totItt, totItt, week.Eval);
                 T *= tempVerkleining;
             }
-            
         }
     }
     public int PickAction2(Week w, Random r, double T) 
@@ -271,19 +285,44 @@ public class ZoekAlgoritme
 
         return w.Eval;
     }
+
+    public int Insert(double T)
+    {     
+        return 0;
+    }
+
+    public int Delete(double T)
+    {
+        return 0;
+    }
     public int Swap(double T)
     {
-        Bedrijf b = GetBedrijf(r);
-        Bedrijf b2 = GetBedrijf(r);
+        Bedrijf b;
+        Bedrijf b2;
+
+        while ((b = GetBedrijf(r)).wordtBezocht == false) ;
+        while ((b2 = GetBedrijf(r)) == b || b2.wordtBezocht == false);
         //double random = r.NextDouble();
 
         Node n1 = GetBedrijfNode(b, r);
         Node n2 = GetBedrijfNode(b2, r);
 
-        (bool bo, int i, int j) = week.SwapCheck(n1, n2);
-        if (bo && AcceptatieKans(i, j, T, r))
+        if (r.Next(0, 2) == 0)
         {
-            week.Swap(n1, n2, i, j);
+            (bool bo, int i, int j) = week.SwapCheck(n1, n2);
+            if (bo && AcceptatieKans(i, j, T, r))
+            {
+                week.Swap(n1, n2, i, j);
+            }
+        }
+
+        else
+        {
+            (bool bo, int i, int j) = week.VerplaatsCheck(n1, n2);
+            if (bo && AcceptatieKans(i, j, T, r))
+            {
+                week.Verplaats(n1, n2, i, j);
+            }
         }
 
         return week.Eval;
@@ -292,7 +331,7 @@ public class ZoekAlgoritme
     public bool AcceptatieKans(int i, int j, double T, Random r)
     {
 
-        double acceptKans = double.Exp((i + j) / T);
+        double acceptKans = double.Exp(-(i + j) / T);
         return i + j <= 0 || acceptKans > r.NextDouble();
 
     }
@@ -312,7 +351,7 @@ public class ZoekAlgoritme
         for (int j = 0; j <= i; j++)
         {
             _ = Swap(0.00000000000001);
-        }
+        } // dit werkt niet, die T moet juist heel hoog zijn, en ik weet ook niet of het tactisch is om het aantal swaps af te laten hangen van T. daar moet een max aan zitten
 
     }
 

@@ -17,6 +17,8 @@ public class Setup
     public Week werkWeek = new Week();
     public static List<Bedrijf> bedrijven = new List<Bedrijf>();
     public static Dictionary<int, Bedrijf> bedrijvenDict = new Dictionary<int, Bedrijf>();
+    // 2 dictionaries bijhouden, 1 met welke bedrijven er wel in zitten en 1 met welke bedrijven er niet in zitten, qua ordernummer
+    // dan kan je redelijk makkelijk verwijderen/toevoegen/bedrijf kiezen
 
 
     public Setup()
@@ -164,6 +166,7 @@ public class Setup
             huidigen[k].LaatstToevoegen(bedr.Locaties[0], extratijd);
             huidigen[k + 3].LaatstToevoegen(bedr.Locaties[1], extratijd);
             bedr.wordtBezocht = true;
+            werkWeek.bedrijvenWel.Add(bedr.orderNummer, bedr);
         }
 
         bedrijvenPerFreq[3] = SorteerBedrijven(bedrijvenPerFreq[3]);
@@ -175,6 +178,7 @@ public class Setup
                 huidigen[2 * i + 1].LaatstToevoegen(bedr.Locaties[i], extratijd);
             }
             bedr.wordtBezocht = true;
+            werkWeek.bedrijvenWel.Add(bedr.orderNummer, bedr);
         }
 
         Bedrijf bedr4 = bedrijvenPerFreq[4][0];
@@ -184,6 +188,7 @@ public class Setup
             huidigen[i].LaatstToevoegen(bedr4.Locaties[i - 1], extratijd);
         }
         bedr4.wordtBezocht = true;
+        werkWeek.bedrijvenWel.Add(bedr4.orderNummer, bedr4);
 
         Rijmoment huidig;
         Bus bus;
@@ -221,6 +226,7 @@ public class Setup
                             break; 
                         }
                         huidig.LaatstToevoegen(bedrijf.Locaties[0], extratijd);
+                        werkWeek.bedrijvenWel.Add(bedrijf.orderNummer, bedrijf);
                         bedrijf.wordtBezocht = true;
                         bedrijvenPerFreq[1].RemoveAt(0);
                     }

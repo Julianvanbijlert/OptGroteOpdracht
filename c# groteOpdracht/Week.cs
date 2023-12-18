@@ -11,7 +11,8 @@ public class Week : ICloneable
     public Dag[] dagen = new Dag[6];
     public int kosten = 0;
     public int tijd = 0;
-
+    public Dictionary<int, Bedrijf> bedrijvenWel = new Dictionary<int, Bedrijf>();
+    public Dictionary<int, Bedrijf> bedrijvenNiet = new Dictionary<int, Bedrijf>();
     public Week()
     {
         for (int i = 1; i <= 5; i++)
@@ -97,6 +98,8 @@ public class Week : ICloneable
         
         b.wordtBezocht = false;
         kosten += 3 * b.frequentie * b.ledigingsDuur;
+        bedrijvenNiet.Add(b.orderNummer, b);
+        bedrijvenWel.Remove(b.orderNummer);
         return true;
     }
 
@@ -218,6 +221,8 @@ public class Week : ICloneable
         }
         kosten -= 3 * b.frequentie * b.ledigingsDuur;
         b.wordtBezocht = true;
+        bedrijvenWel.Add(b.orderNummer, b);
+        bedrijvenNiet.Remove(b.orderNummer);
         return true;
     }
     public int AddDag1(Bedrijf b, Random r)

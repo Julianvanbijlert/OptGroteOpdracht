@@ -61,7 +61,11 @@ public static class IO
             else
             {
                 b = Setup.VindBedrijf(ord);
-                b.wordtBezocht = true;
+                if (!b.wordtBezocht)
+                {
+                    b.wordtBezocht = true;
+                    w.bedrijvenWel.Add(b.orderNummer, b);
+                }
 
                 w.Load(dag, bus, b, stortIngelezen);
                 stortIngelezen = false;
@@ -75,6 +79,7 @@ public static class IO
             if (!bedrijf.wordtBezocht)
             {
                 w.kosten += 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
+                w.bedrijvenNiet.Add(bedrijf.orderNummer, bedrijf);
             }
         }
         
