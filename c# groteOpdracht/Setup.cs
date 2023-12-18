@@ -32,6 +32,7 @@ public class Setup
         //StelBeginoplossingIn(bedrijven, werkWeek); 
 
 
+        //werkWeek = IO.LoadSolution(IO._scoreFile , bedrijven);
         werkWeek = IO.LoadSolutionAuto();
         ZoekAlgoritme za = new ZoekAlgoritme(werkWeek, bedrijven);
 

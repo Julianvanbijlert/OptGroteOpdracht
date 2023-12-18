@@ -12,7 +12,7 @@ public static class IO
     public static readonly string orderbestandFileNaam = filepath + "Orderbestand.txt";
 
     private static readonly string _scoreMap = "../../../scorefiles/";
-    private static readonly string _scoreFile = filepath + "Scores.txt";
+    public static readonly string _scoreFile = filepath + "Scores.txt";
 
     
     //VrachtwagenNummer ; Dagnummer ; hoeveelste adres ; id van dat adres (odernummer?) afstorten is 0
@@ -98,20 +98,20 @@ public static class IO
                     }
                 }
             }
+
+            foreach (Bedrijf bedrijf in bedrijven)
+            {
+                if (!bedrijf.wordtBezocht)
+                {
+                    w.kosten += 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
+                    w.bedrijvenNiet.Add(bedrijf.orderNummer, bedrijf);
+                }
+            }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error loading solution: {ex.Message}");
             return null; // or throw an exception or handle the case as appropriate
-        }
-
-        foreach (Bedrijf bedrijf in bedrijven)
-        {
-            if (!bedrijf.wordtBezocht)
-            {
-                w.kosten += 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
-                w.bedrijvenNiet.Add(bedrijf.orderNummer, bedrijf);
-            }
         }
 
         return w;
