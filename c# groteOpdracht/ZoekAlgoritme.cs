@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.X86;
 using System.Security.Cryptography.X509Certificates;
@@ -226,15 +227,18 @@ public class ZoekAlgoritme
         while (geenVerbetering < 5_000_000) //(T >= stopCriteria)
         {
             //fy = PickAction2(week, r, T);
+            
             //welk = r.Next(0, 10);
             //if (welk < 2)
-            //    fy = Insert(T);
+            //    Insert(T);
             //else if (welk == 2)
-            //    fy = Delete(T);
-            //else 
-            //    fy = Swap(T);
+            //    Delete(T);
+            //else
+            //    Swap(T);
 
-            fy = Swap(T);
+            Swap(T);
+
+            fy = week.Eval;
 
             if (fy < bestOplossing)
             {
@@ -274,7 +278,7 @@ public class ZoekAlgoritme
             Node n2 = GetBedrijfNode(b2, r);
 
             (bool bo, int i, int j) = w.SwapCheck(n1, n2 );
-            if (bo && AcceptatieKans(i, j, T, r))
+            if (bo && AcceptatieKans(i + j, T, r))
             {
                 w.Swap(n1, n2, i, j);
             }
@@ -286,16 +290,27 @@ public class ZoekAlgoritme
         return w.Eval;
     }
 
-    public int Insert(double T)
-    {     
-        return 0;
+    public void Insert(double T)
+    {
+        if (week.bedrijvenNiet.Count == 0) return;
+        int i = 0;
+        int kostenTemp = week.Eval;
+        while (i < 20 && !week.Insert(week.bedrijvenNiet[r.Next(0, week.bedrijvenNiet.Count)], r))
+            i++;
+        // nog maken dat ie het wellicht terugzet als acceptatiekans false
+        return;
     }
 
-    public int Delete(double T)
+    public void Delete(double T)
     {
-        return 0;
+        if (week.bedrijvenWel.Count == 0) return;
+        int i = 0;
+        while (i < 20 && !week.Delete(week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)]))
+            i++;
+        // zelfde
+        return;
     }
-    public int Swap(double T)
+    public void Swap(double T)
     {
         Bedrijf b;
         Bedrijf b2;
@@ -310,7 +325,7 @@ public class ZoekAlgoritme
         if (r.Next(0, 2) == 0)
         {
             (bool bo, int i, int j) = week.SwapCheck(n1, n2);
-            if (bo && AcceptatieKans(i, j, T, r))
+            if (bo && AcceptatieKans(i + j, T, r))
             {
                 week.Swap(n1, n2, i, j);
             }
@@ -319,20 +334,18 @@ public class ZoekAlgoritme
         else
         {
             (bool bo, int i, int j) = week.VerplaatsCheck(n1, n2);
-            if (bo && AcceptatieKans(i, j, T, r))
+            if (bo && AcceptatieKans(i + j, T, r))
             {
                 week.Verplaats(n1, n2, i, j);
             }
         }
-
-        return week.Eval;
     }
 
-    public bool AcceptatieKans(int i, int j, double T, Random r)
+    public bool AcceptatieKans(int i, double T, Random r)
     {
 
-        double acceptKans = double.Exp(-(i + j) / T);
-        return i + j <= 0 || acceptKans > r.NextDouble();
+        double acceptKans = double.Exp(-(i) / T);
+        return i <= 0 || acceptKans > r.NextDouble();
 
     }
 
@@ -350,7 +363,7 @@ public class ZoekAlgoritme
     {
         for (int j = 0; j <= i; j++)
         {
-            _ = Swap(0.00000000000001);
+            //_ = Swap(0.00000000000001);
         } // dit werkt niet, die T moet juist heel hoog zijn, en ik weet ook niet of het tactisch is om het aantal swaps af te laten hangen van T. daar moet een max aan zitten
 
     }
