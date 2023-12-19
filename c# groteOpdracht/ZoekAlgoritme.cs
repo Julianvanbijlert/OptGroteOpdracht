@@ -232,7 +232,10 @@ public class ZoekAlgoritme
         {
             //fy = PickAction2(week, r, T);
 
-            Swap(T);
+            if (r.Next(0, 2) == 0)
+                Swap(T);
+            else
+                Verplaats(T);
 
             fy = week.Eval;
 
@@ -326,8 +329,6 @@ public class ZoekAlgoritme
             week.bedrijvenWel.Add(bedrijf.orderNummer, bedrijf);
             week.bedrijvenNiet.Remove(bedrijf.orderNummer);
         }
-
-        return;
     }
 
     public void Delete(double T)
@@ -350,34 +351,55 @@ public class ZoekAlgoritme
             week.Delete(bedrijf, extratijd);
         }
     }
+
+    public void Verplaats(double T)
+    {
+        if (week.bedrijvenWel.Count == 0) return;
+
+        Bedrijf b;
+        while ((b = GetBedrijf(r)).wordtBezocht == false);
+        Node n1 = GetBedrijfNode(b, r);
+
+        Node n2;
+        int b2Index = r.Next(0, week.bedrijvenWel.Count + 19);
+        if (b2Index >= week.bedrijvenWel.Count - 1) 
+        {          
+            b2Index -= week.bedrijvenWel.Count - 1;
+            int dag = b2Index % 5 + 1;
+            int bus = b2Index / 5 < 2 ? 0 : 1;
+            int rijmoment = b2Index % 2;
+            n2 = week.dagen[dag].bussen[bus].rijmomenten[rijmoment].eindnode;
+        }
+        else
+        {
+            Bedrijf b2;
+            while ((b2 = GetBedrijf(r)).wordtBezocht == false || b2 == b);
+            n2 = GetBedrijfNode(b2, r);
+        }
+
+        (bool bo, int i, int j) = week.VerplaatsCheck(n1, n2);
+        if (bo && AcceptatieKans(i + j, T, r))
+        {
+            week.Verplaats(n1, n2, i, j);
+        }
+    }
     public void Swap(double T)
     {
+        if (week.bedrijvenWel.Count < 2) return;
+        
         Bedrijf b;
         Bedrijf b2;
 
         while ((b = GetBedrijf(r)).wordtBezocht == false) ;
         while ((b2 = GetBedrijf(r)) == b || b2.wordtBezocht == false);
-        //double random = r.NextDouble();
 
         Node n1 = GetBedrijfNode(b, r);
         Node n2 = GetBedrijfNode(b2, r);
 
-        if (r.Next(0, 2) == 0)
+        (bool bo, int i, int j) = week.SwapCheck(n1, n2);
+        if (bo && AcceptatieKans(i + j, T, r))
         {
-            (bool bo, int i, int j) = week.SwapCheck(n1, n2);
-            if (bo && AcceptatieKans(i + j, T, r))
-            {
-                week.Swap(n1, n2, i, j);
-            }
-        }
-
-        else
-        {
-            (bool bo, int i, int j) = week.VerplaatsCheck(n1, n2);
-            if (bo && AcceptatieKans(i + j, T, r))
-            {
-                week.Verplaats(n1, n2, i, j);
-            }
+            week.Swap(n1, n2, i, j);
         }
     }
 
