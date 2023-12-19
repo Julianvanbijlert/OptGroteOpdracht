@@ -1,6 +1,4 @@
-﻿
-
-namespace rommelrouterakkers;
+﻿namespace rommelrouterakkers;
 using System.Collections.Generic;
 using System;
 
@@ -19,7 +17,7 @@ public class Bus
         dag = werkdag;
     }
 
-    public int Insert(Node nieuw, Random r) // nog nieuw rijmoment aanmaken als hij vol is
+    public int Insert(Node nieuw, Random r)
     {
         if (rijmomenten.Count == 0) return int.MaxValue; // zorgt dat de hele actie gecanceld wordt als deze bus geen rijmoment heeft
         int welkMoment = r.Next(0, rijmomenten.Count);

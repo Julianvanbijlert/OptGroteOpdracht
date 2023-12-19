@@ -34,7 +34,7 @@ public class Setup
 
         //werkWeek = IO.LoadSolution(IO._scoreFile , bedrijven);
         werkWeek = IO.LoadSolutionAuto(true, new Random());
-        ZoekAlgoritme za = new ZoekAlgoritme(werkWeek, bedrijven);
+        ZoekAlgoritme za = new ZoekAlgoritme(werkWeek);
 
         // ik zou hem van tevoren ook ff bfs'en voor de zekerheid, kost niet veel tijd
 
@@ -75,7 +75,6 @@ public class Setup
 
         StreamReader sr = new StreamReader(fileNaam);
         string regel = sr.ReadLine();
-        int count = -1; // is -1 zodat je ++count in the functie kan doen
 
         while ((regel = sr.ReadLine()) != null)
         {

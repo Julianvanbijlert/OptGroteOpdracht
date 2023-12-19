@@ -82,7 +82,7 @@ public static class IO
                         dag = int.Parse(list[1]);
                         ord = int.Parse(list[3]);
                     }
-                    catch (Exception e)
+                    catch 
                     {
                         Console.WriteLine("SkippedLine due to error, check file");
                         break;

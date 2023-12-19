@@ -61,12 +61,4 @@ public class Dag
             bus.BFS();
         }
     }
-
-    ////string is welke dag het is
-    //public string ToString(string i) // deze methode moet nog wel aangepast worden, door de nieuwe busklasse
-    //{
-    //   
-
-    //    //iets om aan te geven dat de dag voorbij is
-    //}
 }

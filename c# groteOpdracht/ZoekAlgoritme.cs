@@ -25,7 +25,7 @@ public class ZoekAlgoritme
 
     private int sweeps = 1;
 
-    public ZoekAlgoritme(Week w, List<Bedrijf> b)
+    public ZoekAlgoritme(Week w)
     {
         week = w;
         timer = new Stopwatch();
@@ -121,7 +121,6 @@ public class ZoekAlgoritme
         int fy;
         int geenVerbetering = 0;
         int bestHuidig = int.MaxValue;
-        int welk;
 
         //gets hit after 917 tempverkleinings
         while (geenVerbetering < 100_000_000) //(T >= stopCriteria)

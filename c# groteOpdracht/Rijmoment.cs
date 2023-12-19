@@ -1,8 +1,4 @@
-//using System.Threading;
-
 namespace rommelrouterakkers;
-using System;
-using System.IO;
 
 public class Rijmoment
 {
@@ -13,7 +9,6 @@ public class Rijmoment
     public Bus bus;
     public int Count;
 
-    
     public Rijmoment(Bus buss)
     {
         bus = buss;
@@ -69,6 +64,7 @@ public class Rijmoment
         LaatstToevoegen(b.FindUnusedNode(), extratijd);
         //stop bedrijf in dit rijmoment
         //voeg pointers toe van bedrijf naar deze node?
+            // gaat automatisch
 
     }
 
@@ -200,12 +196,11 @@ public class Node
         rijmoment.Verwijderen(this, extratijd);
     }
 
-    //errorfull function
     public int ExtraTijdskostenBijVerwijderen()
     { 
         int extra = 0; 
-        extra -= Setup.aMatrix.lookup(Previous.bedrijf, bedrijf); // da fak, ik zal ff kijken wat er fout kan zijn shit man
-        extra -= Setup.aMatrix.lookup(bedrijf, Next.bedrijf); //ik heb nog niet echt iets met kosten gedaan
+        extra -= Setup.aMatrix.lookup(Previous.bedrijf, bedrijf); 
+        extra -= Setup.aMatrix.lookup(bedrijf, Next.bedrijf); 
         extra += Setup.aMatrix.lookup(Previous.bedrijf, Next.bedrijf);
         extra -= bedrijf.ledigingsDuur;
 
@@ -223,9 +218,3 @@ public class Node
     }
     
 }
-
-// bij aanmaken van bedrijf meteen nodes aanmaken die nog geen pointers hebben.
-// als je hem toevoegt, maak je pointers. als je hem verwijdert,
-
-    /// haal je de pointers weg
-    // is gedaan
