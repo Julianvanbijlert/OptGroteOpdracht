@@ -32,8 +32,8 @@ public class Setup
         //StelBeginoplossingIn(bedrijven, werkWeek); 
 
 
-        //werkWeek = IO.LoadSolution(IO._scoreFile , bedrijven);
-        werkWeek = IO.LoadSolutionAuto();
+        werkWeek = IO.LoadSolution(IO._scoreFile , bedrijven);
+        //werkWeek = IO.LoadSolutionAuto();
         ZoekAlgoritme za = new ZoekAlgoritme(werkWeek, bedrijven);
 
         // ik zou hem van tevoren ook ff bfs'en voor de zekerheid, kost niet veel tijd
@@ -42,8 +42,8 @@ public class Setup
         za.ILSinf();
         za.BFS();
 
-        IO.PrintSolution(werkWeek);
-        IO.PrintSolutionToFile(werkWeek);
+        //IO.PrintSolution(werkWeek);
+        //IO.PrintSolutionToFile(werkWeek);
         //IO.MakeNewBestFile(werkWeek); 
     }
     static void vulDict()
@@ -64,8 +64,7 @@ public class Setup
         while ((regel = sr.ReadLine()) != null)
         {
             Bedrijf b = Bedrijf.parseBedrijf(regel);
-            if (b.orderNummer != 8942)
-                bedrijven.Add(b);
+            bedrijven.Add(b);
         }
 
     }
@@ -137,9 +136,9 @@ public class Setup
             bedrijvenPerFreq[i] = new List<Bedrijf>();
 
         foreach (Bedrijf bed in bedrijven)
-            bedrijvenPerFreq[bed.frequentie].Add(bed);
-
-        
+            if (bed.orderNummer != 8942)    
+                bedrijvenPerFreq[bed.frequentie].Add(bed);
+    
         return bedrijvenPerFreq;
     }
 
@@ -148,17 +147,12 @@ public class Setup
         List<Bedrijf>[] bedrijvenPerFreq = VulBedrijvenPerFreq(bedrijven);
         Bedrijf bedrijf;
 
-        //foreach (Bedrijf b in bedrijvenPerFreq[3])
-        //    werkWeek.kosten += 3 * b.frequentie * b.ledigingsDuur;
-        //bedrijf = bedrijvenPerFreq[4][0];
-        //werkWeek.kosten += 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
-
         int extratijd;
         bedrijvenPerFreq[2] = SorteerBedrijven(bedrijvenPerFreq[2]);
 
         Rijmoment[] huidigen = new Rijmoment[6];
         for (int i = 1; i <= 5; i++)
-            huidigen[i] = werkWeek.dagen[i].bussen[0].VoegRijmomentToe();
+            huidigen[i] = werkWeek.dagen[i].bussen[0].rijmomenten[0];
 
         int k = 1;
         foreach (Bedrijf bedr in bedrijvenPerFreq[2])
@@ -169,6 +163,8 @@ public class Setup
             huidigen[k].LaatstToevoegen(bedr.Locaties[0], extratijd);
             huidigen[k + 3].LaatstToevoegen(bedr.Locaties[1], extratijd);
             bedr.wordtBezocht = true;
+            werkWeek.kosten -= 3 * 2 * bedr.ledigingsDuur;
+            werkWeek.bedrijvenNiet.Remove(bedr.orderNummer);
             werkWeek.bedrijvenWel.Add(bedr.orderNummer, bedr);
         }
 
@@ -181,6 +177,8 @@ public class Setup
                 huidigen[2 * i + 1].LaatstToevoegen(bedr.Locaties[i], extratijd);
             }
             bedr.wordtBezocht = true;
+            werkWeek.kosten -= 3 * 3 * bedr.ledigingsDuur;
+            werkWeek.bedrijvenNiet.Remove(bedr.orderNummer);
             werkWeek.bedrijvenWel.Add(bedr.orderNummer, bedr);
         }
 
@@ -191,26 +189,29 @@ public class Setup
             huidigen[i].LaatstToevoegen(bedr4.Locaties[i - 1], extratijd);
         }
         bedr4.wordtBezocht = true;
+        werkWeek.kosten -= 3 * 4 * bedr4.ledigingsDuur;
+        werkWeek.bedrijvenNiet.Remove(bedr4.orderNummer);
         werkWeek.bedrijvenWel.Add(bedr4.orderNummer, bedr4);
 
         Rijmoment huidig;
         Bus bus;
         Dag dag;
         bool andereBus;
-        bool nieuweAanmaken;
+        int p;
 
         for (int i = 1; i <= 5; i++)
         {
             huidig = huidigen[i];
             dag = werkWeek.dagen[i];
-            nieuweAanmaken = false;
             for (int j = 0; j <= 1; j++)
             {
                 bus = dag.bussen[j];
                 andereBus = false;
+                p = 0;
+
                 while (!andereBus && bus.tijd + 1800 * 1000 <= 39100 * 1000)
-                {
-                    if (nieuweAanmaken) huidig = bus.VoegRijmomentToe();
+                {    
+                    huidig = bus.rijmomenten[p];
                     bedrijvenPerFreq[1] = SorteerBedrijven(bedrijvenPerFreq[1]);
                     while (true)
                     {
@@ -220,8 +221,6 @@ public class Setup
                         if (bus.tijd + extratijd > 39100 * 1000)
                         {
                             andereBus = true;
-                            if (huidig.beginnode.Next == huidig.eindnode)
-                                bus.VerwijderLeegRijmoment(huidig);
                             break;
                         }
                         if (huidig.volume + bedrijf.volume > 100000) //wellicht op 80000 ofzo zetten om het programma speling te geven
@@ -229,11 +228,13 @@ public class Setup
                             break; 
                         }
                         huidig.LaatstToevoegen(bedrijf.Locaties[0], extratijd);
+                        werkWeek.bedrijvenNiet.Remove(bedrijf.orderNummer);
                         werkWeek.bedrijvenWel.Add(bedrijf.orderNummer, bedrijf);
+                        werkWeek.kosten -= 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
                         bedrijf.wordtBezocht = true;
                         bedrijvenPerFreq[1].RemoveAt(0);
                     }
-                    nieuweAanmaken = true;
+                    p = 1;
                 }
             }
         }

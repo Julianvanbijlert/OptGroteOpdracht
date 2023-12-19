@@ -6,14 +6,15 @@ using System;
 
 public class Bus
 {
-    public List<Rijmoment> rijmomenten;
+    public List<Rijmoment> rijmomenten = new List<Rijmoment>();
     public int tijd = 0;
     public Week week;
     public Dag dag;
 
     public Bus(Week werkWeek, Dag werkdag)
     {
-        rijmomenten = new List<Rijmoment>();
+        rijmomenten.Add(new Rijmoment(this));
+        rijmomenten.Add(new Rijmoment(this));
         week = werkWeek;
         dag = werkdag;
     }
@@ -44,13 +45,14 @@ public class Bus
 
         if (stortIngelezen)
         {
-            VoegRijmomentToe();
+            Rijmoment temp = rijmomenten[0];
+            rijmomenten[0] = rijmomenten[1];
+            rijmomenten[1] = temp;
         }
         
 
         //als dat niet zo is pak het laatste rijmoment en voeg hem daar aan toe
-        int laatsteRijmoment = rijmomenten.Count - 1;
-        rijmomenten[laatsteRijmoment].Load(b);
+        rijmomenten[0].Load(b);
 
     }
 

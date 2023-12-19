@@ -27,6 +27,7 @@ public static class IO
     public static Week LoadSolutionAuto()
     {
         Week w = new Week();
+        Setup.ResetBedrijven();
         try
         {
             string[] files = Directory.GetFiles(_scoreMap);
@@ -84,12 +85,16 @@ public static class IO
                     {
                         stortIngelezen = true;
                     }
-                    else
+                    
+                    else if (ord != 8942)
                     {
+                        
                         b = Setup.VindBedrijf(ord);
                         if (!b.wordtBezocht)
                         {
                             b.wordtBezocht = true;
+                            w.kosten -= 3 * b.ledigingsDuur * b.frequentie;
+                            w.bedrijvenNiet.Remove(ord);
                             w.bedrijvenWel.Add(b.orderNummer, b);
                         }
 
@@ -99,14 +104,16 @@ public static class IO
                 }
             }
 
-            foreach (Bedrijf bedrijf in bedrijven)
-            {
-                if (!bedrijf.wordtBezocht)
-                {
-                    w.kosten += 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
-                    w.bedrijvenNiet.Add(bedrijf.orderNummer, bedrijf);
-                }
-            }
+            //foreach (Bedrijf bedrijf in bedrijven)
+            //{
+            //    if (!bedrijf.wordtBezocht)
+            //    {
+            //        w.kosten += 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
+                      
+            //        w.bedrijvenNiet.Add(bedrijf.orderNummer, bedrijf);
+            //    }
+            //}
+
         }
         catch (Exception ex)
         {

@@ -205,7 +205,6 @@ public class ZoekAlgoritme
         if (sweeps % 1000 == 0)
         {
             //load old file
-            Setup.ResetBedrijven();
             week = IO.LoadSolutionAuto();
             sweeps = 0;
         }

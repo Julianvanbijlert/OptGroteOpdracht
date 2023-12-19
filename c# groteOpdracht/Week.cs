@@ -10,7 +10,7 @@ public class Week
 {
     //index from 1 to 5, not 0 to 4
     public Dag[] dagen = new Dag[6];
-    public int kosten = (int) Math.Ceiling(-0.18 * 3 * 60000);
+    public int kosten = 0;
     public int tijd = 0;
     public Dictionary<int, Bedrijf> bedrijvenWel = new Dictionary<int, Bedrijf>();
     public Dictionary<int, Bedrijf> bedrijvenNiet = new Dictionary<int, Bedrijf>();
@@ -18,6 +18,14 @@ public class Week
     {
         for (int i = 1; i <= 5; i++)
             dagen[i] = new Dag(this, i);
+
+        foreach (Bedrijf bedrijf in Setup.bedrijven)
+        {
+            if (bedrijf.orderNummer != 8942) 
+                bedrijvenNiet.Add(bedrijf.orderNummer, bedrijf);
+            kosten += 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
+            bedrijf.wordtBezocht = false;
+        }
     }
 
     public void Pick(Bedrijf b, Random r)
