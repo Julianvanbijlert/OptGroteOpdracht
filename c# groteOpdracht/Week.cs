@@ -28,21 +28,6 @@ public class Week
         }
     }
 
-    public void Pick(Bedrijf b, Random r)
-    {
-        int i = 0;
-        if (b.wordtBezocht)
-        {
-            Delete(b);
-        }
-        while (!Insert(b, r) && i < 100)
-        {
-            i++;
-        }
-
-        // als een insert of delete niet lukt wordt ie geskipt, er wordt niet gezocht naar een andere mogelijkheid
-    }
-
     public (bool, int, int) VerplaatsCheck(Node mover, Node hierVoor) // kan dus niet in leeg rijmoment plaatsen, maar boeie daar zorgt insert wel weer voor
     {
         bool gelukt;
@@ -68,7 +53,7 @@ public class Week
             gelukt = hierVoor.rijmoment.bus.InterRijmomentSwapCheck(extratijd1 + extratijd2);
         else if (hierVoor.rijmoment.bus.dag == mover.rijmoment.bus.dag)
             gelukt = Dag.InterBusSwapCheck(mover, hierVoor, extratijd1, extratijd2);
-        else gelukt = InterDagMoveCheck(mover, hierVoor, extratijd1, extratijd2);
+        else gelukt = InterDagVerplaatsCheck(mover, hierVoor, extratijd1, extratijd2);
 
         if (!gelukt)
         {
@@ -113,33 +98,8 @@ public class Week
 
         b.wordtBezocht = false;
         kosten += 3 * b.frequentie * b.ledigingsDuur;
-    }
-
-    public bool Delete(Bedrijf b)
-    {
-        int[] extratijd = new int[b.Locaties.Count];
-        Node n;
-        int extraTijd;
-        for (int i = 0; i < b.Locaties.Count; i++)
-        {
-            n = b.Locaties[i];
-            extraTijd = n.ExtraTijdskostenBijVerwijderen();
-            if (n.rijmoment.bus.tijd + extraTijd > 43200 * 1000)
-            {
-                return false;
-            }
-            extratijd[i] = extraTijd;
-        }
-
-        for (int i = 0; i < b.Locaties.Count; i++)
-        {
-            n = b.Locaties[i];
-            n.Verwijder(extratijd[i]);
-        }
-        
-        b.wordtBezocht = false;
-        kosten += 3 * b.frequentie * b.ledigingsDuur;
-        return true;
+        bedrijvenNiet.Add(b);
+        bedrijvenWel.Remove(b);
     }
 
 
@@ -198,7 +158,7 @@ public class Week
         }
     }
 
-    public bool FreqCheck(Node node, Dag nieuweDag)
+    public bool MoveFreqCheck(Node node, Dag nieuweDag)
     {
         if (node.bedrijf.frequentie == 3) 
             return false;    
@@ -224,95 +184,86 @@ public class Week
 
     public bool InterDagSwapCheck(Node node1, Node node2, int extratijd1, int extratijd2)
     {
-        bool gelukt = FreqCheck(node1, node2.rijmoment.bus.dag) && FreqCheck(node2, node1.rijmoment.bus.dag);
+        bool gelukt = MoveFreqCheck(node1, node2.rijmoment.bus.dag) && MoveFreqCheck(node2, node1.rijmoment.bus.dag);
         if (!gelukt) return false;
 
         return Dag.InterBusSwapCheck(node1, node2, extratijd1, extratijd2);
     }
 
-    public bool InterDagMoveCheck(Node mover, Node hierVoor, int extratijd1, int extratijd2)
+    public bool InterDagVerplaatsCheck(Node mover, Node hierVoor, int extratijd1, int extratijd2)
     {
-        bool gelukt = FreqCheck(mover, hierVoor.rijmoment.bus.dag);
+        bool gelukt = MoveFreqCheck(mover, hierVoor.rijmoment.bus.dag);
         if (!gelukt) return false;
 
         return Dag.InterBusSwapCheck(mover, hierVoor, extratijd1, extratijd2);
     }
 
-
-    public bool Insert(Bedrijf b, Random r)
+    public bool InsertFreqCheck(Node[] nodes)
     {
-        int bustijd;
-        switch (b.frequentie)
+        if (nodes.Length == 1 || nodes.Length == 4)
+            return true;
+        if (nodes.Length == 3)
         {
-            case 1: bustijd = AddDag1(b, r); break;
-            case 2: bustijd = AddDag2(b, r); break;
-            case 3: bustijd = AddDag3(b, r); break;
-            case 4: bustijd = AddDag4(b, r); break;
-            default: bustijd = 50000; break;
+            int getal0 = nodes[0].rijmoment.bus.dag.getal;
+            int getal1 = nodes[1].rijmoment.bus.dag.getal;
+            int getal2 = nodes[2].rijmoment.bus.dag.getal;
+            if (getal0 + getal1 + getal2 == 9 &&
+                (getal0 == 1 || getal1 == 1 || getal2 == 1))
+                return true;
         }
+        if (nodes.Length == 2)
+        {
+            if (Math.Abs(nodes[0].rijmoment.bus.dag.getal -
+                        nodes[1].rijmoment.bus.dag.getal) == 3)
+                return true;
+        }
+        return false;
+    }
 
-        if (bustijd > 43200 * 1000)
+    public (bool, int[]) InsertCheck(Bedrijf b, Node[] nodes)
+    {
+        for (int i = 0; i < nodes.Length; i++)
+            for (int j = i + 1; j < nodes.Length; j++)
+                if (nodes[i].rijmoment.bus.dag == nodes[j].rijmoment.bus.dag)
+                    return (false, null);
+
+        if (!InsertFreqCheck(nodes))
+            return (false, null);
+
+        foreach (Node node in nodes)
+            if (node.rijmoment.volume + b.volume > 100000)
+                return (false, null);
+
+        int[] extratijd = new int[nodes.Length];
+        int extraTijd;
+        Node n;
+        for (int i = 0; i < nodes.Length; i++)
         {
-            foreach (Node node in b.Locaties)
-                if (node.Next != null && node.Next.Previous == node) // als ie uberhaupt net is toegevoegd en niet geblocked omdat de bus leeg was qua rijmomenten
-                    node.Verwijder(node.ExtraTijdskostenBijVerwijderen());
-            return false;
+            n = nodes[i];
+            extraTijd = n.rijmoment.ExtraTijdskostenBijToevoegen(b, n.Previous, n.Next);
+            if (n.rijmoment.bus.tijd + extraTijd > 43200)
+                return (false, null);
+            extratijd[i] = extraTijd;
         }
-        kosten -= 3 * b.frequentie * b.ledigingsDuur;
+        return (true, extratijd);
+    }
+
+    public void Insert(Bedrijf b, int[] extratijd, Node[] nodes)
+    {
+        Node n;
+        Node volgende;
+        for (int i = 0; i < nodes.Length; i++)
+        {
+            n = b.Locaties[i];
+            volgende = nodes[i];
+            volgende.rijmoment.ToevoegenVoor(n, volgende, extratijd[i]);
+        }
         b.wordtBezocht = true;
-        return true;
+        kosten -= 3 * b.frequentie * b.ledigingsDuur;
+        bedrijvenWel.Add(b);
+        bedrijvenNiet.Remove(b);
     }
-    public int AddDag1(Bedrijf b, Random r)
-    {
-        int dag = r.Next(1, 6);
 
-        int bustijd = dagen[dag].Insert(b.Locaties[0], r);
-        return bustijd;
-
-    }
-    public int AddDag2(Bedrijf b, Random r)
-    {
-        int dag1, dag2;
-        int welke = r.Next(0, 2);
-
-        if (welke == 0)
-        {
-            dag1 = 1;
-            dag2 = 4;
-        }
-        else
-        {
-            dag1 = 2;
-            dag2 = 5;
-        }
-
-        int bustijd = dagen[dag1].Insert(b.Locaties[0], r);
-        bustijd = Math.Max(bustijd, dagen[dag2].Insert(b.Locaties[1], r));
-
-        return bustijd;
-    }
-    public int AddDag3(Bedrijf b, Random r)
-    {
-        int bustijd = dagen[1].Insert(b.Locaties[0], r);
-        bustijd = Math.Max(bustijd, dagen[3].Insert(b.Locaties[1], r));
-        bustijd = Math.Max(bustijd, dagen[5].Insert(b.Locaties[2], r));
-        return bustijd;
-    }
-    public int AddDag4(Bedrijf b, Random r)
-    {
-        int dag = r.Next(1, 6);
-        int j = 0;
-        int[] bustijd = new int[4];
-        for (int i = 1; i < 6; i++)
-        {
-            if (dag != i)
-            {
-                bustijd[j] = dagen[i].Insert(b.Locaties[j], r);
-                j++;
-            }
-        }
-        return bustijd.Max();
-    }
     public override string ToString()
     {
         string s = "";
@@ -342,43 +293,6 @@ public class Week
         {
             return kosten / 60000;  
         } 
-    }
-    
-    public int Evaluate(List<Bedrijf> b)
-    {
-        int t = 0;
-        for (int i = 1; i <= 5; i++)
-        {
-            t += dagen[i].tijd;
-        } 
-        
-        t += StrafKosten(b); 
-        
-        
-        tijd = t; 
-        return t / 60000;  
-    }
-
-    public int StrafKosten(List<Bedrijf> bedrijven)
-    {
-        int k = 0;
-        foreach (Bedrijf b in bedrijven)
-        {
-            if (!b.wordtBezocht)
-            {
-                k += 3 * b.frequentie * b.ledigingsDuur; 
-            }
-        }
-        return k;
-    }
-
-    public void Swap2(Node n, Node n2, Random r)
-    {
-
-    }
-    public Object Clone()
-    {
-        return this.MemberwiseClone();
     }
 } 
 

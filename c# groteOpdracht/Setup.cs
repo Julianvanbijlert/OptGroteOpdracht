@@ -32,8 +32,8 @@ public class Setup
         //StelBeginoplossingIn(bedrijven, werkWeek); 
 
 
-        werkWeek = IO.LoadSolution(IO._scoreFile , bedrijven);
-        //werkWeek = IO.LoadSolutionAuto(true, new Random());
+        //werkWeek = IO.LoadSolution(IO._scoreFile , bedrijven);
+        werkWeek = IO.LoadSolutionAuto(true, new Random());
         ZoekAlgoritme za = new ZoekAlgoritme(werkWeek, bedrijven);
 
         // ik zou hem van tevoren ook ff bfs'en voor de zekerheid, kost niet veel tijd

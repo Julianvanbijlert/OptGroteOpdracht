@@ -91,7 +91,7 @@ public class ZoekAlgoritme
         {
             
             //sweeps / 10 zorgt dat hij steeds meer random walked zodat hij verder uit het minimum kan komen
-            RandomWalk(sweeps / 10, r);
+            RandomWalk(sweeps / 10);
         }
         //delete and add
         if (sweeps % 100 == 0)
@@ -124,7 +124,7 @@ public class ZoekAlgoritme
         int welk;
 
         //gets hit after 917 tempverkleinings
-        while (geenVerbetering < 20_000_000) //(T >= stopCriteria)
+        while (geenVerbetering < 100_000_000) //(T >= stopCriteria)
         {
             //fy = PickAction2(week, r, T);
 
@@ -166,84 +166,118 @@ public class ZoekAlgoritme
             //    else if (welk == 2)
             //        Delete(T);
             //}
+
+            // kijken wat we willen met insert en delete
         }
     }
 
     public void Insert(double T)
     {
         if (week.bedrijvenNiet.Count == 0) return;
-        int i = 0;
-        int kostenTemp = week.Eval;
-        Bedrijf bedrijf = Setup.stort; // tijdelijk, waarom kan je hem niet zonder assignment gebruiken
-        
-        while (i < 20 && !week.Insert(bedrijf = week.bedrijvenNiet[r.Next(0, week.bedrijvenNiet.Count)], r))
-            i++;
 
-        if (week.Eval - kostenTemp < 0)
+        Bedrijf bedrijf;
+        bool bo;
+        int[] extratijd;
+        Node[] nodes;
+        int bIndex;
+        int dag;
+        int bus;
+        int rijmoment;
+
+        while (true)
         {
-            week.bedrijvenWel.Add(bedrijf);
-            week.bedrijvenNiet.Remove(bedrijf);
+            bedrijf = week.bedrijvenNiet[r.Next(0, week.bedrijvenNiet.Count)];
+            nodes = new Node[bedrijf.frequentie];
+
+            for (int i = 0; i < bedrijf.frequentie; i++)
+            {
+                bIndex = r.Next(0, week.bedrijvenWel.Count + 20);
+                if (bIndex >= week.bedrijvenWel.Count)
+                {
+                    bIndex -= week.bedrijvenWel.Count;
+                    dag = bIndex % 5 + 1;
+                    bus = bIndex / 5 < 2 ? 0 : 1;
+                    rijmoment = bIndex % 2;
+                    nodes[i] = week.dagen[dag].bussen[bus].rijmomenten[rijmoment].eindnode;
+                }
+                else
+                {
+                    nodes[i] = GetBedrijfNode(week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)]);
+                }
+            }
+
+            (bo, extratijd) = week.InsertCheck(bedrijf, nodes);
+            if (bo)
+                break;  
         }
-        else if (i == 20)
-            return;
-        else if (!AcceptatieKans(week.Eval - kostenTemp, T, r))
-        {
-            week.Delete(bedrijf);
-        }
-        else
-        {
-            week.bedrijvenWel.Add(bedrijf);
-            week.bedrijvenNiet.Remove(bedrijf);
-        }
+
+        int extraTijd = extratijd.Sum();
+
+        if (AcceptatieKans(extraTijd, T))
+            week.Insert(bedrijf, extratijd, nodes);
     }
 
     public void Delete(double T)
     {
         if (week.bedrijvenWel.Count == 0) return;
-        int i = 0;
-        int[] extratijd = new int[0];
-        Bedrijf bedrijf = Setup.stort;
 
-        while (i < 20 && !((_, extratijd) = week.DeleteCheck(bedrijf = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)])).Item1)
-            i++;
+        int[] extratijd;
+        Bedrijf bedrijf;
+        bool bo;
 
-        if (i == 20) return;
+        while(true)
+        {
+            bedrijf = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)];
+            (bo, extratijd) = week.DeleteCheck(bedrijf);
+            if (bo)
+                break;
+        }
+
         int extraTijd = extratijd.Sum();
 
-        if (extraTijd < 0 || AcceptatieKans(extraTijd, T, r))
-        {
-            week.bedrijvenNiet.Add(bedrijf);
-            week.bedrijvenWel.Remove(bedrijf);
+        if (AcceptatieKans(extraTijd, T))
             week.Delete(bedrijf, extratijd);
-        }
     }
 
     public void Verplaats(double T)
     {
         if (week.bedrijvenWel.Count == 0) return;
+        Bedrijf b, b2;
+        Node n1, n2;
+        bool bo;
+        int i;
+        int j;
+        int b2Index;
+        int dag;
+        int bus;
+        int rijmoment;
 
-        Bedrijf b = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)];
-        Node n1 = GetBedrijfNode(b, r);
-
-        Node n2;
-        int b2Index = r.Next(0, week.bedrijvenWel.Count + 19);
-        if (b2Index >= week.bedrijvenWel.Count - 1) 
-        {          
-            b2Index -= week.bedrijvenWel.Count - 1;
-            int dag = b2Index % 5 + 1;
-            int bus = b2Index / 5 < 2 ? 0 : 1;
-            int rijmoment = b2Index % 2;
-            n2 = week.dagen[dag].bussen[bus].rijmomenten[rijmoment].eindnode;
-        }
-        else
+        while(true)
         {
-            Bedrijf b2;
-            while ((b2 = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)]) == b);
-            n2 = GetBedrijfNode(b2, r);
+            b = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)];
+            n1 = GetBedrijfNode(b);
+
+            b2Index = r.Next(0, week.bedrijvenWel.Count + 19);
+            if (b2Index >= week.bedrijvenWel.Count - 1)
+            {
+                b2Index -= week.bedrijvenWel.Count - 1;
+                dag = b2Index % 5 + 1;
+                bus = b2Index / 5 < 2 ? 0 : 1;
+                rijmoment = b2Index % 2;
+                n2 = week.dagen[dag].bussen[bus].rijmomenten[rijmoment].eindnode;
+            }
+            else
+            {
+                while ((b2 = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)]) == b) ;
+                n2 = GetBedrijfNode(b2);
+            }
+
+            (bo, i, j) = week.VerplaatsCheck(n1, n2);
+            if (bo)
+                break;
         }
 
-        (bool bo, int i, int j) = week.VerplaatsCheck(n1, n2);
-        if (bo && AcceptatieKans(i + j, T, r))
+        if (AcceptatieKans(i + j, T))
         {
             week.Verplaats(n1, n2, i, j);
         }
@@ -252,35 +286,44 @@ public class ZoekAlgoritme
     {
         if (week.bedrijvenWel.Count < 2) return;
 
-        Bedrijf b = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)];
-        Bedrijf b2;
+        Bedrijf b, b2;
+        Node n1, n2;
+        bool bo;
+        int i;
+        int j;
 
-        while ((b2 = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)]) == b);
+        while(true)
+        {
+            b = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)];
 
-        Node n1 = GetBedrijfNode(b, r);
-        Node n2 = GetBedrijfNode(b2, r);
+            while ((b2 = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)]) == b) ;
 
-        (bool bo, int i, int j) = week.SwapCheck(n1, n2);
-        if (bo && AcceptatieKans(i + j, T, r))
+            n1 = GetBedrijfNode(b);
+            n2 = GetBedrijfNode(b2);
+
+            (bo, i, j) = week.SwapCheck(n1, n2);
+            if (bo)
+                break;
+        }
+
+        if (AcceptatieKans(i + j, T))
         {
             week.Swap(n1, n2, i, j);
         }
     }
 
-    public bool AcceptatieKans(int i, double T, Random r)
+    public bool AcceptatieKans(int i, double T)
     {
-
-        double acceptKans = double.Exp(-(i) / T);
-        return i <= 0 || acceptKans > r.NextDouble();
-
+        double acceptKans = double.Exp(-1 * i / T);
+        return i < 0 || acceptKans > r.NextDouble();
     }
 
-    public Node GetBedrijfNode(Bedrijf b, Random r)
+    public Node GetBedrijfNode(Bedrijf b)
     {
         return b.Locaties[r.Next(0, b.Locaties.Count)];
     }
 
-    public void RandomWalk(int i, Random r) // maakt het programma heel sloom naarmate het aantal iteraties groter wordt
+    public void RandomWalk(int i) // maakt het programma heel sloom naarmate het aantal iteraties groter wordt
     {
         for (int j = 0; j <= i; j++) // moet niet afhankelijk zijn van i denk ik
         {
