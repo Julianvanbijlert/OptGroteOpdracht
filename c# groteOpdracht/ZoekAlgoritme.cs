@@ -111,7 +111,8 @@ public class ZoekAlgoritme
 
     public void ChangeBest(Week w, int t)
     {
-        IO.CreateBest(w);
+        if (w.Eval < 5800)
+            IO.CreateBest(w);
         best = w;
         bestOplossing = w.Eval;
 
@@ -205,7 +206,7 @@ public class ZoekAlgoritme
         if (sweeps % 1000 == 0)
         {
             //load old file
-            week = IO.LoadSolutionAuto();
+            week = IO.LoadSolutionAuto(true, r);
             sweeps = 0;
         }
 
