@@ -10,7 +10,7 @@ public class Week
 {
     //index from 1 to 5, not 0 to 4
     public Dag[] dagen = new Dag[6];
-    public int kosten = 0;
+    public int kosten = (int) Math.Ceiling(-0.18 * 3 * 60000);
     public int tijd = 0;
     public Dictionary<int, Bedrijf> bedrijvenWel = new Dictionary<int, Bedrijf>();
     public Dictionary<int, Bedrijf> bedrijvenNiet = new Dictionary<int, Bedrijf>();
