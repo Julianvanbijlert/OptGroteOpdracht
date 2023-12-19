@@ -101,8 +101,8 @@ public static class IO
                         {
                             b.wordtBezocht = true;
                             w.kosten -= 3 * b.ledigingsDuur * b.frequentie;
-                            w.bedrijvenNiet.Remove(ord);
-                            w.bedrijvenWel.Add(b.orderNummer, b);
+                            w.bedrijvenNiet.Remove(b);
+                            w.bedrijvenWel.Add(b);
                         }
 
                         w.Load(dag, bus, b, stortIngelezen);

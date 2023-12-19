@@ -12,8 +12,8 @@ public class Week
     public Dag[] dagen = new Dag[6];
     public int kosten = 0;
     public int tijd = 0;
-    public Dictionary<int, Bedrijf> bedrijvenWel = new Dictionary<int, Bedrijf>();
-    public Dictionary<int, Bedrijf> bedrijvenNiet = new Dictionary<int, Bedrijf>();
+    public List<Bedrijf> bedrijvenWel = new List<Bedrijf>();
+    public List<Bedrijf> bedrijvenNiet = new List<Bedrijf>();
     public Week()
     {
         for (int i = 1; i <= 5; i++)
@@ -22,7 +22,7 @@ public class Week
         foreach (Bedrijf bedrijf in Setup.bedrijven)
         {
             if (bedrijf.orderNummer != 8942) 
-                bedrijvenNiet.Add(bedrijf.orderNummer, bedrijf);
+                bedrijvenNiet.Add(bedrijf);
             kosten += 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
             bedrijf.wordtBezocht = false;
         }

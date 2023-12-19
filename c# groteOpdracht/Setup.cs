@@ -38,7 +38,7 @@ public class Setup
 
         // ik zou hem van tevoren ook ff bfs'en voor de zekerheid, kost niet veel tijd
 
-        //za.BFS();
+        //za.BFS(); 
         za.ILSinf();
 
 
@@ -164,8 +164,8 @@ public class Setup
             huidigen[k + 3].LaatstToevoegen(bedr.Locaties[1], extratijd);
             bedr.wordtBezocht = true;
             werkWeek.kosten -= 3 * 2 * bedr.ledigingsDuur;
-            werkWeek.bedrijvenNiet.Remove(bedr.orderNummer);
-            werkWeek.bedrijvenWel.Add(bedr.orderNummer, bedr);
+            werkWeek.bedrijvenNiet.Remove(bedr);
+            werkWeek.bedrijvenWel.Add(bedr);
         }
 
         bedrijvenPerFreq[3] = SorteerBedrijven(bedrijvenPerFreq[3]);
@@ -178,8 +178,8 @@ public class Setup
             }
             bedr.wordtBezocht = true;
             werkWeek.kosten -= 3 * 3 * bedr.ledigingsDuur;
-            werkWeek.bedrijvenNiet.Remove(bedr.orderNummer);
-            werkWeek.bedrijvenWel.Add(bedr.orderNummer, bedr);
+            werkWeek.bedrijvenNiet.Remove(bedr);
+            werkWeek.bedrijvenWel.Add(bedr);
         }
 
         Bedrijf bedr4 = bedrijvenPerFreq[4][0];
@@ -190,8 +190,8 @@ public class Setup
         }
         bedr4.wordtBezocht = true;
         werkWeek.kosten -= 3 * 4 * bedr4.ledigingsDuur;
-        werkWeek.bedrijvenNiet.Remove(bedr4.orderNummer);
-        werkWeek.bedrijvenWel.Add(bedr4.orderNummer, bedr4);
+        werkWeek.bedrijvenNiet.Remove(bedr4);
+        werkWeek.bedrijvenWel.Add(bedr4);
 
         Rijmoment huidig;
         Bus bus;
@@ -228,8 +228,8 @@ public class Setup
                             break; 
                         }
                         huidig.LaatstToevoegen(bedrijf.Locaties[0], extratijd);
-                        werkWeek.bedrijvenNiet.Remove(bedrijf.orderNummer);
-                        werkWeek.bedrijvenWel.Add(bedrijf.orderNummer, bedrijf);
+                        werkWeek.bedrijvenNiet.Remove(bedrijf);
+                        werkWeek.bedrijvenWel.Add(bedrijf);
                         werkWeek.kosten -= 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
                         bedrijf.wordtBezocht = true;
                         bedrijvenPerFreq[1].RemoveAt(0);
