@@ -24,7 +24,7 @@ public static class IO
      * NOTE: Dit werkt alleen als er een geldige solution in de text file staat.
      * Er is geen error handling, en als hij niet langs 0 gaat dan zijn we de lul.
      */
-    public static Week LoadSolutionAuto()
+    public static Week LoadSolutionAuto(bool best, Random r)
     {
         Week w = new Week();
         try
@@ -37,7 +37,14 @@ public static class IO
                 return null; // or throw an exception or handle the case as appropriate
             }
 
-            string firstFilePath = files[0];
+            string firstFilePath;
+            if (best)
+                firstFilePath = files[0];
+            else
+            {
+                
+                firstFilePath = files[r.Next(0, files.Length - 1)];
+            }
             w = LoadSolution(firstFilePath, Setup.bedrijven);
         }
         catch (Exception ex)
