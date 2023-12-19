@@ -42,8 +42,8 @@ public class Setup
         za.ILSinf();
         za.BFS();
 
-        //IO.PrintSolution(werkWeek);
-        //IO.PrintSolutionToFile(werkWeek);
+        IO.PrintSolution(werkWeek);
+        IO.PrintSolutionToFile(werkWeek);
         //IO.MakeNewBestFile(werkWeek); 
     }
     static void vulDict()
@@ -64,7 +64,8 @@ public class Setup
         while ((regel = sr.ReadLine()) != null)
         {
             Bedrijf b = Bedrijf.parseBedrijf(regel);
-            bedrijven.Add(b);
+            if (b.orderNummer != 8942)
+                bedrijven.Add(b);
         }
 
     }
