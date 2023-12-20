@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.X86;
 using System.Security.Cryptography.X509Certificates;
@@ -27,7 +28,7 @@ public class ZoekAlgoritme
     private long[] amountOfActions = new long[4];
     
 
-    private int sweeps = 1;
+    private int sweeps = 0;
 
     public ZoekAlgoritme(Week w)
     {
@@ -86,9 +87,8 @@ public class ZoekAlgoritme
         //reset t
         IlSitt(); //automatically resets t
 
-        sweeps++;
         //if it goes out of the ilsitt that means that there have been a lot of itterations, so something has to change
-
+        sweeps++;
 
         //random walk
         if (sweeps % 5 == 0)
@@ -121,13 +121,13 @@ public class ZoekAlgoritme
 
     public void IlSitt()
     {
-        double T = 20_000; //temperatuur
+        double T = 50_000; //temperatuur
         int fy;
         int geenVerbetering = 0;
         int bestHuidig = int.MaxValue;
 
         //gets hit after 917 tempverkleinings
-        while (geenVerbetering < 100_000_000) //(T >= stopCriteria)
+        while (geenVerbetering < 20_000_000) //(T >= stopCriteria)
         {
             PickAction(T, geenVerbetering);
             fy = week.Eval;
@@ -150,7 +150,7 @@ public class ZoekAlgoritme
 
             totItt++;
 
-            if (totItt % 1_000_000 == 0)
+            if (totItt % 200_000 == 0)
             {
                 T *= tempVerkleining;
             }
@@ -175,18 +175,18 @@ public class ZoekAlgoritme
             return;
         } */
 
-        int welk = r.Next(0, 103);
+        int welk = r.Next(0, 8);
         if (welk <= 1)
         {
             amountOfActions[0]++;
             Insert(T);
         }
-        else if (welk == 2)
+        else if (welk <= 2)
         {
             amountOfActions[1]++;
             Delete(T);
         }
-        else if (welk <= 52)
+        else if (welk <= 5)
         {
             amountOfActions[2]++;
             Swap(T);
