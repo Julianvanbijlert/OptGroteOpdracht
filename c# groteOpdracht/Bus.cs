@@ -90,7 +90,8 @@ public class Bus
         int count = 1;
         for (int j = 0; j < rijmomenten.Count; j++)
         {
-          //LETOP hier moet nog iets gebeuren met welke bus er gebeurd
+            if (rijmomenten[j].Count == 0)
+                continue;
             (int c, string s2) = rijmomenten[j].ToString(i, count);
             count = c;
             s += s2;

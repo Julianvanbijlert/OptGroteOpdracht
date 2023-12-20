@@ -61,7 +61,7 @@ public class ZoekAlgoritme
 
     public void ChangeBest(Week w, int t)
     {
-        if (w.Eval < 5800)
+        if (w.Eval < 5600)
             IO.CreateBest(w);
         bestOplossing = w.Eval;
     }
