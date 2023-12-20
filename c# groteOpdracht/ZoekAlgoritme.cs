@@ -19,10 +19,10 @@ public class ZoekAlgoritme
     private System.Timers.Timer timer2;
     public Random r;
     private double tempVerkleining = 0.99;
-    private double stopCriteria = 0.01;
     private int totItt = 0;
     private int totIttTemp = 0;
     private int besteScoreTemp;
+    private int startT = 25000;
 
     //tracks the amount of actions
     private long[] amountOfActions = new long[4];
@@ -42,7 +42,6 @@ public class ZoekAlgoritme
         timer2.Interval = 500;
         timer2.Elapsed += OnTimedEvent;
         timer2.AutoReset = true;
-        timer2.Enabled = true;
     }
 
     public void OnTimedEvent(object o, ElapsedEventArgs eea)
@@ -65,16 +64,17 @@ public class ZoekAlgoritme
         if (w.Eval < 5600)
             IO.CreateBest(w);
         bestOplossing = w.Eval;
+        sweeps = 0; // resetten zodat ie bijv niet randomwalks gaat doen terwijl we steeds beste oplossingen aan het vinden zijn
     }
     public void PrintVoortgang()
     {
         Console.Clear();
-        Console.WriteLine($"Beste oplossingsscore is:  {bestOplossing}           \n" +
-                          $"Huidige Score:             {week.Eval}               \n" +
-                          $"Totale iteraties :         {totItt}                  \n" +
-                          $"Iteraties per seconde:     {2* (totItt -totIttTemp)} \n" +
-                          $"Amount of sweeps           {sweeps}                  \n" +
-                          $"Time elapsed :             {timer.Elapsed}");
+        Console.WriteLine($"Beste oplossingsscore:     {bestOplossing}           \n" +
+                          $"Huidige score:             {week.Eval}               \n" +
+                          $"Totale iteraties:          {totItt}                  \n" +
+                          $"Iteraties per seconde:     {2* (totItt-totIttTemp)}  \n" +
+                          $"Sweeps since new best:     {sweeps}                  \n" +
+                          $"Time elapsed:              {timer.Elapsed}");
 
     }
 
@@ -82,82 +82,65 @@ public class ZoekAlgoritme
     {
 
         timer.Start();
-
+        timer2.Enabled = true;
 
         //reset t
-        IlSitt(); //automatically resets t
+        IlSitt();
+        startT = 25000;
 
         //if it goes out of the ilsitt that means that there have been a lot of itterations, so something has to change
         sweeps++;
 
         //random walk
-        if (sweeps % 5 == 0)
-        {
-            
-            //sweeps / 10 zorgt dat hij steeds meer random walked zodat hij verder uit het minimum kan komen
-            RandomWalk(sweeps / 10);
-        }
-        //delete and add
         if (sweeps % 10 == 0)
         {
-            //do delete or add
-        }
-        //random reset
-        if (sweeps % 1000 == 0)
-        {
-            //load old file
-            week = IO.LoadSolutionAuto(true, r);
-            sweeps = 0;
+            //sweeps / 10 zorgt dat hij steeds meer random walked zodat hij verder uit het minimum kan komen
+            // ik denk niet dat dat heel tactisch is, uiteindelijk heb je een beter minimum en dan wil je juist niet steeds meer daarvan weg.
+            // ik denk dat we het het best gwn op een standaard aantal pickactions kunnen zetten
+            RandomWalk();
+            startT = 100000; // echt compleet random dus
         }
 
-        //ff 0 gemaakt door verkeerde berekening score, dus gaat eeuwig door
-        if (bestOplossing >= 0)
+        //random reset
+        if (sweeps % 1000 == 0) // bij een groot genoege random walk is dit niet eens nodig denk ik
         {
-            ILSinf();
-        }
+            //load old file
+            week = IO.LoadSolutionAuto(true, r); // denk dat we dan beter een lege week kunnen opstarten
+            sweeps = 0;
+        } 
+
+        ILSinf();
+
         timer.Stop();
 
     }
 
     public void IlSitt()
     {
-        double T = 50_000; //temperatuur
+        double T = startT; //temperatuur
         int fy;
-        int geenVerbetering = 0;
-        int bestHuidig = int.MaxValue;
 
         //gets hit after 917 tempverkleinings
-        while (geenVerbetering < 20_000_000) //(T >= stopCriteria)
+        while (T >= 2000)
         {
-            PickAction(T, geenVerbetering);
+            PickAction(T);
             fy = week.Eval;
 
             if (fy < bestOplossing)
             {
                 ChangeBest(week, totItt);
-                geenVerbetering = 0;
             }
-            else if (fy < bestHuidig)
-            {
-                geenVerbetering = 0;
-                bestHuidig = fy;
-            }
-            else
-            {
-                geenVerbetering++;
-            }
-
 
             totItt++;
 
-            if (totItt % 200_000 == 0)
+            if (totItt % 2_000_000 == 0)
             {
                 T *= tempVerkleining;
             }
         }
     }
 
-    public void PickAction(double T, int geenverbetering)
+    public void PickAction(double T)
     {
         /*
         //begin doe zo veel mogelijk inserts, wss iets te heftig dit op einde
@@ -354,11 +337,11 @@ public class ZoekAlgoritme
         return b.Locaties[r.Next(0, b.Locaties.Count)];
     }
 
-    public void RandomWalk(int i) // maakt het programma heel sloom naarmate het aantal iteraties groter wordt
+    public void RandomWalk() // maakt het programma heel sloom naarmate het aantal iteraties groter wordt
     {
-        for (int j = 0; j <= i; j++) // moet niet afhankelijk zijn van i denk ik
+        for (int j = 0; j <= 1000_000; j++) // is nu echt echt echt een randomwalk
         {
-            Swap(10000000000);
+            PickAction(100_000);
         } 
     }
 
