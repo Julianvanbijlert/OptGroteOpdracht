@@ -31,7 +31,7 @@ public class Setup
         //werkWeek = IO.loadSolution("../../../../Scores.txt", bedrijven); // dat is voor nu de beginoplossing
         //StelBeginoplossingIn(bedrijven, werkWeek); 
 
-
+        
         //werkWeek = IO.LoadSolution(IO._scoreFile , bedrijven);
         werkWeek = IO.LoadSolutionAuto(true, new Random());
         ZoekAlgoritme za = new ZoekAlgoritme(werkWeek);

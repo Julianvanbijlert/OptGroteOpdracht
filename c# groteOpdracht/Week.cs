@@ -95,6 +95,7 @@ public class Week
             n = b.Locaties[i];
             n.Verwijder(extratijd[i]);
         }
+        b.ResetNodes();
 
         b.wordtBezocht = false;
         kosten += 3 * b.frequentie * b.ledigingsDuur;

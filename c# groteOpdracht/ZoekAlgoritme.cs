@@ -23,6 +23,10 @@ public class ZoekAlgoritme
     private int totIttTemp = 0;
     private int besteScoreTemp;
 
+    //tracks the amount of actions
+    private long[] amountOfActions = new long[4];
+    
+
     private int sweeps = 1;
 
     public ZoekAlgoritme(Week w)
@@ -87,14 +91,14 @@ public class ZoekAlgoritme
 
 
         //random walk
-        if (sweeps % 10 == 0)
+        if (sweeps % 5 == 0)
         {
             
             //sweeps / 10 zorgt dat hij steeds meer random walked zodat hij verder uit het minimum kan komen
             RandomWalk(sweeps / 10);
         }
         //delete and add
-        if (sweeps % 100 == 0)
+        if (sweeps % 10 == 0)
         {
             //do delete or add
         }
@@ -127,11 +131,13 @@ public class ZoekAlgoritme
         {
             //fy = PickAction2(week, r, T);
 
+            /*
             if (r.Next(0, 2) == 0)
                 Swap(T);
             else
                 Verplaats(T);
-
+            */
+            PickAction(T, geenVerbetering);
             fy = week.Eval;
 
             if (fy < bestOplossing)
@@ -170,6 +176,35 @@ public class ZoekAlgoritme
         }
     }
 
+    public void PickAction(double T, int geenverbetering)
+    {
+        /*
+        //begin doe zo veel mogelijk inserts, wss iets te heftig dit op einde
+        if (geenverbetering / (sweeps * sweeps) <= T) // T = 20_0000 >, sweeps 1-500
+        {
+            amountOfActions[0]++;
+            Insert(T);
+            return;
+        }
+        //Vervolgens doe deletes
+        if (geenverbetering >= 98_000_000)
+        {
+            amountOfActions[1]++;
+            Delete(T);
+            return;
+        }
+        */
+        if (r.Next(0, 2) == 0)
+        {
+            amountOfActions[2]++;
+            Swap(T);
+            return;
+        }
+        amountOfActions[3]++;
+        Verplaats(T);
+        
+    }
+
     public void Insert(double T)
     {
         if (week.bedrijvenNiet.Count == 0) return;
@@ -185,12 +220,16 @@ public class ZoekAlgoritme
 
         while (true)
         {
+            //kies een random bedrijf uit de niet lijst
             bedrijf = week.bedrijvenNiet[r.Next(0, week.bedrijvenNiet.Count)];
+            //maak array aan van nodes
             nodes = new Node[bedrijf.frequentie];
 
             for (int i = 0; i < bedrijf.frequentie; i++)
             {
+                //random bedrijf
                 bIndex = r.Next(0, week.bedrijvenWel.Count + 20);
+
                 if (bIndex >= week.bedrijvenWel.Count)
                 {
                     bIndex -= week.bedrijvenWel.Count;

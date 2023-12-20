@@ -15,6 +15,11 @@ public class AfstandMatrix
     {
         return matrix[b1.matrixId, b2.matrixId];
     }
+
+    public int lookup(Node n1, Node n2)
+    {
+        return lookup(n1.bedrijf, n2.bedrijf);
+    }
     
     public int this[int i, int j] // indexer, indien je geen bedrijven tot je beschikking hebt maar alleen IDs
     {
