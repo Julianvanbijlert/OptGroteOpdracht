@@ -95,7 +95,7 @@ public class Week
             n = b.Locaties[i];
             n.Verwijder(extratijd[i]);
         }
-        b.ResetNodes();
+        // hier hoeven de nodes niet gereset te worden
 
         b.wordtBezocht = false;
         kosten += 3 * b.frequentie * b.ledigingsDuur;
@@ -237,12 +237,12 @@ public class Week
 
         int[] extratijd = new int[nodes.Length];
         int extraTijd;
-        Node n;
+        Node volgende;
         for (int i = 0; i < nodes.Length; i++)
         {
-            n = nodes[i];
-            extraTijd = n.rijmoment.ExtraTijdskostenBijToevoegen(b, n.Previous, n.Next);
-            if (n.rijmoment.bus.tijd + extraTijd > 43200)
+            volgende = nodes[i];
+            extraTijd = volgende.rijmoment.ExtraTijdskostenBijToevoegen(b, volgende.Previous, volgende);
+            if (volgende.rijmoment.bus.tijd + extraTijd > 43200 * 1000)
                 return (false, null);
             extratijd[i] = extraTijd;
         }

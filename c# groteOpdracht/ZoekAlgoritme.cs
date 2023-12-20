@@ -129,14 +129,6 @@ public class ZoekAlgoritme
         //gets hit after 917 tempverkleinings
         while (geenVerbetering < 100_000_000) //(T >= stopCriteria)
         {
-            //fy = PickAction2(week, r, T);
-
-            /*
-            if (r.Next(0, 2) == 0)
-                Swap(T);
-            else
-                Verplaats(T);
-            */
             PickAction(T, geenVerbetering);
             fy = week.Eval;
 
@@ -162,17 +154,6 @@ public class ZoekAlgoritme
             {
                 T *= tempVerkleining;
             }
-
-            //if (geenVerbetering == 10_000_000)
-            //{
-            //    welk = r.Next(0, 3);
-            //    if (welk < 2)
-            //        Insert(T);
-            //    else if (welk == 2)
-            //        Delete(T);
-            //}
-
-            // kijken wat we willen met insert en delete
         }
     }
 
@@ -187,22 +168,34 @@ public class ZoekAlgoritme
             return;
         }
         //Vervolgens doe deletes
-        if (geenverbetering >= 98_000_000)
+        if (geenverbetering >= 10_000_000)
         {
             amountOfActions[1]++;
             Delete(T);
             return;
+        } */
+
+        int welk = r.Next(0, 103);
+        if (welk <= 1)
+        {
+            amountOfActions[0]++;
+            Insert(T);
         }
-        */
-        if (r.Next(0, 2) == 0)
+        else if (welk == 2)
+        {
+            amountOfActions[1]++;
+            Delete(T);
+        }
+        else if (welk <= 52)
         {
             amountOfActions[2]++;
             Swap(T);
-            return;
         }
-        amountOfActions[3]++;
-        Verplaats(T);
-        
+        else
+        {
+            amountOfActions[3]++;
+            Verplaats(T);
+        }       
     }
 
     public void Insert(double T)
@@ -240,7 +233,7 @@ public class ZoekAlgoritme
                 }
                 else
                 {
-                    nodes[i] = GetBedrijfNode(week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)]);
+                    nodes[i] = GetBedrijfNode(week.bedrijvenWel[bIndex]);
                 }
             }
 
@@ -249,7 +242,7 @@ public class ZoekAlgoritme
                 break;  
         }
 
-        int extraTijd = extratijd.Sum();
+        int extraTijd = extratijd.Sum() - 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
 
         if (AcceptatieKans(extraTijd, T))
             week.Insert(bedrijf, extratijd, nodes);
@@ -271,7 +264,7 @@ public class ZoekAlgoritme
                 break;
         }
 
-        int extraTijd = extratijd.Sum();
+        int extraTijd = extratijd.Sum() + 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
 
         if (AcceptatieKans(extraTijd, T))
             week.Delete(bedrijf, extratijd);
