@@ -12,36 +12,35 @@ public static class IO
     private static readonly string _scoreMap = "../../../scorefiles/";
     public static readonly string _beginoplossing = filepath + "Beginoplossing.txt";
 
-    public static Week LoadSolutionAuto(bool best, Random r)
+    public static Week LoadSolutionAuto(bool best, Random r) // selecteert een oplossing en roept LoadSolution aan
     {
         try
         {
-            string[] files = Directory.GetFiles(_scoreMap);
+            string[] files = Directory.GetFiles(_scoreMap); // selecteer de map met oplossingen
 
             if (files.Length == 0)
             {
                 Console.WriteLine("No files found in the specified directory.");
-                return null; // or throw an exception or handle the case as appropriate
+                return null; 
             }
 
-            string firstFilePath;
-            if (best)
-                firstFilePath = files[0];
+            string file;
+            if (best) 
+                file = files[0]; // kies de beste oplossing
             else
-            {
-                
-                firstFilePath = files[r.Next(0, files.Length)]; // die -1 kon weg, random heeft exclusive upper bound
+            {              
+                file = files[r.Next(0, files.Length)]; // kies een random oplossing
             }
-            return LoadSolution(firstFilePath);
+            return LoadSolution(file);
         }
-        catch (Exception ex)
+        catch (Exception ex) // er is iets mis met de scorefiles map
         {
             Console.WriteLine($"Error loading solution: {ex.Message}");
-            return null; // or throw an exception or handle the case as appropriate
+            return null; 
         }
     }
 
-    public static Week LoadSolution(string fileNaam)
+    public static Week LoadSolution(string fileNaam) // leest een oplossing van een tekstbestand in en returnt de hele week
     {
         Week w = new Week();
 
@@ -66,22 +65,24 @@ public static class IO
                         dag = int.Parse(list[1]);
                         ord = int.Parse(list[3]);
                     }
-                    catch 
+                    catch // de regel staat niet in de juiste vorm
                     {
                         Console.WriteLine("SkippedLine due to error, check file");
                         break;
                     }
 
-                    if (ord == 0)
+                    if (ord == 0) // als het rijmoment klaar is
                     {
-                        stortIngelezen = true;
+                        stortIngelezen = true; 
                     }
                     
-                    else if (ord != 8942)
+                    else if (ord != 8942) // als het nog een hele oude oplossing is staat het bedrijf met negatieve leegtijd
+                                          // er nog in. Lees dat bedrijf nu niet meer in, het is immers altijd winstgevend
+                                          // om dat bedrijf te skippen
                     {
                         
                         b = Setup.VindBedrijf(ord);
-                        if (!b.wordtBezocht)
+                        if (!b.wordtBezocht) // als er nog geen node van dit bedrijf is ingelezen
                         {
                             b.wordtBezocht = true;
                             w.kosten -= 3 * b.ledigingsDuur * b.frequentie;
@@ -89,51 +90,48 @@ public static class IO
                             w.bedrijvenWel.Add(b);
                         }
 
-                        w.Load(dag, bus, b, stortIngelezen);
-                        stortIngelezen = false;
+                        w.Load(dag, bus, b, stortIngelezen); // load het bedrijf
+                        stortIngelezen = false; // het rijmoment is nog niet klaar
                     }
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) // het bestand staat niet in de juiste vorm
         {
             Console.WriteLine($"Error loading solution: {ex.Message}");
-            return null; // or throw an exception or handle the case as appropriate
+            return null; 
         }
 
         return w;
     }
 
-    public static void PrintSolution(Week w)
+    public static void PrintSolution(Week w) // schrijf de oplossing in de console
     {
         Console.WriteLine(w.ToString());
         Console.WriteLine("score: " + w.Eval);
     }
 
-    public static void SaveBeginOplossing(Week w)
+    public static void SaveBeginOplossing(Week w) // sla de huidige oplossing op in beginoplossing.txt
     {
-        StreamWriter wr = new StreamWriter(_beginoplossing);
-        wr.WriteLine(w.ToString());
-        wr.Close();
+        File.WriteAllText(_beginoplossing, w.ToString());
     }
 
-    public static void CreateBest(Week w)
+    public static void CreateBest(Week w) // maak een nieuwe text file aan in scorefiles met de huidige oplossing in string-vorm
     {
-        string s = w.ToString();
         DateTime currentDateTime = DateTime.Now;
-        string dateTimeString = currentDateTime.ToString("MM-dd_HH-mm-ss"); // Using underscores instead of colons
+        string dateTimeString = currentDateTime.ToString("MM-dd_HH-mm-ss"); // de huidige datum+tijd
         try
         {
-            // Combine the location and the filename (using the integer as the filename)
-            string filePath = Path.Combine(_scoreMap, $"{w.Eval}________{dateTimeString}.txt");
+            // Voeg de locatie en de naam van het bestand samen, de score en datum vormen de naam van het bestand
+            string filePath = Path.Combine(_scoreMap, $"{w.Eval}________{dateTimeString}.txt"); // de datum+tijd zorgt ervoor dat een oude file met dezelfde score niet wordt ge-overwrite
 
-            // Write the string content to the file
-            File.WriteAllText(filePath, s);
+            // Schrijf de oplossing in string-vorm naar het bestand
+            File.WriteAllText(filePath, w.ToString());
 
             Console.WriteLine($"Printed score {w.Eval} successfully");
 
         }
-        catch (Exception ex)
+        catch (Exception ex) // er is iets fout gegaan met een file createn
         {
             Console.WriteLine($"Error creating the file: {ex.Message}");
         }
