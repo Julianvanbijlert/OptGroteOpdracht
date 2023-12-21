@@ -131,7 +131,6 @@ public class Setup
         Week werkWeek = new Week();
         
         List<Bedrijf>[] bedrijvenPerFreq = VulBedrijvenPerFreq(bedrijven);
-        Bedrijf bedrijf;
         int extratijd;
 
         Rijmoment[] huidigen = new Rijmoment[6];
@@ -179,12 +178,13 @@ public class Setup
         werkWeek.bedrijvenWel.Add(bedr4);
 
         Rijmoment huidig;
+        Bedrijf bedrijf;
         Bus bus;
         Dag dag;
         bool andereBus;
         int p;
 
-        for (int i = 1; i <= 5; i++)
+        for (int i = 1; i <= 5; i++) // nu frequentie 1
         {
             huidig = huidigen[i];
             dag = werkWeek.dagen[i];
@@ -215,7 +215,7 @@ public class Setup
                         huidig.LaatstToevoegen(bedrijf.Locaties[0], extratijd);
                         werkWeek.bedrijvenNiet.Remove(bedrijf);
                         werkWeek.bedrijvenWel.Add(bedrijf);
-                        werkWeek.kosten -= 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
+                        werkWeek.kosten -= 3 * bedrijf.ledigingsDuur;
                         bedrijf.wordtBezocht = true;
                         bedrijvenPerFreq[1].RemoveAt(0);
                     }
@@ -227,7 +227,7 @@ public class Setup
         return werkWeek;
     }
 
-    public static Bedrijf VindBedrijf(int ord)
+    public static Bedrijf VindBedrijf(int ord) // manier om in O(1) tijd een bedrijf te vinden aan de hand van zijn ordernummer
     {
         return bedrijvenDict[ord];
     }
