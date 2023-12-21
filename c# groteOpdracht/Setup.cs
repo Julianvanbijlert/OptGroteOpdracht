@@ -127,11 +127,6 @@ public class Setup
 
     static Week StelBeginoplossingIn() // Creeert de beginoplossing
     {
-        //De code van deze functie had wat algemener gekund.
-        //Dat hebben we expres niet gedaan, omdat we later
-        //misschien sommige frequenties nog op een andere manier willen behandelen,
-        //en dan is het fijn als je losse code hebt voor elke frequentie
-
         Week werkWeek = new Week();
         
         List<Bedrijf>[] bedrijvenPerFreq = VulBedrijvenPerFreq(bedrijven);
