@@ -136,7 +136,7 @@ public class Week
         // extratijd2 is de incrementele kosten in het rijmoment van hierVoor
 
         if (hierVoor.rijmoment.bus == mover.rijmoment.bus) // als de bus hetzelfde is maar een ander rijmoment
-            legaal = hierVoor.rijmoment.bus.InterRijmomentSwapCheck(extratijd1 + extratijd2); //Controleer of het mag
+            legaal = hierVoor.rijmoment.bus.tijd + extratijd1 + extratijd2 <= 43200 * 1000; //Controleer of het mag
         else if (hierVoor.rijmoment.bus.dag == mover.rijmoment.bus.dag) // als de bus anders is maar dezelfde dag
             legaal = Dag.InterBusSwapCheck(mover, hierVoor, extratijd1, extratijd2); //Controleer of het mag
         else legaal = InterDagVerplaatsCheck(mover, hierVoor, extratijd1, extratijd2); // als de dag anders is, controleer of het mag
@@ -180,7 +180,7 @@ public class Week
         // extratijd2 is de incrementele kosten in het rijmoment van node2
 
         if (node1.rijmoment.bus == node2.rijmoment.bus) // als de bus hetzelfde is maar een ander rijmoment
-            legaal = node1.rijmoment.bus.InterRijmomentSwapCheck(extratijd1 + extratijd2); //Controleer of het mag
+            legaal = node1.rijmoment.bus.tijd + extratijd1 + extratijd2 <= 43200 * 1000; //Controleer of het mag
         else if (node1.rijmoment.bus.dag == node2.rijmoment.bus.dag) // als de dag hetzelfde is maar een andere bus
             legaal = Dag.InterBusSwapCheck(node1, node2, extratijd1, extratijd2); //Controleer of het mag
         else legaal = InterDagSwapCheck(node1, node2, extratijd1, extratijd2); // als ook de dag anders is, controleer of het mag
