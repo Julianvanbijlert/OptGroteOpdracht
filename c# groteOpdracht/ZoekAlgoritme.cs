@@ -38,6 +38,7 @@ public class ZoekAlgoritme
         bestOplossing = w.Eval;
         besteScoreTemp = w.Eval;
 
+        //timer 2 is voor het berekenen van de iteraties per seconde
         timer2 = new System.Timers.Timer();
         timer2.Interval = 500;
         timer2.Elapsed += OnTimedEvent;
@@ -55,7 +56,7 @@ public class ZoekAlgoritme
     }
 
     public void BFS()
-    {
+    { //bfs staat voor best first search en zorgt ervoor dat elk rijmoment optimaal wordt voor hoe het nu ingedeeld is
         week.BFS();
     }
 
@@ -94,22 +95,19 @@ public class ZoekAlgoritme
         //random walk
         if (sweeps % 5 == 0)
         {
-            //sweeps / 10 zorgt dat hij steeds meer random walked zodat hij verder uit het minimum kan komen
-            // ik denk niet dat dat heel tactisch is, uiteindelijk heb je een beter minimum en dan wil je juist niet steeds meer daarvan weg.
-            // ik denk dat we het het best gwn op een standaard aantal pickactions kunnen zetten
             RandomWalk();
-            startT = 100000; // echt compleet random dus
-            // misschien is het voor een randomwalk genoeg om gwn alleen de startT te verhogen en voor de rest niks te doen?
+            startT = 100000;
         }
 
         //random reset
-        if (sweeps % 1000 == 0) // bij een groot genoege random walk is dit niet eens nodig denk ik
+        if (sweeps % 1000 == 0) 
         {
-            //load old file
-            week = IO.LoadSolutionAuto(true, r); // denk dat we dan beter een lege week kunnen opstarten
+            //load de beste file tot nu toe, we kunnen later ook met gewoon lege file doen maar dit is goed voor nu
+            week = IO.LoadSolutionAuto(true, r); 
             sweeps = 0;
         } 
 
+        //infinite loop
         ILSinf();
 
         timer.Stop();
@@ -191,8 +189,10 @@ public class ZoekAlgoritme
                 //random bedrijf
                 bIndex = r.Next(0, week.bedrijvenWel.Count + 20);
 
+                //dit is zodat er een kans is dat je het bedrijf aan het einde toevoegd in plaats van voor een ander bedrijf
                 if (bIndex >= week.bedrijvenWel.Count)
                 {
+                    //bereken de plek
                     bIndex -= week.bedrijvenWel.Count;
                     dag = bIndex % 5 + 1;
                     bus = bIndex / 5 < 2 ? 0 : 1;
@@ -201,11 +201,13 @@ public class ZoekAlgoritme
                 }
                 else
                 {
+                    //anders pak een node van dat bedrijf
                     nodes[i] = GetBedrijfNode(week.bedrijvenWel[bIndex]);
                 }
             }
 
             (bo, extratijd) = week.InsertCheck(bedrijf, nodes);
+            //als het een legale Insert is, stop met zoeken naar nieuwe nodes
             if (bo)
                 break;  
         }
@@ -218,6 +220,7 @@ public class ZoekAlgoritme
 
     public void Delete(double T)
     {
+        //mag geen lege lijst zijn
         if (week.bedrijvenWel.Count == 0) return;
 
         int[] extratijd;
@@ -228,6 +231,7 @@ public class ZoekAlgoritme
         {
             bedrijf = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)];
             (bo, extratijd) = week.DeleteCheck(bedrijf);
+            //als het een legale delete is, stop met zoeken naar nieuwe nodes
             if (bo)
                 break;
         }
@@ -257,6 +261,8 @@ public class ZoekAlgoritme
             n1 = GetBedrijfNode(b);
 
             b2Index = r.Next(0, week.bedrijvenWel.Count + 19);
+
+            //Dit is zodat er een kans is dat je het verplaatst naar het einde van een lijst
             if (b2Index >= week.bedrijvenWel.Count - 1)
             {
                 b2Index -= week.bedrijvenWel.Count - 1;
@@ -272,6 +278,7 @@ public class ZoekAlgoritme
             }
 
             (bo, i, j) = week.VerplaatsCheck(n1, n2);
+            //als het een legale swap is, stop met nieuwe zoeken
             if (bo)
                 break;
         }
@@ -294,13 +301,15 @@ public class ZoekAlgoritme
         while(true)
         {
             b = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)];
-
+            //zorgen dat het niet dezelfde bedrijven zijn
             while ((b2 = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)]) == b) ;
 
             n1 = GetBedrijfNode(b);
             n2 = GetBedrijfNode(b2);
 
             (bo, i, j) = week.SwapCheck(n1, n2);
+
+            //als het een legale swap is, stop met nieuwe zoeken
             if (bo)
                 break;
         }
@@ -322,11 +331,11 @@ public class ZoekAlgoritme
         return b.Locaties[r.Next(0, b.Locaties.Count)];
     }
 
-    public void RandomWalk() // maakt het programma heel sloom naarmate het aantal iteraties groter wordt
+    public void RandomWalk() 
     {
-        for (int j = 0; j <= 10_000; j++) // is nu echt echt echt een randomwalk
+        for (int j = 0; j <= 10_000; j++) 
         {
-            PickAction(100_000);
+            PickAction(100_000); //kiest gewoon een actie met een hoge T, zodat hij gegaranadeerd wordt geaccepteerd
         } 
     }
 
