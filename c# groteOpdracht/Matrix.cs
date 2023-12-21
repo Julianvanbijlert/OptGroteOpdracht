@@ -4,6 +4,7 @@ namespace rommelrouterakkers;
 public class AfstandMatrix
 {
     //we chose to ignore distance as this does not matter for calculating time
+    //so actually it's a driving time matrix
     public int[,] matrix;
 
     public AfstandMatrix(int[,] matrix1)
@@ -21,7 +22,7 @@ public class AfstandMatrix
         return lookup(n1.bedrijf, n2.bedrijf);
     }
     
-    public int this[int i, int j] // indexer, indien je geen bedrijven tot je beschikking hebt maar alleen IDs
+    public int this[int i, int j] // indexer
     {
         get { return matrix[i, j]; }
     }

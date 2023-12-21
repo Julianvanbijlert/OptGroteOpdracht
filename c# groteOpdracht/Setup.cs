@@ -1,6 +1,7 @@
 namespace rommelrouterakkers;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 
 public class Setup
@@ -30,7 +31,7 @@ public class Setup
 
         //IO.PrintSolution(werkWeek);           //huidige oplossing in de console weergeven
     }
-    static void vulDict()
+    static void vulDict() // dictionary maken zodat je in O(1) tijd een bedrijf kan vinden aan de hand van zijn ordernummer
     {
         foreach (Bedrijf bedrijf in bedrijven)
         {
@@ -38,9 +39,8 @@ public class Setup
         }
     }
 
-    static void vulBedrijven(string fileNaam) 
+    static void vulBedrijven(string fileNaam) // vult de lijst met bedrijven
     {
-
         StreamReader sr = new StreamReader(fileNaam);
         string regel = sr.ReadLine();
 
@@ -49,10 +49,9 @@ public class Setup
             Bedrijf b = Bedrijf.parseBedrijf(regel);
             bedrijven.Add(b);
         }
-
     }
     
-    static int[,] vulMatrix(string fileNaam)
+    static int[,] vulMatrix(string fileNaam) // vult een tweedimensionale array met alle rijtijden
     {
         int[,] matrix = new int[matrixIds, matrixIds];
 
@@ -76,8 +75,8 @@ public class Setup
     }
 
     static List<Bedrijf> SorteerBedrijven(List<Bedrijf> bedrijven) 
-        //sorteert de bedrijven, begint bij de stort en dan steeds naar het bedrijf
-        // dat het dichts bij het vorige bedrijf ligt
+        //sorteert een lijst bedrijven, begint bij de stort en dan steeds naar het bedrijf
+        //dat het dichtst bij het vorige bedrijf ligt
     {
         List<Bedrijf> bedrijvenSorted = new List<Bedrijf>();
 
@@ -88,7 +87,7 @@ public class Setup
 
         while (bedrijven.Count != 0)
         {
-            for (int i = 0; i < bedrijven.Count; i++) // voeg eerst alle bedrijven met de beste matrixid toe
+            for (int i = 0; i < bedrijven.Count; i++) // voeg eerst alle bedrijven met de gevonden matrixid toe
                 if (bedrijven[i].matrixId == besteMatrixId)
                 {
                     bedrijvenSorted.Add(bedrijven[i]);
@@ -120,20 +119,24 @@ public class Setup
             bedrijvenPerFreq[i] = new List<Bedrijf>();
 
         foreach (Bedrijf bed in bedrijven)
-            if (bed.orderNummer != 8942)    
+            if (bed.orderNummer != 8942) // bedrijf met negatieve leegtijd negeren, die willen we niet in de beginoplossing, we willen zijn strafkosten
                 bedrijvenPerFreq[bed.frequentie].Add(bed);
     
         return bedrijvenPerFreq;
     }
 
-    static Week StelBeginoplossingIn()
+    static Week StelBeginoplossingIn() // Creeert de beginoplossing
+        //De code van deze functie had wat algemener gekund.
+        //Dat hebben we expres niet gedaan, omdat we later
+        //misschien sommige frequenties nog op een andere manier willen behandelen,
+        //en dan is het fijn als je losse code hebt voor elke frequentie
     {
         Week werkWeek = new Week();
         
         List<Bedrijf>[] bedrijvenPerFreq = VulBedrijvenPerFreq(bedrijven);
         int extratijd;
 
-        Rijmoment[] huidigen = new Rijmoment[6];
+        Rijmoment[] huidigen = new Rijmoment[6]; // maakt een array aan, met voor elke dag het rijmoment waar we op dat moment bezig zijn met invoegen
         for (int i = 1; i <= 5; i++)
             huidigen[i] = werkWeek.dagen[i].bussen[0].rijmomenten[0];
 
@@ -142,10 +145,10 @@ public class Setup
         foreach (Bedrijf bedr in bedrijvenPerFreq[2])
         {
             if (huidigen[k].volume + bedr.volume > 100000)
-                k++;
+                k++; //ma-do wordt di-vr. wat er daarna gebeurt boeit niet, zoveel bedrijven met freq 2 zijn er niet
             extratijd = huidigen[k].ExtraTijdskostenBijToevoegen(bedr, huidigen[k].eindnode.Previous, huidigen[k].eindnode);
             huidigen[k].LaatstToevoegen(bedr.Locaties[0], extratijd);
-            huidigen[k + 3].LaatstToevoegen(bedr.Locaties[1], extratijd);
+            huidigen[k + 3].LaatstToevoegen(bedr.Locaties[1], extratijd); // ook toevoegen 3 dagen verder
             bedr.wordtBezocht = true;
             werkWeek.kosten -= 3 * 2 * bedr.ledigingsDuur;
             werkWeek.bedrijvenNiet.Remove(bedr);
@@ -158,7 +161,7 @@ public class Setup
             for (int i = 0; i <= 2; i++)
             {
                 extratijd = huidigen[2 * i + 1].ExtraTijdskostenBijToevoegen(bedr, huidigen[2 * i + 1].eindnode.Previous, huidigen[2 * i + 1].eindnode);
-                huidigen[2 * i + 1].LaatstToevoegen(bedr.Locaties[i], extratijd);
+                huidigen[2 * i + 1].LaatstToevoegen(bedr.Locaties[i], extratijd); // voeg ma-wo-vr toe
             }
             bedr.wordtBezocht = true;
             werkWeek.kosten -= 3 * 3 * bedr.ledigingsDuur;
@@ -170,7 +173,7 @@ public class Setup
         for (int i = 1; i <= 4; i++)
         {
             extratijd = huidigen[i].ExtraTijdskostenBijToevoegen(bedr4, huidigen[i].eindnode.Previous, huidigen[i].eindnode);
-            huidigen[i].LaatstToevoegen(bedr4.Locaties[i - 1], extratijd);
+            huidigen[i].LaatstToevoegen(bedr4.Locaties[i - 1], extratijd); // voeg ma-di-wo-do toe
         }
         bedr4.wordtBezocht = true;
         werkWeek.kosten -= 3 * 4 * bedr4.ledigingsDuur;
@@ -184,33 +187,34 @@ public class Setup
         bool andereBus;
         int p;
 
-        for (int i = 1; i <= 5; i++) // nu frequentie 1
+        for (int i = 1; i <= 5; i++) // nu frequentie 1. Voor elke dag:
         {
-            huidig = huidigen[i];
             dag = werkWeek.dagen[i];
-            for (int j = 0; j <= 1; j++)
+            for (int j = 0; j <= 1; j++) // voor elke bus
             {
                 bus = dag.bussen[j];
-                andereBus = false;
-                p = 0;
+                andereBus = false; 
+                p = 0; // index van rijmoment
 
-                while (!andereBus && bus.tijd + 1800 * 1000 <= 39100 * 1000)
+                while (!andereBus && bus.tijd + 1800 * 1000 <= 39100 * 1000) // expres de max tijd kleiner dan 43200 * 1000 gemaakt,
+                                                                             // zodat de bedrijven mooi gesplit worden over de dagen en niet een paar dagen alles krijgen
                 {    
-                    huidig = bus.rijmomenten[p];
-                    bedrijvenPerFreq[1] = SorteerBedrijven(bedrijvenPerFreq[1]);
+                    huidig = bus.rijmomenten[p]; 
+                    bedrijvenPerFreq[1] = SorteerBedrijven(bedrijvenPerFreq[1]); // Als je een nieuw rijmoment pakt, sorteer de bedrijven opnieuw
+                                                                                 //zodat het eerste bedrijf weer het dichtst bij de stort ligt
                     while (true)
                     {
-                        if (bedrijvenPerFreq[1].Count == 0) return werkWeek;
+                        if (bedrijvenPerFreq[1].Count == 0) return werkWeek; // als alle bedrijven er al in zitten
                         bedrijf = bedrijvenPerFreq[1][0];
                         extratijd = huidig.ExtraTijdskostenBijToevoegen(bedrijf, huidig.eindnode.Previous, huidig.eindnode);
                         if (bus.tijd + extratijd > 39100 * 1000)
                         {
-                            andereBus = true;
+                            andereBus = true; // switch naar bus 2
                             break;
                         }
-                        if (huidig.volume + bedrijf.volume > 100000) //wellicht op 80000 ofzo zetten om het programma speling te geven
+                        if (huidig.volume + bedrijf.volume > 100000) 
                         {
-                            break; 
+                            break; // switch naar volgend rijmoment
                         }
                         huidig.LaatstToevoegen(bedrijf.Locaties[0], extratijd);
                         werkWeek.bedrijvenNiet.Remove(bedrijf);
@@ -219,7 +223,7 @@ public class Setup
                         bedrijf.wordtBezocht = true;
                         bedrijvenPerFreq[1].RemoveAt(0);
                     }
-                    p = 1;
+                    p = 1; // switch naar volgende rijmoment
                 }
             }
         }
