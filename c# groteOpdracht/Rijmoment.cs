@@ -13,12 +13,27 @@ public class Rijmoment
         bus = buss;
         volume = 0;
 
-        beginnode = new Node(Setup.stort);
+        beginnode = new Node(Setup.stort); // maak de 2 stortnodes
         eindnode  = new Node(Setup.stort);
         beginnode.Next = eindnode;
         eindnode.Previous = beginnode;
         beginnode.rijmoment = this;
         eindnode.rijmoment = this;
+    }
+    public int ExtraTijdskostenBijToevoegen(Bedrijf bedrijf, Node vorige, Node volgende) // bereken de incrementele kosten die ontstaan bij toevoegen
+                                                                                         // van dit bedrijf na de node vorige en vóór de node volgende
+    {
+        int extra = 0;
+        extra += Setup.aMatrix.lookup(vorige.bedrijf, bedrijf); // tel de rijtijd van de vorige naar de volgende
+        extra += Setup.aMatrix.lookup(bedrijf, volgende.bedrijf);
+        extra -= Setup.aMatrix.lookup(vorige.bedrijf, volgende.bedrijf);
+        extra += bedrijf.ledigingsDuur;
+
+        if (vorige == beginnode && volgende == eindnode)
+        {
+            extra += 1800 * 1000;
+        }
+        return extra;
     }
 
     public void ToevoegenVoor(Node nieuw, Node volgende, int extratijd)
@@ -52,60 +67,18 @@ public class Rijmoment
         weg.rijmoment = null;
     }
 
-    public void Load(Bedrijf b)
+    public int ExtraTijdsKostenBijWisselen(Node node, Node node2)
     {
-
-        //bereken de tijd die daarvoor wordt toegevoegd
-        int extratijd = ExtraTijdskostenBijToevoegen(b, eindnode.Previous, eindnode);
-
-        LaatstToevoegen(b.FindUnusedNode(), extratijd);
-        //stop bedrijf in dit rijmoment
-        //voeg pointers toe van bedrijf naar deze node?
-            // gaat automatisch
-
-    }
-
-
-
-    public int ExtraTijdskostenBijToevoegen(Bedrijf bedrijf, Node vorige, Node volgende)
-    { 
-        int extra = 0;
-        extra += Setup.aMatrix.lookup(vorige.bedrijf, bedrijf);
-        extra += Setup.aMatrix.lookup(bedrijf, volgende.bedrijf);
-        extra -= Setup.aMatrix.lookup(vorige.bedrijf, volgende.bedrijf);
-        extra += bedrijf.ledigingsDuur;
-
-        if (vorige == beginnode && volgende == eindnode)
+        if (node.Next == node2)
+            return ExtraTijdsKostenBijNaastWisselen(node, node2);
+        else if (node2.Next == node)
+            return ExtraTijdsKostenBijNaastWisselen(node2, node);
+        else
         {
-            extra += 1800 * 1000;
-        }
-        return extra;
-    }
-
-    public void RijBFS()
-    {
-        if (beginnode.Next == eindnode || beginnode.Next.Next == eindnode) 
-            return;
-        int extratijd;
-
-        Node node1 = beginnode.Next;
-        Node node2 = node1.Next;
-
-        while (node1.Next != eindnode)
-        {
-            while (node2 != eindnode)
-            {
-                extratijd = ExtraTijdsKostenBijWisselen(node1, node2);
-                if (extratijd < 0)
-                {
-                    Wisselen(node1, node2, extratijd);
-                    node1 = beginnode.Next;
-                    node2 = node1;
-                }
-                node2 = node2.Next;
-            }
-            node1 = node1.Next;
-            node2 = node1.Next;
+            return node.ExtraTijdskostenBijVerwijderen() +
+                   node2.ExtraTijdskostenBijVerwijderen() +
+                   ExtraTijdskostenBijToevoegen(node.bedrijf, node2.Previous, node2.Next) +
+                   ExtraTijdskostenBijToevoegen(node2.bedrijf, node.Previous, node.Next);
         }
     }
 
@@ -130,21 +103,6 @@ public class Rijmoment
         bus.week.kosten += extratijd;
     }
 
-    public int ExtraTijdsKostenBijWisselen(Node node, Node node2)
-    {
-        if (node.Next == node2)
-            return ExtraTijdsKostenBijNaastWisselen(node, node2);
-        else if (node2.Next == node)
-            return ExtraTijdsKostenBijNaastWisselen(node2, node);
-        else
-        {
-            return node.ExtraTijdskostenBijVerwijderen() +
-                   node2.ExtraTijdskostenBijVerwijderen() +
-                   ExtraTijdskostenBijToevoegen(node.bedrijf, node2.Previous, node2.Next) +
-                   ExtraTijdskostenBijToevoegen(node2.bedrijf, node.Previous, node.Next);
-        }
-    }
-
     public int ExtraTijdsKostenBijNaastWisselen(Node node, Node node2)
     {
         return node.ExtraTijdskostenBijVerwijderen() + 
@@ -157,22 +115,57 @@ public class Rijmoment
         ToevoegenVoor(node, node2.Next, 0);
     }
 
-    public (int, string) ToString(string str, int c)
+    public void RijBFS()
+    {
+        if (beginnode.Next == eindnode || beginnode.Next.Next == eindnode)
+            return;
+        int extratijd;
+
+        Node node1 = beginnode.Next;
+        Node node2 = node1.Next;
+
+        while (node1.Next != eindnode)
+        {
+            while (node2 != eindnode)
+            {
+                extratijd = ExtraTijdsKostenBijWisselen(node1, node2);
+                if (extratijd < 0)
+                {
+                    Wisselen(node1, node2, extratijd);
+                    node1 = beginnode.Next;
+                    node2 = node1;
+                }
+                node2 = node2.Next;
+            }
+            node1 = node1.Next;
+            node2 = node1.Next;
+        }
+    }
+
+    public void Load(Bedrijf b)
+    {
+
+        //bereken de tijd die daarvoor wordt toegevoegd
+        int extratijd = ExtraTijdskostenBijToevoegen(b, eindnode.Previous, eindnode);
+
+        LaatstToevoegen(b.FindUnusedNode(), extratijd);
+        //stop bedrijf in dit rijmoment
+        //voeg pointers toe van bedrijf naar deze node?
+        // gaat automatisch
+
+    }
+
+    public (int, string) ToString(string str, int c) // maak een string van het rijmoment
     {
         string s = "";
         Node current = beginnode;
         int count = c;
-        while (current != eindnode)
+        while (current != eindnode) // maak een string van elke node en voeg die toe aan de rijmoment-string 
         {
             current = current.Next;
             s += current.ToString(str + count.ToString());
             count++;
         }
         return (count,s);
-    }
-
-    public int Evaluate()
-    {
-        return tijd;
     }
 }

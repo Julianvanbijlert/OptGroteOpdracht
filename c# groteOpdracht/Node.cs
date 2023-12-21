@@ -19,9 +19,9 @@ public class Node
     public int ExtraTijdskostenBijVerwijderen() // bereken de incrementele tijdskosten die ontstaan bij verwijderen van deze node
     {
         int extra = 0;
-        extra -= Setup.aMatrix.lookup(Previous, this);
-        extra -= Setup.aMatrix.lookup(this, Next);
-        extra += Setup.aMatrix.lookup(Previous, Next);
+        extra -= Setup.aMatrix.lookup(Previous, this); // haal de rijtijd van de vorige naar deze node eraf
+        extra -= Setup.aMatrix.lookup(this, Next); // haal de rijtijd van deze naar de volgende eraf
+        extra += Setup.aMatrix.lookup(Previous, Next); // tel de rijtijd van de vorige naar de volgende erbij op
         extra -= bedrijf.ledigingsDuur;
 
         if (Previous == rijmoment.beginnode && Next == rijmoment.eindnode) // als het rijmoment nu leeg is, haal de stortkosten ervanaf

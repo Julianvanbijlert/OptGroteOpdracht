@@ -117,9 +117,11 @@ public class Week
         int extratijd2;
         if (mover.rijmoment == hierVoor.rijmoment) // Als de nodes in hetzelfde rijmoment zitten
         {
-            extratijd1 = mover.ExtraTijdskostenBijVerwijderen();
-            Node hierNa = hierVoor.Previous == mover ? mover.Previous : hierVoor.Previous; // Na welke node moet mover ingevoegd worden?
-            extratijd2 = hierVoor.rijmoment.ExtraTijdskostenBijToevoegen(mover.bedrijf, hierNa, hierVoor);
+            if (mover.Next == hierVoor) // als mover al vóór hierVoor staat, hoeft het niet natuurlijk
+                return (false, 0, 0);
+            
+            extratijd1 = mover.ExtraTijdskostenBijVerwijderen(); 
+            extratijd2 = hierVoor.rijmoment.ExtraTijdskostenBijToevoegen(mover.bedrijf, hierVoor.Previous, hierVoor);
 
             if (mover.rijmoment.bus.tijd + extratijd1 + extratijd2 > 43200 * 1000) return (false, 0, 0); // als het qua tijd niet past
             return (true, extratijd1, extratijd2);
