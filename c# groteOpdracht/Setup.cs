@@ -20,14 +20,15 @@ public class Setup
         vulDict();
  
         //werkWeek = StelBeginoplossingIn();                  //nieuwe beginoplossing maken en loaden
-        //werkWeek = IO.LoadSolution(IO._beginoplossing);     //oude beginoplossing loaden
+        //werkWeek = IO.LoadSolution(IO._beginoplossing);     //bestaande beginoplossing loaden
         werkWeek = IO.LoadSolutionAuto(true, new Random());   //load beste oplossing tot nu toe
+        
         ZoekAlgoritme za = new ZoekAlgoritme(werkWeek);
 
         //za.BFS();                             //huidige oplossing BFS'en, vooral handig na instellen van een nieuwe beginoplossing
         //IO.SaveBeginOplossing(werkWeek);      //huidige oplossing opslaan als beginoplossing
 
-        za.ILSinf();
+        za.ILSinf();                            //ga local searchen
 
         //IO.PrintSolution(werkWeek);           //huidige oplossing in de console weergeven
     }
@@ -39,7 +40,7 @@ public class Setup
         }
     }
 
-    static void vulBedrijven(string fileNaam) // vult de lijst met bedrijven
+    static void vulBedrijven(string fileNaam) // vult de lijst met bedrijven uit het orderbestand
     {
         StreamReader sr = new StreamReader(fileNaam);
         string regel = sr.ReadLine();
@@ -51,7 +52,7 @@ public class Setup
         }
     }
     
-    static int[,] vulMatrix(string fileNaam) // vult een tweedimensionale array met alle rijtijden
+    static int[,] vulMatrix(string fileNaam) // vult een tweedimensionale array met alle rijtijden uit het afstandenbestand
     {
         int[,] matrix = new int[matrixIds, matrixIds];
 
@@ -60,13 +61,14 @@ public class Setup
 
         while ((regel = sr.ReadLine()) != null)
         {
-            (int a, int b, int c) i = ParseMatrix(regel);
+            (int a, int b, int c) i = ParseRijtijd(regel);
             matrix[i.a, i.b] = i.c * 1000;
         }
         return matrix;
     }
 
-    static (int, int, int) ParseMatrix(string s)
+    static (int, int, int) ParseRijtijd(string s) // zet een regel uit het tekstbestand om naar een tuple met
+                                                  // de ordernummers en rijtijd
     {
         char separator = ';';
         string[] list = s.Split(separator);
@@ -137,6 +139,9 @@ public class Setup
         int extratijd;
 
         Rijmoment[] huidigen = new Rijmoment[6]; // maakt een array aan, met voor elke dag het rijmoment waar we op dat moment bezig zijn met invoegen
+
+        // note: we voegen bij het maken van de beginoplossing steeds nodes toe *achterin* een rijmoment
+
         for (int i = 1; i <= 5; i++)
             huidigen[i] = werkWeek.dagen[i].bussen[0].rijmomenten[0];
 
@@ -144,9 +149,9 @@ public class Setup
         int k = 1;
         foreach (Bedrijf bedr in bedrijvenPerFreq[2])
         {
-            if (huidigen[k].volume + bedr.volume > 100000)
+            if (huidigen[k].volume + bedr.volume > 100000) // als het niet meer op ma/do past ivm volume
                 k++; //ma-do wordt di-vr. wat er daarna gebeurt boeit niet, zoveel bedrijven met freq 2 zijn er niet
-            extratijd = huidigen[k].ExtraTijdskostenBijToevoegen(bedr, huidigen[k].eindnode.Previous, huidigen[k].eindnode);
+            extratijd = huidigen[k].ExtraTijdskostenBijToevoegen(bedr, huidigen[k].eindnode.Previous, huidigen[k].eindnode); // bereken de incrementele kosten
             huidigen[k].LaatstToevoegen(bedr.Locaties[0], extratijd);
             huidigen[k + 3].LaatstToevoegen(bedr.Locaties[1], extratijd); // ook toevoegen 3 dagen verder
             bedr.wordtBezocht = true;
@@ -160,8 +165,8 @@ public class Setup
         {
             for (int i = 0; i <= 2; i++)
             {
-                extratijd = huidigen[2 * i + 1].ExtraTijdskostenBijToevoegen(bedr, huidigen[2 * i + 1].eindnode.Previous, huidigen[2 * i + 1].eindnode);
-                huidigen[2 * i + 1].LaatstToevoegen(bedr.Locaties[i], extratijd); // voeg ma-wo-vr toe
+                extratijd = huidigen[2 * i + 1].ExtraTijdskostenBijToevoegen(bedr, huidigen[2 * i + 1].eindnode.Previous, huidigen[2 * i + 1].eindnode); // bereken de incrementele kosten
+                huidigen[2 * i + 1].LaatstToevoegen(bedr.Locaties[i], extratijd); // voeg toe in ma-wo-vr 
             }
             bedr.wordtBezocht = true;
             werkWeek.kosten -= 3 * 3 * bedr.ledigingsDuur;
@@ -172,8 +177,8 @@ public class Setup
         Bedrijf bedr4 = bedrijvenPerFreq[4][0]; // dan frequentie 4
         for (int i = 1; i <= 4; i++)
         {
-            extratijd = huidigen[i].ExtraTijdskostenBijToevoegen(bedr4, huidigen[i].eindnode.Previous, huidigen[i].eindnode);
-            huidigen[i].LaatstToevoegen(bedr4.Locaties[i - 1], extratijd); // voeg ma-di-wo-do toe
+            extratijd = huidigen[i].ExtraTijdskostenBijToevoegen(bedr4, huidigen[i].eindnode.Previous, huidigen[i].eindnode); // bereken de incrementele kosten
+            huidigen[i].LaatstToevoegen(bedr4.Locaties[i - 1], extratijd); // voeg toe in ma-di-wo-do 
         }
         bedr4.wordtBezocht = true;
         werkWeek.kosten -= 3 * 4 * bedr4.ledigingsDuur;
@@ -184,7 +189,6 @@ public class Setup
         Bedrijf bedrijf;
         Bus bus;
         Dag dag;
-        bool andereBus;
         int p;
 
         for (int i = 1; i <= 5; i++) // nu frequentie 1. Voor elke dag:
@@ -193,10 +197,9 @@ public class Setup
             for (int j = 0; j <= 1; j++) // voor elke bus
             {
                 bus = dag.bussen[j];
-                andereBus = false; 
                 p = 0; // index van rijmoment
 
-                while (!andereBus && bus.tijd + 1800 * 1000 <= 39100 * 1000) // expres de max tijd kleiner dan 43200 * 1000 gemaakt,
+                while (p <= 1 && bus.tijd <= 39100 * 1000) // expres de max tijd kleiner dan 43200 * 1000 gemaakt,
                                                                              // zodat de bedrijven mooi gesplit worden over de dagen en niet een paar dagen alles krijgen
                 {    
                     huidig = bus.rijmomenten[p]; 
@@ -205,16 +208,16 @@ public class Setup
                     while (true)
                     {
                         if (bedrijvenPerFreq[1].Count == 0) return werkWeek; // als alle bedrijven er al in zitten
-                        bedrijf = bedrijvenPerFreq[1][0];
-                        extratijd = huidig.ExtraTijdskostenBijToevoegen(bedrijf, huidig.eindnode.Previous, huidig.eindnode);
-                        if (bus.tijd + extratijd > 39100 * 1000)
+                        bedrijf = bedrijvenPerFreq[1][0]; // kies het dichtstbijzijnde bedrijf
+                        extratijd = huidig.ExtraTijdskostenBijToevoegen(bedrijf, huidig.eindnode.Previous, huidig.eindnode); // bereken de incrementele kosten
+                        if (bus.tijd + extratijd > 39100 * 1000) // als het qua tijd niet in de bus past
                         {
-                            andereBus = true; // switch naar bus 2
+                            p = 2; // forceer een switch naar de volgende bus
                             break;
                         }
-                        if (huidig.volume + bedrijf.volume > 100000) 
+                        if (huidig.volume + bedrijf.volume > 100000) // als het qua volume niet in het rijmoment past
                         {
-                            break; // switch naar volgend rijmoment
+                            break; 
                         }
                         huidig.LaatstToevoegen(bedrijf.Locaties[0], extratijd);
                         werkWeek.bedrijvenNiet.Remove(bedrijf);
@@ -223,7 +226,7 @@ public class Setup
                         bedrijf.wordtBezocht = true;
                         bedrijvenPerFreq[1].RemoveAt(0);
                     }
-                    p = 1; // switch naar volgende rijmoment
+                    p++; // switch naar volgende rijmoment
                 }
             }
         }
