@@ -19,13 +19,13 @@ public class Setup
         vulBedrijven(IO.orderbestandFileNaam);
         vulDict();
  
-        //week = StelBeginoplossingIn();                  //nieuwe beginoplossing maken en loaden
+        week = StelBeginoplossingIn();                  //nieuwe beginoplossing maken en loaden
         //week = IO.LoadSolution(IO._beginoplossing);     //bestaande beginoplossing loaden
-        week = IO.LoadSolutionAuto(true, new Random());   //load beste oplossing tot nu toe
+        //week = IO.LoadSolutionAuto(true, new Random());   //load beste oplossing tot nu toe
         
         ZoekAlgoritme za = new ZoekAlgoritme(week);
 
-        //za.BFS();                                       //huidige oplossing BFS'en, vooral handig na instellen van een nieuwe beginoplossing
+        za.BFS();                                       //huidige oplossing BFS'en, vooral handig na instellen van een nieuwe beginoplossing
         //IO.SaveBeginOplossing(werkWeek);                //huidige oplossing opslaan als beginoplossing
 
         za.ILS();                                      //ga iterated local searchen

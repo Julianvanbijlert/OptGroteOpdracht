@@ -81,7 +81,7 @@ public class ZoekAlgoritme
         sweeps++;
 
         //random reset
-        if (sweeps % 80 == 0)
+        if (sweeps % 20 == 0)
         {
             //load de beste file tot nu toe, we kunnen later ook met gewoon lege week doen maar dit is goed voor nu
             week = IO.LoadSolutionAuto(true, r);
@@ -89,7 +89,7 @@ public class ZoekAlgoritme
         }
 
         //random walk
-        else if (sweeps % 20 == 0)
+        else if (sweeps % 5 == 0)
         {
             RandomWalk();
         }
@@ -116,7 +116,7 @@ public class ZoekAlgoritme
 
             totItt++;
 
-            if (totItt % 500_000 == 0) // na elke 2 mil iteraties, verklein T
+            if (totItt % 2_000_000 == 0) // na elke 2 mil iteraties, verklein T
             {
                 T *= tempVerkleining;
             }
