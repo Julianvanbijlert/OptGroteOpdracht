@@ -2,49 +2,33 @@ namespace rommelrouterakkers;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection.Metadata;
-using System.Text.RegularExpressions;
 
 public class Setup
 {
-    private static int aantalOrders = 1177;
     private static int matrixIds = 1099;
-    //private static List<Rijmoment>[] dagen = new List<Rijmoment>[6]; //BELANGRIJK: dagindexen zijn 1-5, niet 0-4 (hebben we al in week)
- 
-    //bestsolutionvariable
     public static Bedrijf stort = new Bedrijf(0, 0, 0, 0, 287, 0);
     public static AfstandMatrix aMatrix;
-    public Week werkWeek = new Week();
+    public Week werkWeek;
     public static List<Bedrijf> bedrijven = new List<Bedrijf>();
     public static Dictionary<int, Bedrijf> bedrijvenDict = new Dictionary<int, Bedrijf>();
-    // 2 dictionaries bijhouden, 1 met welke bedrijven er wel in zitten en 1 met welke bedrijven er niet in zitten, qua ordernummer
-    // dan kan je redelijk makkelijk verwijderen/toevoegen/bedrijf kiezen
-
 
     public Setup()
     {
-        aMatrix = new AfstandMatrix(vulMatrix(IO.matrixFileNaam)); //afstanden niet in
+        aMatrix = new AfstandMatrix(vulMatrix(IO.matrixFileNaam)); 
         vulBedrijven(IO.orderbestandFileNaam);
         vulDict();
-
-        //werkWeek = new Week();
-        //werkWeek = IO.loadSolution("../../../../Scores.txt", bedrijven); // dat is voor nu de beginoplossing
-        //StelBeginoplossingIn(bedrijven, werkWeek); 
-
-        
-        //werkWeek = IO.LoadSolution(IO._scoreFile , bedrijven);
-        werkWeek = IO.LoadSolutionAuto(true, new Random());
+ 
+        //werkWeek = StelBeginoplossingIn();                  //nieuwe beginoplossing maken en loaden
+        //werkWeek = IO.LoadSolution(IO._beginoplossing);     //oude beginoplossing loaden
+        werkWeek = IO.LoadSolutionAuto(true, new Random());   //load beste oplossing tot nu toe
         ZoekAlgoritme za = new ZoekAlgoritme(werkWeek);
 
-        // ik zou hem van tevoren ook ff bfs'en voor de zekerheid, kost niet veel tijd
+        //za.BFS();                             //huidige oplossing BFS'en, vooral handig na instellen van een nieuwe beginoplossing
+        //IO.SaveBeginOplossing(werkWeek);      //huidige oplossing opslaan als beginoplossing
 
-        //za.BFS(); 
         za.ILSinf();
 
-
-        //IO.PrintSolution(werkWeek);
-        //IO.PrintSolutionToFile(werkWeek);
-        //IO.MakeNewBestFile(werkWeek); 
+        //IO.PrintSolution(werkWeek);           //huidige oplossing in de console weergeven
     }
     static void vulDict()
     {
@@ -54,12 +38,11 @@ public class Setup
         }
     }
 
-    static void vulBedrijven(string fileNaam) // heb het naar een list verandert zodat we kunnen verwijderen voor sorteren
+    static void vulBedrijven(string fileNaam) 
     {
 
         StreamReader sr = new StreamReader(fileNaam);
         string regel = sr.ReadLine();
-        // int count = -1; // is -1 so you can do ++count in the function
 
         while ((regel = sr.ReadLine()) != null)
         {
@@ -89,11 +72,12 @@ public class Setup
         char separator = ';';
         string[] list = s.Split(separator);
 
-        //maybe try catch for parsing, maar is niet nodig omdat we de input weten
         return (int.Parse(list[0]), int.Parse(list[1]), int.Parse(list[3]));
     }
 
-    static List<Bedrijf> SorteerBedrijven(List<Bedrijf> bedrijven)
+    static List<Bedrijf> SorteerBedrijven(List<Bedrijf> bedrijven) 
+        //sorteert de bedrijven, begint bij de stort en dan steeds naar het bedrijf
+        // dat het dichts bij het vorige bedrijf ligt
     {
         List<Bedrijf> bedrijvenSorted = new List<Bedrijf>();
 
@@ -127,7 +111,8 @@ public class Setup
         return bedrijvenSorted;
     }
 
-    public static List<Bedrijf>[] VulBedrijvenPerFreq(List<Bedrijf> bedrijven)
+    public static List<Bedrijf>[] VulBedrijvenPerFreq(List<Bedrijf> bedrijven) 
+        // split de bedrijven in 4 lijsten, 1 per frequentie
     {
         List<Bedrijf>[] bedrijvenPerFreq = new List<Bedrijf>[5];
 
@@ -141,18 +126,19 @@ public class Setup
         return bedrijvenPerFreq;
     }
 
-    static void StelBeginoplossingIn(List<Bedrijf> bedrijven, Week werkWeek)
+    static Week StelBeginoplossingIn()
     {
+        Week werkWeek = new Week();
+        
         List<Bedrijf>[] bedrijvenPerFreq = VulBedrijvenPerFreq(bedrijven);
         Bedrijf bedrijf;
-
         int extratijd;
-        bedrijvenPerFreq[2] = SorteerBedrijven(bedrijvenPerFreq[2]);
 
         Rijmoment[] huidigen = new Rijmoment[6];
         for (int i = 1; i <= 5; i++)
             huidigen[i] = werkWeek.dagen[i].bussen[0].rijmomenten[0];
 
+        bedrijvenPerFreq[2] = SorteerBedrijven(bedrijvenPerFreq[2]); // eerst frequentie 2 toevoegen
         int k = 1;
         foreach (Bedrijf bedr in bedrijvenPerFreq[2])
         {
@@ -167,7 +153,7 @@ public class Setup
             werkWeek.bedrijvenWel.Add(bedr);
         }
 
-        bedrijvenPerFreq[3] = SorteerBedrijven(bedrijvenPerFreq[3]);
+        bedrijvenPerFreq[3] = SorteerBedrijven(bedrijvenPerFreq[3]); // dan frequentie 3
         foreach (Bedrijf bedr in bedrijvenPerFreq[3])
         {
             for (int i = 0; i <= 2; i++)
@@ -181,7 +167,7 @@ public class Setup
             werkWeek.bedrijvenWel.Add(bedr);
         }
 
-        Bedrijf bedr4 = bedrijvenPerFreq[4][0];
+        Bedrijf bedr4 = bedrijvenPerFreq[4][0]; // dan frequentie 4
         for (int i = 1; i <= 4; i++)
         {
             extratijd = huidigen[i].ExtraTijdskostenBijToevoegen(bedr4, huidigen[i].eindnode.Previous, huidigen[i].eindnode);
@@ -214,7 +200,7 @@ public class Setup
                     bedrijvenPerFreq[1] = SorteerBedrijven(bedrijvenPerFreq[1]);
                     while (true)
                     {
-                        if (bedrijvenPerFreq[1].Count == 0) return;
+                        if (bedrijvenPerFreq[1].Count == 0) return werkWeek;
                         bedrijf = bedrijvenPerFreq[1][0];
                         extratijd = huidig.ExtraTijdskostenBijToevoegen(bedrijf, huidig.eindnode.Previous, huidig.eindnode);
                         if (bus.tijd + extratijd > 39100 * 1000)
@@ -237,20 +223,13 @@ public class Setup
                 }
             }
         }
+
+        return werkWeek;
     }
 
     public static Bedrijf VindBedrijf(int ord)
     {
         return bedrijvenDict[ord];
-    }
-
-    public static void ResetBedrijven()
-    {
-        foreach (Bedrijf b in bedrijven)
-        {
-            b.wordtBezocht = false;
-            b.ResetNodes();
-        }
     }
 }
 

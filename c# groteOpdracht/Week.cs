@@ -2,9 +2,6 @@ namespace rommelrouterakkers;
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Linq;
-using System.Xml.Linq;
 
 public class Week
 {
@@ -24,6 +21,7 @@ public class Week
             if (bedrijf.orderNummer != 8942) 
                 bedrijvenNiet.Add(bedrijf);
             kosten += 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
+            bedrijf.ResetNodes();
             bedrijf.wordtBezocht = false;
         }
     }

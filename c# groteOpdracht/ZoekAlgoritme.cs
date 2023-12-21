@@ -92,13 +92,14 @@ public class ZoekAlgoritme
         sweeps++;
 
         //random walk
-        if (sweeps % 10 == 0)
+        if (sweeps % 5 == 0)
         {
             //sweeps / 10 zorgt dat hij steeds meer random walked zodat hij verder uit het minimum kan komen
             // ik denk niet dat dat heel tactisch is, uiteindelijk heb je een beter minimum en dan wil je juist niet steeds meer daarvan weg.
             // ik denk dat we het het best gwn op een standaard aantal pickactions kunnen zetten
             RandomWalk();
             startT = 100000; // echt compleet random dus
+            // misschien is het voor een randomwalk genoeg om gwn alleen de startT te verhogen en voor de rest niks te doen?
         }
 
         //random reset
@@ -142,23 +143,7 @@ public class ZoekAlgoritme
 
     public void PickAction(double T)
     {
-        /*
-        //begin doe zo veel mogelijk inserts, wss iets te heftig dit op einde
-        if (geenverbetering / (sweeps * sweeps) <= T) // T = 20_0000 >, sweeps 1-500
-        {
-            amountOfActions[0]++;
-            Insert(T);
-            return;
-        }
-        //Vervolgens doe deletes
-        if (geenverbetering >= 10_000_000)
-        {
-            amountOfActions[1]++;
-            Delete(T);
-            return;
-        } */
-
-        int welk = r.Next(0, 8);
+        int welk = r.Next(0, 8); // 2/8, 1/8, 3/8, 2/8 is dus de verdeling
         if (welk <= 1)
         {
             amountOfActions[0]++;
@@ -339,7 +324,7 @@ public class ZoekAlgoritme
 
     public void RandomWalk() // maakt het programma heel sloom naarmate het aantal iteraties groter wordt
     {
-        for (int j = 0; j <= 1000_000; j++) // is nu echt echt echt een randomwalk
+        for (int j = 0; j <= 10_000; j++) // is nu echt echt echt een randomwalk
         {
             PickAction(100_000);
         } 
