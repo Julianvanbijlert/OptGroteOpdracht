@@ -7,13 +7,11 @@ public class Rijmoment
     public Node beginnode;
     public Node eindnode;
     public Bus bus;
-    public int Count;
 
     public Rijmoment(Bus buss)
     {
         bus = buss;
         volume = 0;
-        Count = 0;
 
         beginnode = new Node(Setup.stort);
         eindnode  = new Node(Setup.stort);
@@ -30,7 +28,6 @@ public class Rijmoment
         bus.tijd += extratijd;
         bus.week.kosten += extratijd;
         volume += nieuw.bedrijf.volume;
-        Count++;
 
         nieuw.Previous = volgende.Previous;
         nieuw.Next = volgende;
@@ -49,7 +46,6 @@ public class Rijmoment
         volume -= weg.bedrijf.volume;
         bus.tijd += extratijd;
         bus.week.kosten += extratijd;
-        Count--;
 
         weg.Previous.Next = weg.Next;
         weg.Next.Previous = weg.Previous;
@@ -88,7 +84,8 @@ public class Rijmoment
 
     public void RijBFS()
     {
-        if (Count < 2) return;
+        if (beginnode.Next == eindnode || beginnode.Next.Next == eindnode) 
+            return;
         int extratijd;
 
         Node node1 = beginnode.Next;

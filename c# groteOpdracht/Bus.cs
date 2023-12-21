@@ -44,7 +44,7 @@ public class Bus
         int count = 1; // count zorgt ervoor dat het hoeveelste bedrijf dat een bus op een dag bezoekt niet reset bij het ToStringen van een volgend rijmoment
         for (int j = 0; j < rijmomenten.Count; j++)
         {
-            if (rijmomenten[j].Count == 0)
+            if (rijmomenten[j].beginnode.Next == rijmomenten[j].eindnode)
                 continue;
             (count, s2) = rijmomenten[j].ToString(i, count);
             s += s2;

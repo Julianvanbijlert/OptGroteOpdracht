@@ -211,7 +211,7 @@ public class Setup
                 p = 0; // index van rijmoment
 
                 while (p <= 1 && bus.tijd <= 39100 * 1000) // expres de max tijd kleiner dan 43200 * 1000 gemaakt,
-                                                                             // zodat de bedrijven mooi gesplit worden over de dagen en niet een paar dagen alles krijgen
+                                                           // zodat de bedrijven mooi gesplit worden over de dagen en niet een paar dagen alles krijgen
                 {    
                     huidig = bus.rijmomenten[p]; 
                     bedrijvenPerFreq[1] = SorteerBedrijven(bedrijvenPerFreq[1]); // Als je een nieuw rijmoment pakt, sorteer de bedrijven opnieuw
