@@ -1,11 +1,9 @@
 namespace rommelrouterakkers;
-using System;
 
 public class Dag
 {
     public Bus[] bussen;
-    public int getal;
-    public int tijd { get { return bussen[0].tijd + bussen[1].tijd; }  }
+    public int getal; // hoeveelste dag in de week is dit
 
     public Dag(Week werkWeek, int i)
     {
@@ -15,32 +13,12 @@ public class Dag
         getal = i;
     }
 
-    // manier vinden hoe je rijmoment verwijdert wanneer een rijmoment leeg is
-
-    public Rijmoment RijmomentToevoegen() // geen void, zodat we meteen verder kunnen met rijmoment mocht het nodig zijn
-    {
-        if (bussen[0].tijd <= bussen[1].tijd) 
-            return bussen[0].VoegRijmomentToe();
-        else return bussen[1].VoegRijmomentToe();
-
-        //het is niet erg om dit niet random te maken, het is altijd voordeliger voor de optimale oplossing
-        //om rijmomenten zoveel mogelijk te spreiden
-
-        //toevoeging moet wel passen qua tijd natuurlijk
-    }
-
-    public static bool InterBusSwapCheck(Node node1, Node node2, int extratijd1, int extratijd2)
+    public static bool InterBusSwapCheck(Node node1, Node node2, int extratijd1, int extratijd2) // Controleer of de nodes tussen de bussen geswapt mogen worden qua tijd
     {
         if (node1.rijmoment.bus.tijd + extratijd1 > 43200 * 1000 ||
             node2.rijmoment.bus.tijd + extratijd2 > 43200 * 1000)
             return false;
         return true;
-    }
-
-    public int Insert(Node nieuw, Random r)
-    {  
-        int welkeBus = r.Next(0, 2);
-        return bussen[welkeBus].Insert(nieuw, r);
     }
 
     public string ToString(string i)
@@ -49,7 +27,6 @@ public class Dag
 
         s += bussen[0].ToString("1;" + i + ";");
         s += bussen[1].ToString("2;" + i + ";");
-
 
         return s;
     }

@@ -90,7 +90,7 @@ public static class IO
                             w.bedrijvenWel.Add(b);
                         }
 
-                        w.Load(dag, bus, b, stortIngelezen); // load het bedrijf
+                        w.Load(dag, bus, b, stortIngelezen); // load een node van het bedrijf
                         stortIngelezen = false; // het rijmoment is nog niet klaar
                     }
                 }
