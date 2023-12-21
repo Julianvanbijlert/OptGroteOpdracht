@@ -53,6 +53,7 @@ public class Rijmoment
 
         weg.Previous.Next = weg.Next;
         weg.Next.Previous = weg.Previous;
+        weg.rijmoment = null;
     }
 
     public void Load(Bedrijf b)

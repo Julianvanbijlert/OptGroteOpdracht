@@ -85,7 +85,7 @@ public static class IO
                         if (!b.wordtBezocht) // als er nog geen node van dit bedrijf is ingelezen
                         {
                             b.wordtBezocht = true;
-                            w.kosten -= 3 * b.ledigingsDuur * b.frequentie;
+                            w.kosten -= b.strafkosten;
                             w.bedrijvenNiet.Remove(b);
                             w.bedrijvenWel.Add(b);
                         }

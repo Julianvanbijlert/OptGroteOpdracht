@@ -210,7 +210,7 @@ public class ZoekAlgoritme
                 break;  
         }
 
-        int extraTijd = extratijd.Sum() - 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
+        int extraTijd = extratijd.Sum() - bedrijf.strafkosten     
 
         if (AcceptatieKans(extraTijd, T))
             week.Insert(bedrijf, extratijd, nodes);
@@ -232,7 +232,7 @@ public class ZoekAlgoritme
                 break;
         }
 
-        int extraTijd = extratijd.Sum() + 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
+        int extraTijd = extratijd.Sum() + bedrijf.strafkosten;
 
         if (AcceptatieKans(extraTijd, T))
             week.Delete(bedrijf, extratijd);

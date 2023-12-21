@@ -21,7 +21,7 @@ public class Week
             if (bedrijf.orderNummer != 8942) // zet het bedrijf met negatieve leegtijd niet in de bedrijvenNiet lijst,
                                              // zodat het bij simulated annealing niet geinsert kan worden
                 bedrijvenNiet.Add(bedrijf);
-            kosten += 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
+            kosten += bedrijf.strafkosten;
             bedrijf.ResetNodes();
             bedrijf.wordtBezocht = false;
         }
@@ -68,7 +68,7 @@ public class Week
             volgende.rijmoment.ToevoegenVoor(n, volgende, extratijd[i]);
         }
         b.wordtBezocht = true;
-        kosten -= 3 * b.frequentie * b.ledigingsDuur;
+        kosten -= b.strafkosten;
         bedrijvenWel.Add(b);
         bedrijvenNiet.Remove(b);
     }
@@ -104,7 +104,7 @@ public class Week
         }
 
         b.wordtBezocht = false;
-        kosten += 3 * b.frequentie * b.ledigingsDuur;
+        kosten += b.strafkosten;
         bedrijvenNiet.Add(b);
         bedrijvenWel.Remove(b);
     }

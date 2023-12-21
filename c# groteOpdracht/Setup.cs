@@ -155,7 +155,7 @@ public class Setup
             huidigen[k].LaatstToevoegen(bedr.Locaties[0], extratijd);
             huidigen[k + 3].LaatstToevoegen(bedr.Locaties[1], extratijd); // ook toevoegen 3 dagen verder
             bedr.wordtBezocht = true;
-            werkWeek.kosten -= 3 * 2 * bedr.ledigingsDuur;
+            werkWeek.kosten -= bedr.strafkosten;
             werkWeek.bedrijvenNiet.Remove(bedr);
             werkWeek.bedrijvenWel.Add(bedr);
         }
@@ -169,7 +169,7 @@ public class Setup
                 huidigen[2 * i + 1].LaatstToevoegen(bedr.Locaties[i], extratijd); // voeg toe in ma-wo-vr 
             }
             bedr.wordtBezocht = true;
-            werkWeek.kosten -= 3 * 3 * bedr.ledigingsDuur;
+            werkWeek.kosten -= bedr.strafkosten;
             werkWeek.bedrijvenNiet.Remove(bedr);
             werkWeek.bedrijvenWel.Add(bedr);
         }
@@ -181,7 +181,7 @@ public class Setup
             huidigen[i].LaatstToevoegen(bedr4.Locaties[i - 1], extratijd); // voeg toe in ma-di-wo-do 
         }
         bedr4.wordtBezocht = true;
-        werkWeek.kosten -= 3 * 4 * bedr4.ledigingsDuur;
+        werkWeek.kosten -= bedr4.strafkosten;
         werkWeek.bedrijvenNiet.Remove(bedr4);
         werkWeek.bedrijvenWel.Add(bedr4);
 
@@ -222,7 +222,7 @@ public class Setup
                         huidig.LaatstToevoegen(bedrijf.Locaties[0], extratijd);
                         werkWeek.bedrijvenNiet.Remove(bedrijf);
                         werkWeek.bedrijvenWel.Add(bedrijf);
-                        werkWeek.kosten -= 3 * bedrijf.ledigingsDuur;
+                        werkWeek.kosten -= bedrijf.strafkosten;
                         bedrijf.wordtBezocht = true;
                         bedrijvenPerFreq[1].RemoveAt(0);
                     }

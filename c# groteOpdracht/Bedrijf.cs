@@ -1,8 +1,8 @@
+namespace rommelrouterakkers;
+
 using System.Collections.Generic;
 using System;
 
-namespace rommelrouterakkers;
-//comment
 public class Bedrijf
 {
     //Order;Plaats;Frequentie;AantContainers;VolumePerContainer;LedigingsDuurMinuten;MatrixID;XCoordinaat;YCoordinaat
@@ -12,12 +12,8 @@ public class Bedrijf
     public int matrixId;
     public int ledigingsDuur;
     public bool wordtBezocht;
-
+    public int strafkosten;
     public List<Node> Locaties;
-    //gwn om ff snel dingen aan te maken voor schrijven van code
-    public Bedrijf()
-    {
-    } 
 
     public Bedrijf(int ord, int f, int v, int aantalBakken, int mId, double ledD)
     {
@@ -27,18 +23,16 @@ public class Bedrijf
         matrixId = mId;
         ledigingsDuur = (int) Math.Ceiling(ledD*60*1000);
         wordtBezocht = false;
-        FillNodesLocatie(frequentie);
+        strafkosten = 3 * frequentie * ledigingsDuur;
+        FillLocaties(); // Maak vast nodes aan
     }
 
-    //int ord, int f, int v, int aantalBakken, int mId, double ledD
-    //Order;Plaats;Frequentie;AantContainers;VolumePerContainer;LedigingsDuurMinuten;MatrixID;XCoordinaat;YCoordinaat
     public static Bedrijf parseBedrijf(string s)
     {
         char separator = ';';
         string[] list = s.Split(separator); 
 
         int ord = int.Parse(list[0]);
-
         int f = int.Parse(list[2].Substring(0, 1));
         int aantalBakken = int.Parse(list[3]);
         int v = int.Parse(list[4]);
@@ -48,25 +42,20 @@ public class Bedrijf
         return new Bedrijf(ord, f, v, aantalBakken, mId, ledD);
     }
 
-    public void FillNodesLocatie(int f)
+    public void FillLocaties() // Maak nodes aan
     {
         Locaties = new List<Node>();
-        for (int j = 0; j < f; j++)
+        for (int j = 0; j < frequentie; j++)
         {
             Locaties.Add(new Node(this));
         }
     }
 
-    public bool checkBezocht()
-    {
-        return wordtBezocht;
-    }
-
-    public Node FindUnusedNode() 
+    public Node FindUnusedNode() // vind een node die niet in een rijmoment zit
     {
         foreach (Node node in Locaties)
         {
-            if (node.Next == null || node != node.Next.Previous) //iets aangepast, anders zou het alleen werken bij inlezen. nu werkt het ook tussendoor
+            if (node.rijmoment == null) 
             {
                 return node;
             }
@@ -74,12 +63,12 @@ public class Bedrijf
         return null;
     }
 
-    public void ResetNodes()
+    public void ResetNodes() // reset de nodes, zodat duidelijk is dat ze niet in een rijmoment zitten
     {
         foreach (Node n in Locaties)
         {
-            n.Next = null;
-            n.Previous = null;
+            n.rijmoment = null;
         }
     }
+
 }
