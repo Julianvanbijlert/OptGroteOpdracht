@@ -71,8 +71,8 @@ public class ZoekAlgoritme
         Console.Clear();
         Console.WriteLine($"Beste oplossingsscore:     {bestOplossing}           \n" +
                           $"Huidige score:             {week.Eval}               \n" +
-                          $"Totale iteraties:          {totItt}                  \n" +
-                          $"Iteraties per seconde:     {2* (totItt-totIttTemp)}  \n" +
+                          $"Totale iteraties:          {totItt:n0}                  \n" +
+                          $"Iteraties per seconde:     {2* (totItt-totIttTemp):n0}  \n" +
                           $"Sweeps since new best:     {sweeps}                  \n" +
                           $"Time elapsed:              {timer.Elapsed}");
 
