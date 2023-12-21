@@ -25,12 +25,12 @@ public class Setup
         
         ZoekAlgoritme za = new ZoekAlgoritme(werkWeek);
 
-        //za.BFS();                             //huidige oplossing BFS'en, vooral handig na instellen van een nieuwe beginoplossing
-        //IO.SaveBeginOplossing(werkWeek);      //huidige oplossing opslaan als beginoplossing
+        //za.BFS();                                           //huidige oplossing BFS'en, vooral handig na instellen van een nieuwe beginoplossing
+        //IO.SaveBeginOplossing(werkWeek);                    //huidige oplossing opslaan als beginoplossing
 
-        za.ILSinf();                            //ga local searchen
+        za.ILSinf();                                          //ga local searchen
 
-        //IO.PrintSolution(werkWeek);           //huidige oplossing in de console weergeven
+        //IO.PrintSolution(werkWeek);                         //huidige oplossing in de console weergeven
     }
     static void vulDict() // dictionary maken zodat je in O(1) tijd een bedrijf kan vinden aan de hand van zijn ordernummer
     {
@@ -76,9 +76,8 @@ public class Setup
         return (int.Parse(list[0]), int.Parse(list[1]), int.Parse(list[3]));
     }
 
-    static List<Bedrijf> SorteerBedrijven(List<Bedrijf> bedrijven) 
-        //sorteert een lijst bedrijven, begint bij de stort en dan steeds naar het bedrijf
-        //dat het dichtst bij het vorige bedrijf ligt
+    static List<Bedrijf> SorteerBedrijven(List<Bedrijf> bedrijven) //sorteert een lijst met bedrijven, begint bij de stort en dan steeds naar het bedrijf
+                                                                   //dat het dichtst bij het vorige bedrijf ligt
     {
         List<Bedrijf> bedrijvenSorted = new List<Bedrijf>();
 
@@ -112,8 +111,7 @@ public class Setup
         return bedrijvenSorted;
     }
 
-    public static List<Bedrijf>[] VulBedrijvenPerFreq(List<Bedrijf> bedrijven) 
-        // split de bedrijven in 4 lijsten, 1 per frequentie
+    public static List<Bedrijf>[] VulBedrijvenPerFreq(List<Bedrijf> bedrijven) // split de bedrijven in 4 lijsten, 1 per frequentie
     {
         List<Bedrijf>[] bedrijvenPerFreq = new List<Bedrijf>[5];
 
@@ -128,11 +126,12 @@ public class Setup
     }
 
     static Week StelBeginoplossingIn() // Creeert de beginoplossing
+    {
         //De code van deze functie had wat algemener gekund.
         //Dat hebben we expres niet gedaan, omdat we later
         //misschien sommige frequenties nog op een andere manier willen behandelen,
         //en dan is het fijn als je losse code hebt voor elke frequentie
-    {
+
         Week werkWeek = new Week();
         
         List<Bedrijf>[] bedrijvenPerFreq = VulBedrijvenPerFreq(bedrijven);
@@ -144,6 +143,9 @@ public class Setup
 
         for (int i = 1; i <= 5; i++)
             huidigen[i] = werkWeek.dagen[i].bussen[0].rijmomenten[0];
+
+
+
 
         bedrijvenPerFreq[2] = SorteerBedrijven(bedrijvenPerFreq[2]); // eerst frequentie 2 toevoegen
         int k = 1;
@@ -160,6 +162,9 @@ public class Setup
             werkWeek.bedrijvenWel.Add(bedr);
         }
 
+
+
+
         bedrijvenPerFreq[3] = SorteerBedrijven(bedrijvenPerFreq[3]); // dan frequentie 3
         foreach (Bedrijf bedr in bedrijvenPerFreq[3])
         {
@@ -174,6 +179,9 @@ public class Setup
             werkWeek.bedrijvenWel.Add(bedr);
         }
 
+
+
+
         Bedrijf bedr4 = bedrijvenPerFreq[4][0]; // dan frequentie 4
         for (int i = 1; i <= 4; i++)
         {
@@ -184,6 +192,9 @@ public class Setup
         werkWeek.kosten -= bedr4.strafkosten;
         werkWeek.bedrijvenNiet.Remove(bedr4);
         werkWeek.bedrijvenWel.Add(bedr4);
+
+
+
 
         Rijmoment huidig;
         Bedrijf bedrijf;
