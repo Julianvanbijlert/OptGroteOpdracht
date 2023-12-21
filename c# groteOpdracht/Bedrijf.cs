@@ -21,7 +21,7 @@ public class Bedrijf
         frequentie = f;
         volume = v * aantalBakken;
         matrixId = mId;
-        ledigingsDuur = (int) Math.Ceiling(ledD*60*1000);
+        ledigingsDuur = (int) Math.Ceiling(ledD*60*1000); // kan het liever iets te hoog dan iets te laag inschatten ivm tijdsconstraints
         wordtBezocht = false;
         strafkosten = 3 * frequentie * ledigingsDuur;
         FillLocaties(); // Maak vast nodes aan
