@@ -28,7 +28,7 @@ public class Setup
         //za.BFS();                                       //huidige oplossing BFS'en, vooral handig na instellen van een nieuwe beginoplossing
         //IO.SaveBeginOplossing(werkWeek);                //huidige oplossing opslaan als beginoplossing
 
-        za.ILSinf();                                      //ga local searchen
+        za.ILS();                                      //ga iterated local searchen
 
         //IO.PrintSolution(week);                         //huidige oplossing in de console weergeven
     }
