@@ -18,18 +18,20 @@ public class Setup
         aMatrix = new AfstandMatrix(vulMatrix(IO.matrixFileNaam)); 
         vulBedrijven(IO.orderbestandFileNaam);
         vulDict();
- 
+        //week = new Week();
+        
         //week = StelBeginoplossingIn();                  //nieuwe beginoplossing maken en loaden
         //week = IO.LoadSolution(IO._beginoplossing);     //bestaande beginoplossing loaden
-        week = IO.LoadSolutionAuto(true, new Random());   //load beste oplossing tot nu toe
+        //week = IO.LoadSolutionAuto(true, r: new Random());   //load beste oplossing tot nu toe
+       
         
-        ZoekAlgoritme za = new ZoekAlgoritme(week);
+        ZoekAlgoritme za = new ZoekAlgoritme(); 
 
         //za.BFS();                                       //huidige oplossing BFS'en, vooral handig na instellen van een nieuwe beginoplossing
         //IO.SaveBeginOplossing(werkWeek);                //huidige oplossing opslaan als beginoplossing
 
         za.ILS();                                         //ga iterated local searchen
-
+        //IO.CreateBest(za.Week);
         //IO.PrintSolution(week);                         //huidige oplossing in de console weergeven
     }
     static void vulDict() // dictionary maken zodat je in O(1) tijd een bedrijf kan vinden aan de hand van zijn ordernummer

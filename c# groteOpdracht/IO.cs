@@ -29,7 +29,7 @@ public static class IO
                 file = files[0]; // kies de beste oplossing
             else
             {              
-                file = files[r.Next(0, files.Length)]; // kies een random oplossing
+                file = files[r.Next(0, files.Length)/2]; // kies een random oplossing
             }
             return LoadSolution(file);
         }
@@ -39,6 +39,8 @@ public static class IO
             return null; 
         }
     }
+
+    
 
     public static Week LoadSolution(string fileNaam) // leest een oplossing van een tekstbestand in en returnt de hele week
     {

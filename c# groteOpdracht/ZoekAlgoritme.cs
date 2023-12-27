@@ -18,6 +18,25 @@ public class ZoekAlgoritme
     private int besteScoreTemp;
     private int sweeps = 0;
 
+    public ZoekAlgoritme()
+    {
+        r = new Random();
+        week = new Week();
+        FillRandomWeek();
+
+        timer = new Stopwatch(); // voor de elapsed time
+        
+        bestOplossing = week.Eval;
+        besteScoreTemp = week.Eval;
+
+        //timer 2 is voor het berekenen van de iteraties per seconde
+        timer2 = new Timer();
+        timer2.Interval = 500;
+        timer2.Elapsed += OnTimedEvent;
+        timer2.AutoReset = true;
+
+        
+    }
     public ZoekAlgoritme(Week w)
     {
         week = w;
@@ -32,6 +51,8 @@ public class ZoekAlgoritme
         timer2.Elapsed += OnTimedEvent;
         timer2.AutoReset = true;
     }
+
+    public Week Week { get { return week; } }
 
     public void OnTimedEvent(object o, ElapsedEventArgs eea)
     {
@@ -103,9 +124,9 @@ public class ZoekAlgoritme
 
     public void SimAnn() // simulated annealing
     {
-        double T = 25000; //temperatuur
+        double T = 15000; //temperatuur
 
-        while (T >= 2000) 
+        while (T >= 1000) 
         {
             PickAction(T); // doe een actie
 
@@ -204,6 +225,15 @@ public class ZoekAlgoritme
             week.Insert(bedrijf, extratijd, nodes);
     }
 
+    public void FillRandomWeek()
+    {
+        int lengte = Setup.bedrijven.Count;
+        //kies aantal bedrijven tussen de laatste 50
+        for (int i = r.Next(lengte - 50, lengte); i >= 0; i--)
+        {
+            Insert(1000000000);
+        }
+    }
     public void Delete(double T)
     {
         // als nul bedrijven worden bezocht, return
