@@ -371,4 +371,9 @@ public class ZoekAlgoritme
             PickAction(2_000_000); //kiest gewoon een actie met een hoge T, zodat hij gegaranadeerd wordt geaccepteerd
         }
     }
+
+    public void ScreenShot()
+    {
+        IO.ScreenShot(week);
+    }
 }

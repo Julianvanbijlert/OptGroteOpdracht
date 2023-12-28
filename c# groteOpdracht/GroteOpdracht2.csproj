@@ -8,4 +8,8 @@
     <Nullable>disable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="screenshots\" />
+  </ItemGroup>
+
 </Project>

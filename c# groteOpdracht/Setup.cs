@@ -12,6 +12,7 @@ public class Setup
     public Week week;
     public static List<Bedrijf> bedrijven = new List<Bedrijf>();
     public static Dictionary<int, Bedrijf> bedrijvenDict = new Dictionary<int, Bedrijf>();
+    public ZoekAlgoritme za;
 
     public Setup()
     {
@@ -22,17 +23,22 @@ public class Setup
         
         //week = StelBeginoplossingIn();                  //nieuwe beginoplossing maken en loaden
         //week = IO.LoadSolution(IO._beginoplossing);     //bestaande beginoplossing loaden
-        //week = IO.LoadSolutionAuto(true, r: new Random());   //load beste oplossing tot nu toe
+        week = IO.LoadSolutionAuto(true, r: new Random());   //load beste oplossing tot nu toe
        
         
-        ZoekAlgoritme za = new ZoekAlgoritme(); 
+         za = new ZoekAlgoritme(week); 
 
         //za.BFS();                                       //huidige oplossing BFS'en, vooral handig na instellen van een nieuwe beginoplossing
         //IO.SaveBeginOplossing(werkWeek);                //huidige oplossing opslaan als beginoplossing
 
-        za.ILS();                                         //ga iterated local searchen
+                                                    //ga iterated local searchen
         //IO.CreateBest(za.Week);
         //IO.PrintSolution(week);                         //huidige oplossing in de console weergeven
+    }
+
+    public void ILS()
+    {
+        za.ILS();
     }
     static void vulDict() // dictionary maken zodat je in O(1) tijd een bedrijf kan vinden aan de hand van zijn ordernummer
     {
@@ -252,6 +258,20 @@ public class Setup
     public static Bedrijf VindBedrijf(int ord) // manier om in O(1) tijd een bedrijf te vinden aan de hand van zijn ordernummer
     {
         return bedrijvenDict[ord];
+    }
+
+    public static void ResetBedrijven()
+    {
+        foreach (Bedrijf b in bedrijven)
+        {
+            b.ResetNodes();
+            b.wordtBezocht = false;
+        }
+    }
+
+    public void ScreenShot()
+    {
+        za.ScreenShot();
     }
 }
 
