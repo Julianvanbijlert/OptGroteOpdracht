@@ -310,5 +310,14 @@ public class Week
             return kosten / 60000;  
         } 
     }
+
+    public int Kosten
+    {
+        get
+        {
+            return kosten;
+        }
+
+    }
 } 
 

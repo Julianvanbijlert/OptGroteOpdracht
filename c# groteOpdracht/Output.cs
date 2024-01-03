@@ -58,6 +58,34 @@ public static class IO
         return w;
     }
 
+    public static Week LoadPickSolution()
+    {
+        Week w = new Week();
+
+        try
+        {
+            Console.WriteLine("Enter the path of the solution file:");
+            string selectedFilePath = Console.ReadLine();
+
+            if (!string.IsNullOrEmpty(selectedFilePath))
+            {
+                w = LoadSolution(selectedFilePath, Setup.bedrijven);
+            }
+            else
+            {
+                Console.WriteLine("Invalid file path. Please provide a valid path.");
+                return null;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading solution: {ex.Message}");
+            return null;
+        }
+
+        return w;
+    }
+
     public static Week LoadSolution(string fileNaam, List<Bedrijf> bedrijven)
     {
         Week w = new Week();

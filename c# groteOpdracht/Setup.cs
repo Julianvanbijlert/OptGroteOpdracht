@@ -23,12 +23,13 @@ public class Setup
         
         //week = StelBeginoplossingIn();                  //nieuwe beginoplossing maken en loaden
         //week = IO.LoadSolution(IO._beginoplossing);     //bestaande beginoplossing loaden
-        week = IO.LoadSolutionAuto(true, r: new Random());   //load beste oplossing tot nu toe
+        //week = IO.LoadSolutionAuto(true, r: new Random());   //load beste oplossing tot nu toe
+        week = IO.LoadPickSolution();
        
         
-         za = new ZoekAlgoritme(week); 
+        za = new ZoekAlgoritme(week); 
 
-        //za.BFS();                                       //huidige oplossing BFS'en, vooral handig na instellen van een nieuwe beginoplossing
+        za.BFS();                                       //huidige oplossing BFS'en, vooral handig na instellen van een nieuwe beginoplossing
         //IO.SaveBeginOplossing(werkWeek);                //huidige oplossing opslaan als beginoplossing
 
                                                     //ga iterated local searchen

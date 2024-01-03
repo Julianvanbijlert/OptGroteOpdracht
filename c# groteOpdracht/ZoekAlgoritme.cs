@@ -26,8 +26,8 @@ public class ZoekAlgoritme
 
         timer = new Stopwatch(); // voor de elapsed time
         
-        bestOplossing = week.Eval;
-        besteScoreTemp = week.Eval;
+        bestOplossing = week.Kosten;
+        besteScoreTemp = week.Kosten;
 
         //timer 2 is voor het berekenen van de iteraties per seconde
         timer2 = new Timer();
@@ -42,8 +42,8 @@ public class ZoekAlgoritme
         week = w;
         timer = new Stopwatch(); // voor de elapsed time
         r = new Random();
-        bestOplossing = w.Eval;
-        besteScoreTemp = w.Eval;
+        bestOplossing = w.Kosten;
+        besteScoreTemp = w.Kosten;
 
         //timer 2 is voor het berekenen van de iteraties per seconde
         timer2 = new Timer();
@@ -73,13 +73,13 @@ public class ZoekAlgoritme
     {
         if (week.Eval < 5600)
             IO.CreateBest(week);
-        bestOplossing = week.Eval;
+        bestOplossing = week.Kosten;
         sweeps = 0; // resetten zodat ie bijv niet randomwalks gaat doen terwijl we steeds beste oplossingen aan het vinden zijn
     }
     public void PrintVoortgang()
     {
         Console.Clear();
-        Console.WriteLine($"Beste oplossingsscore:     {bestOplossing}              \n" +
+        Console.WriteLine($"Beste oplossingsscore:     {bestOplossing / 60000}       \n" +
                           $"Huidige score:             {week.Eval}                  \n" +
                           $"Totale iteraties:          {totItt:n0}                  \n" +
                           $"Iteraties per seconde:     {2* (totItt-totIttTemp):n0}  \n" +
@@ -130,7 +130,7 @@ public class ZoekAlgoritme
         {
             PickAction(T); // doe een actie
 
-            if (week.Eval < bestOplossing) // als een betere oplossing is gevonden
+            if (week.Kosten < bestOplossing) // als een betere oplossing is gevonden
             {
                 ChangeBest();
             }
