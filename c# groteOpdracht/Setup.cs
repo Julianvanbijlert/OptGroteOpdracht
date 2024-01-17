@@ -23,8 +23,8 @@ public class Setup
         
         //week = StelBeginoplossingIn();                  //nieuwe beginoplossing maken en loaden
         //week = IO.LoadSolution(IO._beginoplossing);     //bestaande beginoplossing loaden
-        //week = IO.LoadSolutionAuto(true, r: new Random());   //load beste oplossing tot nu toe
-        week = IO.LoadPickSolution();
+        week = IO.LoadSolutionAuto(false, r: new Random());   //load beste oplossing tot nu toe
+        //week = IO.LoadPickSolution();
        
         
         za = new ZoekAlgoritme(week); 

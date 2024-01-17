@@ -2,6 +2,7 @@ namespace rommelrouterakkers;
 
 using System;
 using System.Collections.Generic;
+using System.Xml.Linq;
 
 public class Week
 {
@@ -206,6 +207,94 @@ public class Week
             node2n.rijmoment.ToevoegenVoor(node1, node2n, extratijd2);
         }
     }
+
+    public void Swap(List<Node> nodes, List<int> extratijd) // Wissel de nodes in de oplossing
+    {
+        Node next, prev;
+        for (int i = 1; i < nodes.Count; i++)
+        {
+            nodes[i].Verwijder(extratijd[i - 1]);
+            prev = nodes[i - 1].Previous;
+            next = nodes[i].Next;
+
+            prev.rijmoment.ToevoegenVoor(next, prev, extratijd[i - 1]);
+        }
+        // Apply the three-opt swap to update the solution
+        // Remove nodes from the original positions
+    }
+
+    /*
+    public void Swap(List<(Node, Node, int)> bestCombinatie)
+    {
+        Node next, prev;
+        for (int i = 1; i < bestCombinatie.Count; i++)
+        {
+            bestCombinatie[i].Verwijder(extratijd[i - 1]);
+            prev = nodes[i - 1].Previous;
+            next = nodes[i].Next;
+
+            prev.rijmoment.ToevoegenVoor(next, prev, extratijd[i - 1]);
+        }
+
+    }
+    */
+    public (bool, int, int, int) SwapCheck(Node node1, Node node2, Node node3)
+    {
+        int extratijd1;
+        int extratijd2;
+        int extratijd3;
+
+        // Check if the swap is legal between node1, node2, and node3
+        // Compute the incremental costs for each possible move
+
+        // Move 1: Swap node1 with node2
+        var (legal1, cost1_1, cost1_2) = SwapCheck(node1, node2);
+        if (!legal1)
+            return (false, 0, 0, 0);
+
+        // Move 2: Swap node2 with node3
+        var (legal2, cost2_1, cost2_2) = SwapCheck(node2, node3);
+        if (!legal2)
+            return (false, 0, 0, 0);
+
+        // Move 3: Swap node1 with node3
+        var (legal3, cost3_1, cost3_2) = SwapCheck(node1, node3);
+        if (!legal3)
+            return (false, 0, 0, 0);
+
+        // If all three moves are legal, return the move with the minimum total cost
+        if (cost1_1 + cost2_1 + cost3_1 <= cost1_2 + cost2_2 + cost3_2)
+        {
+            extratijd1 = cost1_1;
+            extratijd2 = cost2_1;
+            extratijd3 = cost3_1;
+        }
+        else
+        {
+            extratijd1 = cost1_2;
+            extratijd2 = cost2_2;
+            extratijd3 = cost3_2;
+        }
+
+        return (true, extratijd1, extratijd2, extratijd3);
+    }
+
+    public void Swap(Node[] nodes, int[] extratijd)
+    {
+        Node next, prev;
+        for (int i = 1; i < nodes.Length; i++)
+        {
+            nodes[i].Verwijder(extratijd[i - 1]);
+            prev = nodes[i - 1].Previous;
+            next = nodes[i].Next;
+
+            prev.rijmoment.ToevoegenVoor(next, prev, extratijd[i - 1]);
+        }
+        // Apply the three-opt swap to update the solution
+        // Remove nodes from the original positions
+        
+    }
+
 
     public bool InterDagSwapCheck(Node node1, Node node2, int extratijd1, int extratijd2) // Controleer of de nodes, die in verschillende dagen zitten,
                                                                                           // gegeven de incrementele kosten gewisseld mogen worden

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Timers;
@@ -12,7 +13,7 @@ public class ZoekAlgoritme
     private Stopwatch timer;
     private Timer timer2;
     public Random r;
-    private double tempVerkleining = 0.99;
+    private double tempVerkleining = 0.999999;
     private int totItt = 0;
     private int totIttTemp = 0; // om iteraties van 0.5 sec terug bij te houden voor it/sec berekening
     private int besteScoreTemp;
@@ -93,27 +94,30 @@ public class ZoekAlgoritme
 
         timer.Start();
         timer2.Enabled = true;
-
+        double T = bestOplossing / 5800;
         //reset t, start simulated annealing
-        SimAnn();
+        SimAnn(T);
 
         //if it goes out of the simulated annealing that means that there have been a lot of iterations, so something has to change.
         //that is what sweeps is for.
         sweeps++;
 
         //random reset
-        if (sweeps % 20 == 0)
+        if (sweeps % 100 == 0)
         {
             //load de beste file tot nu toe, we kunnen later ook met gewoon lege week doen maar dit is goed voor nu
-            week = IO.LoadSolutionAuto(true, r);
+            FillRandomWeek();//.LoadSolutionAuto(true, r);
+            bestOplossing = 10000;
             sweeps = 0;
         }
 
         //random walk
-        else if (sweeps % 5 == 0)
+        else if (sweeps % 20 == 0)
         {
             RandomWalk();
         }
+
+        CheckAddDelete(T / 100);
 
         //infinite loop
         ILS();
@@ -122,30 +126,31 @@ public class ZoekAlgoritme
         timer2.Enabled = false;
     }
 
-    public void SimAnn() // simulated annealing
+    public void SimAnn(double t) // simulated annealing
     {
-        double T = 15000; //temperatuur
-
-        while (T >= 1000) 
+        double T = t; //t; //temperatuur = bestscore / 7000
+        //double maxAantalIteraties = 10_000_000 - T * 100; //Je wil aan het begin zo veel mogelijk resets en later iets minder
+       // int sindsLastChange = 0; // aantal iteraties sinds de laatste keer dat de beste oplossing is veranderd
+        while (T >= 0.0001)//T >= Modulo) 
         {
             PickAction(T); // doe een actie
 
             if (week.Kosten < bestOplossing) // als een betere oplossing is gevonden
             {
                 ChangeBest();
+                //sindsLastChange = 0;
             }
 
             totItt++;
+            //sindsLastChange += 1;
 
-            if (totItt % 2_000_000 == 0) // na elke 2 mil iteraties, verklein T
-            {
-                T *= tempVerkleining;
-            }
+            T *= tempVerkleining; // verlaag de temperatuur
         }
     }
 
     public void PickAction(double T)
     {
+        
         int welk = r.Next(0, 8); // 2/8, 1/8, 3/8, 2/8 is dus de verdeling
         if (welk <= 1)
             Insert(T);
@@ -155,6 +160,15 @@ public class ZoekAlgoritme
             Swap(T);
         else
             Verplaats(T);
+        
+        //Opt3(10000000);
+    }
+
+    public void CheckAddDelete(double T)
+    {
+        Insert(T);
+        Delete(T);
+       
     }
 
     public void Insert(double T)
@@ -351,6 +365,73 @@ public class ZoekAlgoritme
         }
     }
 
+    public void Opt3(double T)
+    {
+        // als er minder dan 3 bedrijven worden bezocht heeft 3opt geen zin, return
+        if (week.bedrijvenWel.Count < 3) return;
+        Rijmoment rij = GetRandomRijmoment();
+        if (rij.nodeList.Count < 3) return;
+
+        Node n1 , n2, n3;
+        while ((n1 = rij.GetRandomNode(r)) == (n2 = rij.GetRandomNode(r)) || n1 == (n3 = rij.GetRandomNode(r)) || n2 == n3) ;
+        bool bo;
+        int i;
+        int j;
+        int k;
+
+        var combinaties = GetCombinaties(n1, n2, n3);
+        var bestCominatie = GetBestCombinatie(combinaties);
+
+        while (true) // blijf doorgaan met 3optmogelijkheden zoeken totdat je een legale hebt gevonden
+        {
+            
+
+            (bo, i, j, k) = week.SwapCheck(n1, n2, n3);
+
+            //als het een legale 3opt is, stop met nieuwe zoeken
+            if (bo)
+                break;
+        }
+
+        // als hij geaccepteerd wordt, doe de 3opt
+        if (AcceptatieKans(i + j + k, T))
+        {
+            //week.Swap(bestCominatie);
+        }
+    }
+
+    public List<(Node, Node, int)> GetCombinaties(Node n1, Node n2, Node n3)
+    {
+        return
+        new List<(Node, Node, int)>{
+            (n1, n2, Setup.aMatrix.lookup(n1, n2)),
+            (n2, n3, Setup.aMatrix.lookup(n2, n3)),
+            (n3, n1, Setup.aMatrix.lookup(n3, n1)),
+            (n1, n3, Setup.aMatrix.lookup(n1, n3)),
+            (n3, n2, Setup.aMatrix.lookup(n3, n2)),
+            (n2, n1, Setup.aMatrix.lookup(n2, n1))
+        };
+    }
+
+    public (Node, Node, int) GetBestCombinatie(List<(Node, Node, int)> combinaties)
+    {
+        int best = combinaties[0].Item3;
+        (Node, Node, int) bestCombinatie = combinaties[0];
+        foreach (var combinatie in combinaties)
+        {
+            if (combinatie.Item3 < best)
+            {
+                best = combinatie.Item3;
+                bestCombinatie = combinatie;
+            }
+        }
+        return bestCombinatie;
+    }
+
+    public Rijmoment GetRandomRijmoment()
+    {
+        return week.dagen[r.Next(1, 6)].bussen[r.Next(0, 2)].rijmomenten[r.Next(0, 2)];
+    }
     public bool AcceptatieKans(int extratijd, double T) // bepaal of de actie wel of niet geaccepteerd wordt
     {
         if (extratijd < 0) // als het een verbetering is, return true
@@ -366,7 +447,7 @@ public class ZoekAlgoritme
 
     public void RandomWalk() 
     {
-        for (int j = 0; j <= 500; j++) // voert 500 acties uit
+        for (int j = 0; j <= 250; j++) // voert 500 acties uit
         {
             PickAction(2_000_000); //kiest gewoon een actie met een hoge T, zodat hij gegaranadeerd wordt geaccepteerd
         }

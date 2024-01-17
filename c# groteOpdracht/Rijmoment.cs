@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace rommelrouterakkers;
 
 public class Rijmoment
@@ -7,6 +10,7 @@ public class Rijmoment
     public Node beginnode;
     public Node eindnode;
     public Bus bus;
+    public List<Node> nodeList;
 
     public Rijmoment(Bus buss)
     {
@@ -19,6 +23,8 @@ public class Rijmoment
         eindnode.Previous = beginnode;
         beginnode.rijmoment = this;
         eindnode.rijmoment = this;
+
+        nodeList = new List<Node>();
     }
     public int ExtraTijdskostenBijToevoegen(Bedrijf bedrijf, Node vorige, Node volgende) // bereken de incrementele kosten die ontstaan bij toevoegen
                                                                                          // van dit bedrijf na de node vorige en vóór de node volgende
@@ -48,6 +54,8 @@ public class Rijmoment
         nieuw.Next = volgende;
         volgende.Previous.Next = nieuw;
         volgende.Previous = nieuw;
+
+        nodeList.Add(nieuw);
     }
     
     public void LaatstToevoegen(Node nieuw, int extratijd) // dan hoef je niet de hele tijd eindnode als argument mee te geven
@@ -65,6 +73,7 @@ public class Rijmoment
         weg.Next.Previous = weg.Previous;
 
         weg.rijmoment = null;
+        nodeList.Remove(weg);
     }
 
     public int ExtraTijdsKostenBijWisselen(Node node, Node node2) // Berekent de incrementele kosten die ontstaan na wisselen van node en node2
@@ -169,5 +178,10 @@ public class Rijmoment
         }
         return (count,s); // door count weet bus.tostring bij welk getal dit rijmoment is gebleven 
                           // (het hoeveelste bedrijf dat door deze bus op deze dag wordt bezocht)
+    }
+
+    public Node GetRandomNode(Random r)
+    {
+        return nodeList[r.Next(nodeList.Count)];
     }
 }
