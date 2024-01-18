@@ -2,6 +2,7 @@ namespace rommelrouterakkers;
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Xml.Linq;
 
 public class Week
@@ -10,8 +11,18 @@ public class Week
     public Dag[] dagen = new Dag[6];
     public int kosten = 0;
     public int tijd = 0;
-    public List<Bedrijf> bedrijvenWel = new List<Bedrijf>();
-    public List<Bedrijf> bedrijvenNiet = new List<Bedrijf>();
+   // public List<Bedrijf> bedrijvenWel = new List<Bedrijf>();
+   // public List<Bedrijf> bedrijvenNiet = new List<Bedrijf>();
+
+   public Bedrijvenbezocht bedrijvenWel = new Bedrijvenbezocht();
+    public Bedrijvenbezocht bedrijvenNiet = new Bedrijvenbezocht();
+
+
+
+
+
+
+
     public Week()
     {
         for (int i = 1; i <= 5; i++)
@@ -58,7 +69,7 @@ public class Week
         return (true, extratijd);
     }
 
-    public void Insert(Bedrijf b, int[] extratijd, Node[] nodes) // insert de nodes van het bedrijf voor de gegeven nodes
+    public void Insert(Bedrijf b, int index, int[] extratijd, Node[] nodes) // insert de nodes van het bedrijf voor de gegeven nodes
     {
         Node n;
         Node volgende;
@@ -71,9 +82,9 @@ public class Week
         b.wordtBezocht = true;
         kosten -= b.strafkosten;
         bedrijvenWel.Add(b);
-        bedrijvenNiet.Remove(b);
+        bedrijvenNiet.Remove(index);
     }
-
+     
     public (bool, int[]) DeleteCheck(Bedrijf b) // Controleer of een bedrijf verwijderd mag worden uit de oplossing
                                                 // en geef dan de incrementele kosten
     {
@@ -107,7 +118,6 @@ public class Week
         b.wordtBezocht = false;
         kosten += b.strafkosten;
         bedrijvenNiet.Add(b);
-        bedrijvenWel.Remove(b);
     }
 
     public (bool, int, int) VerplaatsCheck(Node mover, Node hierVoor) // Controleer of node mover naar vóór node hierVoor verplaatst mag worden,
@@ -408,5 +418,61 @@ public class Week
         }
 
     }
+    
 } 
+
+public class Bedrijvenbezocht
+{
+    public int laatste;
+    public Bedrijf[] bezogd; 
+
+    public Bedrijvenbezocht()
+    {
+        laatste = 0; 
+        bezogd = new Bedrijf[1177];
+    }
+
+    public void Add(Bedrijf bedrijf )
+    {
+        bezogd[laatste] = bedrijf;
+    laatste++;
+    }
+
+    public void Remove(int i ) 
+    {
+        bezogd[i]= bezogd[laatste];
+        laatste--;  
+    
+    }
+
+    public void Remove(Bedrijf b)
+    {
+        for (int i = 0; i < laatste; i++)
+        {
+            if (bezogd[i] == b)
+            {
+                bezogd[i] = bezogd[laatste - 1];
+                laatste--;
+                return; 
+            }
+        
+        }
+
+    }
+
+    //ik geef jou een index, jij geeft mij een bedrijf, en je verwijdert dat bedrijf uit de lijst
+    public Bedrijf Get(int i )
+    {
+        Bedrijf b = bezogd[i];
+        Remove(i);
+        return b;
+    }
+
+    public Bedrijf GetBedrijf(int i)
+    {
+        return bezogd[i];
+
+    }
+
+}
 
