@@ -13,7 +13,7 @@ public class ZoekAlgoritme
     private Stopwatch timer;
     private Timer timer2;
     public Random r;
-    private double tempVerkleining = 0.999999;
+    private double tempVerkleining = 0.99999999;
     private int totItt = 0;
     private int totIttTemp = 0; // om iteraties van 0.5 sec terug bij te houden voor it/sec berekening
     private int besteScoreTemp;
@@ -131,7 +131,7 @@ public class ZoekAlgoritme
         double T = t; //t; //temperatuur = bestscore / 7000
         //double maxAantalIteraties = 10_000_000 - T * 100; //Je wil aan het begin zo veel mogelijk resets en later iets minder
        // int sindsLastChange = 0; // aantal iteraties sinds de laatste keer dat de beste oplossing is veranderd
-        while (T >= 0.0001)//T >= Modulo) 
+        while (T >= 60)//T >= Modulo) 
         {
             PickAction(T); // doe een actie
 
@@ -156,8 +156,8 @@ public class ZoekAlgoritme
             Insert(T);
         else if (welk <= 2)
             Delete(T);
-        else if (welk <= 5)
-            Swap(T);
+       // else if (welk <= 5)
+        //    Swap(T);
         else
             Verplaats(T);
         
