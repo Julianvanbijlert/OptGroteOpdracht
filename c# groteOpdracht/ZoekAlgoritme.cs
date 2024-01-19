@@ -13,7 +13,7 @@ public class ZoekAlgoritme
     private Stopwatch timer;
     private Timer timer2;
     public Random r;
-    private double tempVerkleining = 0.99999999;
+    //private double tempVerkleining = 0.99999999;
     private int totItt = 0;
     private int totIttTemp = 0; // om iteraties van 0.5 sec terug bij te houden voor it/sec berekening
     private int besteScoreTemp;
@@ -129,6 +129,7 @@ public class ZoekAlgoritme
     public void SimAnn(double t) // simulated annealing
     {
         double T = t; //t; //temperatuur = bestscore / 7000
+        double tempVerkleining = 0.99999999;
         //double maxAantalIteraties = 10_000_000 - T * 100; //Je wil aan het begin zo veel mogelijk resets en later iets minder
        // int sindsLastChange = 0; // aantal iteraties sinds de laatste keer dat de beste oplossing is veranderd
         while (T >= 60)//T >= Modulo) 
@@ -157,9 +158,10 @@ public class ZoekAlgoritme
         else if (welk <= 2)
             Delete(T);
        // else if (welk <= 5)
-        //    Swap(T);
+         //  Swap(T);
         else
-            Verplaats(T);
+        
+        Verplaats(T);
         
         //Opt3(10000000);
     }
@@ -227,7 +229,7 @@ public class ZoekAlgoritme
             //als hij na 100.000 keer proberen nog geen legale plek heeft gevonden, is er misschien
             //helemaal geen legale plek. return, om uit de infinite loop te komen
             iteraties++;
-            if (iteraties == 100_000)
+            if (iteraties == 40_000)
                 return;
         }
 
