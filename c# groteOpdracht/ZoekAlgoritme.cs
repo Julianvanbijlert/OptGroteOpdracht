@@ -180,16 +180,13 @@ public class ZoekAlgoritme
         bool bo;
         int[] extratijd;
         Node[] nodes;
-        int bIndex;
-        int dag;
-        int bus;
-        int rijmoment;
-        int iteraties = 0;
+        int b1Index = 0 ,b2Index = 0, dag, bus, rijmoment, iteraties = 0;
 
         while(true) // blijf doorgaan met inserts vinden totdat je een legale insert vindt
         {
             //kies een random bedrijf uit de niet lijst
-            bedrijf = week.bedrijvenNiet[r.Next(0, week.bedrijvenNiet.Count)];
+            b1Index = r.Next(0, week.bedrijvenNiet.Count);
+            bedrijf = week.bedrijvenNiet.Get(b1Index); //flag
 
             //maak array aan van nodes
             nodes = new Node[bedrijf.frequentie];
@@ -197,24 +194,24 @@ public class ZoekAlgoritme
             for (int i = 0; i < bedrijf.frequentie; i++) // vind 4 nodes waar de nodes van dit bedrijf vóór worden geinsert
             {
                 //random bedrijf
-                bIndex = r.Next(0, week.bedrijvenWel.Count + 20);
+                b2Index = r.Next(0, week.bedrijvenWel.Count + 20);
 
                 //dit is zodat er een kans is dat je een node
                 //aan het eind van 1 van de 20 rijmomenten toevoegt
                 //in plaats van vóór een node van een ander bedrijf
-                if (bIndex >= week.bedrijvenWel.Count) // als het 1 van de 20 rijmoment-eindes is
+                if (b2Index >= week.bedrijvenWel.Count) // als het 1 van de 20 rijmoment-eindes is
                 {
                     //bereken welk rijmoment
-                    bIndex -= week.bedrijvenWel.Count;
-                    dag = bIndex % 5 + 1;
-                    bus = bIndex / 5 < 2 ? 0 : 1;
-                    rijmoment = bIndex % 2;
+                    b2Index -= week.bedrijvenWel.Count;
+                    dag = b2Index % 5 + 1;
+                    bus = b2Index / 5 < 2 ? 0 : 1;
+                    rijmoment = b2Index % 2;
                     nodes[i] = week.dagen[dag].bussen[bus].rijmomenten[rijmoment].eindnode;
                 }
                 else
                 {
                     //anders pak een node van het bedrijf met die index in de lijst
-                    nodes[i] = GetBedrijfNode(week.bedrijvenWel[bIndex]);
+                    nodes[i] = GetBedrijfNode(week.bedrijvenWel.GetBedrijf(b2Index)); //flag
                 }
             }
 
@@ -224,6 +221,9 @@ public class ZoekAlgoritme
             if (bo)
                 break;
 
+            //als het geen legale insert is, voeg het bedrijf weer toe aan de niet bezochte bedrijven
+            week.bedrijvenNiet.Add(bedrijf);
+            
             //als hij na 100.000 keer proberen nog geen legale plek heeft gevonden, is er misschien
             //helemaal geen legale plek. return, om uit de infinite loop te komen
             iteraties++;
@@ -237,6 +237,10 @@ public class ZoekAlgoritme
         // als hij geaccepteerd word, insert hem
         if (AcceptatieKans(extraTijd, T))
             week.Insert(bedrijf, extratijd, nodes);
+
+        //als hij toch niet geaccepteerd wordt, voeg hem weer toe aan de niet bezochte bedrijven
+        else
+        week.bedrijvenNiet.Add(bedrijf);
     }
 
     public void FillRandomWeek()
@@ -259,12 +263,14 @@ public class ZoekAlgoritme
 
         while(true) // blijf doorgaan met bedrijven zoeken totdat je een legale delete hebt gevonden
         {
-            bedrijf = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)];
+            bedrijf = week.bedrijvenWel.Get(r.Next(0, week.bedrijvenWel.Count));
             (bo, extratijd) = week.DeleteCheck(bedrijf);
 
             //als het een legale delete is, stop met zoeken naar nieuwe nodes
             if (bo)
                 break;
+
+            week.bedrijvenWel.Add(bedrijf);
         }
 
         // bereken de incrementele kosten
@@ -273,6 +279,13 @@ public class ZoekAlgoritme
         // als hij wordt geaccepteerd, delete hem
         if (AcceptatieKans(extraTijd, T))
             week.Delete(bedrijf, extratijd);
+        
+        else
+            week.bedrijvenWel.Add(bedrijf);
+        
+        
+    
+
     }
 
     public void Verplaats(double T)
@@ -292,7 +305,7 @@ public class ZoekAlgoritme
 
         while(true) // blijf doorgaan met verplaatsmogelijkheden zoeken totdat je een legale hebt gevonden
         {
-            b = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)];
+            b = week.bedrijvenWel.GetBedrijf(r.Next(0, week.bedrijvenWel.Count));
             n1 = GetBedrijfNode(b); // vindt een random node van een random bedrijf, deze wordt verplaatst
 
             b2Index = r.Next(0, week.bedrijvenWel.Count + 19);
@@ -311,7 +324,7 @@ public class ZoekAlgoritme
             else
             {
                 // anders pak een node van een random bedrijf ongelijk zichzelf 
-                while ((b2 = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)]) == b) ;
+                while ((b2 = week.bedrijvenWel.GetBedrijf(r.Next(0, week.bedrijvenWel.Count))) == b) ;
                 n2 = GetBedrijfNode(b2);
             }
 
@@ -342,10 +355,10 @@ public class ZoekAlgoritme
         while(true) // blijf doorgaan met swapmogelijkheden zoeken totdat je een legale hebt gevonden
         {
             //kies 2 random bedrijven
-            b = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)];
+            b = week.bedrijvenWel.GetBedrijf(r.Next(0, week.bedrijvenWel.Count));
             
             //zorgen dat het niet dezelfde bedrijven zijn, dan heeft het geen nut
-            while ((b2 = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)]) == b) ;
+            while ((b2 = week.bedrijvenWel.GetBedrijf(r.Next(0, week.bedrijvenWel.Count))) == b) ;
 
             // kies 2 nodes van die bedrijven
             n1 = GetBedrijfNode(b);

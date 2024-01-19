@@ -10,8 +10,8 @@ public class Week
     public Dag[] dagen = new Dag[6];
     public int kosten = 0;
     public int tijd = 0;
-    public List<Bedrijf> bedrijvenWel = new List<Bedrijf>();
-    public List<Bedrijf> bedrijvenNiet = new List<Bedrijf>();
+    public Bedrijvenbezocht bedrijvenWel = new Bedrijvenbezocht();
+    public Bedrijvenbezocht bedrijvenNiet = new Bedrijvenbezocht();
     public Week()
     {
         for (int i = 1; i <= 5; i++)
@@ -408,5 +408,56 @@ public class Week
         }
 
     }
-} 
+}
 
+public class Bedrijvenbezocht
+{
+    public int Count;
+    public Bedrijf[] bezogd;
+
+    public Bedrijvenbezocht()
+    {
+        Count = 0;
+        bezogd = new Bedrijf[1177];
+    }
+
+    public void Add(Bedrijf bedrijf)
+    {
+        bezogd[Count] = bedrijf;
+        Count++;
+    }
+
+    public void Remove(int i)
+    {
+        bezogd[i] = bezogd[--Count];
+    }
+
+    public void Remove(Bedrijf b)
+    {
+        for (int i = 0; i < Count; i++)
+        {
+            if (bezogd[i] == b)
+            {
+                Remove(i);
+                return;
+            }
+
+        }
+
+    }
+
+    //ik geef jou een index, jij geeft mij een bedrijf, en je verwijdert dat bedrijf uit de lijst
+    public Bedrijf Get(int i)
+    {
+        Bedrijf b = bezogd[i];
+        Remove(i);
+        return b;
+    }
+
+    public Bedrijf GetBedrijf(int i)
+    {
+        return bezogd[i];
+
+    }
+
+}
