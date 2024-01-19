@@ -58,7 +58,7 @@ public class Week
         return (true, extratijd);
     }
 
-    public void Insert(Bedrijf b, int[] extratijd, Node[] nodes) // insert de nodes van het bedrijf voor de gegeven nodes
+    public void Insert(Bedrijf b, int index, int[] extratijd, Node[] nodes) // insert de nodes van het bedrijf voor de gegeven nodes
     {
         Node n;
         Node volgende;
@@ -71,7 +71,7 @@ public class Week
         b.wordtBezocht = true;
         kosten -= b.strafkosten;
         bedrijvenWel.Add(b);
-        bedrijvenNiet.Remove(b);
+        //bedrijvenNiet.Remove(index); //flag
     }
 
     public (bool, int[]) DeleteCheck(Bedrijf b) // Controleer of een bedrijf verwijderd mag worden uit de oplossing
@@ -107,7 +107,7 @@ public class Week
         b.wordtBezocht = false;
         kosten += b.strafkosten;
         bedrijvenNiet.Add(b);
-        bedrijvenWel.Remove(b);
+       // bedrijvenWel.Remove(b);
     }
 
     public (bool, int, int) VerplaatsCheck(Node mover, Node hierVoor) // Controleer of node mover naar vóór node hierVoor verplaatst mag worden,
@@ -434,7 +434,7 @@ public class Bedrijvenbezocht
 
     public void Remove(Bedrijf b)
     {
-        for (int i = 0; i < Count; i++)
+        for (int i = 0; i < bezogd.Length; i++)
         {
             if (bezogd[i] == b)
             {

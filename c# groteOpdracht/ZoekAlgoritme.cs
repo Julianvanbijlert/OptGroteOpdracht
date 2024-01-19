@@ -236,11 +236,11 @@ public class ZoekAlgoritme
 
         // als hij geaccepteerd word, insert hem
         if (AcceptatieKans(extraTijd, T))
-            week.Insert(bedrijf, extratijd, nodes);
+            week.Insert(bedrijf, b1Index, extratijd, nodes);
 
         //als hij toch niet geaccepteerd wordt, voeg hem weer toe aan de niet bezochte bedrijven
         else
-        week.bedrijvenNiet.Add(bedrijf);
+            week.bedrijvenNiet.Add(bedrijf);
     }
 
     public void FillRandomWeek()
@@ -264,6 +264,7 @@ public class ZoekAlgoritme
         while(true) // blijf doorgaan met bedrijven zoeken totdat je een legale delete hebt gevonden
         {
             bedrijf = week.bedrijvenWel.Get(r.Next(0, week.bedrijvenWel.Count));
+
             (bo, extratijd) = week.DeleteCheck(bedrijf);
 
             //als het een legale delete is, stop met zoeken naar nieuwe nodes
