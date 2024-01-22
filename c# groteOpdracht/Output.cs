@@ -203,12 +203,12 @@ public static class IO
         try
         {
             // Combine the location and the filename (using the integer as the filename)
-            string filePath = Path.Combine(_scoreMap, $"{w.Eval}________{dateTimeString}.txt");
+            string filePath = Path.Combine(_scoreMap, $"{(float)w.Kosten / 60000}________{dateTimeString}.txt");
 
             // Write the string content to the file
             File.WriteAllText(filePath, s);
 
-            Console.WriteLine($"Printed score {w.Eval} successfully");
+            Console.WriteLine($"Printed score {(float)w.Kosten / 60000} successfully");
 
         }
         catch (Exception ex)

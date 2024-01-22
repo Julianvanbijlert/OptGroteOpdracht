@@ -80,8 +80,8 @@ public class ZoekAlgoritme
     public void PrintVoortgang()
     {
         Console.Clear();
-        Console.WriteLine($"Beste oplossingsscore:     {bestOplossing / 60000}       \n" +
-                          $"Huidige score:             {week.Eval}                  \n" +
+        Console.WriteLine($"Beste oplossingsscore:     {(float)bestOplossing / 60000}       \n" +
+                          $"Huidige score:             {(float)week.Kosten / 60000}         \n" +
                           $"Totale iteraties:          {totItt:n0}                  \n" +
                           $"Iteraties per seconde:     {2* (totItt-totIttTemp):n0}  \n" +
                           $"Sweeps since new best:     {sweeps}                     \n" +
@@ -103,11 +103,12 @@ public class ZoekAlgoritme
         sweeps++;
 
         //random reset
-        if (sweeps % 100 == 0)
+        if (sweeps % 50 == 0)
         {
             //load de beste file tot nu toe, we kunnen later ook met gewoon lege week doen maar dit is goed voor nu
-            FillRandomWeek();//.LoadSolutionAuto(true, r);
-            bestOplossing = 10000;
+            //FillRandomWeek()
+            week = IO.LoadSolutionAuto(false, r);
+            bestOplossing = week.kosten;
             sweeps = 0;
         }
 
@@ -129,9 +130,9 @@ public class ZoekAlgoritme
     public void SimAnn(double t) // simulated annealing
     {
         double T = t; //t; //temperatuur = bestscore / 7000
-        double tempVerkleining = 0.99999999;
-        //double maxAantalIteraties = 10_000_000 - T * 100; //Je wil aan het begin zo veel mogelijk resets en later iets minder
-       // int sindsLastChange = 0; // aantal iteraties sinds de laatste keer dat de beste oplossing is veranderd
+        double tempVerkleining = 0.9999999; //0.999 999 99;
+                                            //double maxAantalIteraties = 10_000_000 - T * 100; //Je wil aan het begin zo veel mogelijk resets en later iets minder
+                                            // int sindsLastChange = 0; // aantal iteraties sinds de laatste keer dat de beste oplossing is veranderd
         while (T >= 60)//T >= Modulo) 
         {
             PickAction(T); // doe een actie
@@ -229,7 +230,7 @@ public class ZoekAlgoritme
             //als hij na 100.000 keer proberen nog geen legale plek heeft gevonden, is er misschien
             //helemaal geen legale plek. return, om uit de infinite loop te komen
             iteraties++;
-            if (iteraties == 40_000)
+            if (iteraties == 100_000)
                 return;
         }
 

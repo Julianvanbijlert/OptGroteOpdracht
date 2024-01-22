@@ -27,7 +27,8 @@ public class Setup
         //week = IO.LoadPickSolution();
        
         
-        za = new ZoekAlgoritme(week); 
+        za = new ZoekAlgoritme(week);
+        //za = new ZoekAlgoritme();
 
         za.BFS();                                       //huidige oplossing BFS'en, vooral handig na instellen van een nieuwe beginoplossing
         //IO.SaveBeginOplossing(werkWeek);                //huidige oplossing opslaan als beginoplossing
