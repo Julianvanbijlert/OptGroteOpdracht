@@ -71,7 +71,7 @@ public class Week
         b.wordtBezocht = true;
         kosten -= b.strafkosten;
         bedrijvenWel.Add(b);
-        //bedrijvenNiet.Remove(index); //flag
+        bedrijvenNiet.Remove(index);
     }
 
     public (bool, int[]) DeleteCheck(Bedrijf b) // Controleer of een bedrijf verwijderd mag worden uit de oplossing
@@ -95,7 +95,7 @@ public class Week
         return (true, extratijd);
     }
 
-    public void Delete(Bedrijf b, int[] extratijd) // Verwijder het gegeven bedrijf uit de oplossing
+    public void Delete(Bedrijf b, int index, int[] extratijd) // Verwijder het gegeven bedrijf uit de oplossing
     {
         Node n;
         for (int i = 0; i < b.Locaties.Count; i++)
@@ -107,7 +107,7 @@ public class Week
         b.wordtBezocht = false;
         kosten += b.strafkosten;
         bedrijvenNiet.Add(b);
-       // bedrijvenWel.Remove(b);
+        bedrijvenWel.Remove(index);
     }
 
     public (bool, int, int) VerplaatsCheck(Node mover, Node hierVoor) // Controleer of node mover naar vóór node hierVoor verplaatst mag worden,
@@ -246,6 +246,9 @@ public class Week
 
         // Check if the swap is legal between node1, node2, and node3
         // Compute the incremental costs for each possible move
+
+        // dit is een leuk idee, maar helaas niet zo makkelijk. de legaliteitscheck houdt er geen rekening mee dat er 
+        // meerdere swaps tegelijk worden uitgevoerd. er zijn dan heel veel edge cases
 
         // Move 1: Swap node1 with node2
         var (legal1, cost1_1, cost1_2) = SwapCheck(node1, node2);
@@ -413,51 +416,39 @@ public class Week
 public class Bedrijvenbezocht
 {
     public int Count;
-    public Bedrijf[] bezogd;
+    public Bedrijf[] elems;
 
     public Bedrijvenbezocht()
     {
         Count = 0;
-        bezogd = new Bedrijf[1177];
+        elems = new Bedrijf[1177];
     }
 
     public void Add(Bedrijf bedrijf)
     {
-        bezogd[Count] = bedrijf;
+        elems[Count] = bedrijf;
         Count++;
     }
 
     public void Remove(int i)
     {
-        bezogd[i] = bezogd[--Count];
+        elems[i] = elems[--Count];
     }
 
-    public void Remove(Bedrijf b)
+    public void Remove(Bedrijf b) // voor bij het loaden van een oude oplossing. dit is niet O(1), maar deze functie gebruiken we toch maar zelden
     {
-        for (int i = 0; i < bezogd.Length; i++)
+        for (int i = 0; i < Count; i++)
         {
-            if (bezogd[i] == b)
+            if (elems[i] == b)
             {
                 Remove(i);
                 return;
             }
-
         }
-
-    }
-
-    //ik geef jou een index, jij geeft mij een bedrijf, en je verwijdert dat bedrijf uit de lijst
-    public Bedrijf Get(int i)
-    {
-        Bedrijf b = bezogd[i];
-        Remove(i);
-        return b;
     }
 
     public Bedrijf GetBedrijf(int i)
     {
-        return bezogd[i];
-
+        return elems[i];
     }
-
 }

@@ -18,6 +18,7 @@ public class ZoekAlgoritme
     private int totIttTemp = 0; // om iteraties van 0.5 sec terug bij te houden voor it/sec berekening
     private int besteScoreTemp;
     private int sweeps = 0;
+    private double T;
 
     public ZoekAlgoritme()
     {
@@ -83,9 +84,10 @@ public class ZoekAlgoritme
         Console.WriteLine($"Beste oplossingsscore:     {(float)bestOplossing / 60000}       \n" +
                           $"Huidige score:             {(float)week.Kosten / 60000}         \n" +
                           $"Totale iteraties:          {totItt:n0}                  \n" +
-                          $"Iteraties per seconde:     {2* (totItt-totIttTemp):n0}  \n" +
+                          $"Iteraties per seconde:     {2 * (totItt - totIttTemp):n0}  \n" +
                           $"Sweeps since new best:     {sweeps}                     \n" +
-                          $"Time elapsed:              {timer.Elapsed}");
+                          $"Time elapsed:              {timer.Elapsed}            \n" +
+                          $"Current Temperature:       {(int) T}");                          
 
     }
 
@@ -94,9 +96,9 @@ public class ZoekAlgoritme
 
         timer.Start();
         timer2.Enabled = true;
-        double T = bestOplossing / 5800;
+        double t = bestOplossing / 5800;
         //reset t, start simulated annealing
-        SimAnn(T);
+        SimAnn(t);
 
         //if it goes out of the simulated annealing that means that there have been a lot of iterations, so something has to change.
         //that is what sweeps is for.
@@ -129,24 +131,25 @@ public class ZoekAlgoritme
 
     public void SimAnn(double t) // simulated annealing
     {
-        double T = t; //t; //temperatuur = bestscore / 7000
-        double tempVerkleining = 0.9999999; //0.999 999 99;
+        T = t; //t; //temperatuur = bestscore / 7000
+        double tempVerkleining = 0.99; //0.9999999; //0.999 999 99;
                                             //double maxAantalIteraties = 10_000_000 - T * 100; //Je wil aan het begin zo veel mogelijk resets en later iets minder
                                             // int sindsLastChange = 0; // aantal iteraties sinds de laatste keer dat de beste oplossing is veranderd
-        while (T >= 60)//T >= Modulo) 
+        while (T >= 50)//T >= Modulo) 
         {
             PickAction(T); // doe een actie
 
             if (week.Kosten < bestOplossing) // als een betere oplossing is gevonden
             {
                 ChangeBest();
-                //sindsLastChange = 0;
+                //sindsLastChange = 0; 
             }
 
             totItt++;
             //sindsLastChange += 1;
 
-            T *= tempVerkleining; // verlaag de temperatuur
+            if (totItt % 200_000 == 0)
+                T *= tempVerkleining; // verlaag de temperatuur
         }
     }
 
@@ -189,7 +192,7 @@ public class ZoekAlgoritme
         {
             //kies een random bedrijf uit de niet lijst
             b1Index = r.Next(0, week.bedrijvenNiet.Count);
-            bedrijf = week.bedrijvenNiet.Get(b1Index); //flag
+            bedrijf = week.bedrijvenNiet.GetBedrijf(b1Index); //flag
 
             //maak array aan van nodes
             nodes = new Node[bedrijf.frequentie];
@@ -197,18 +200,18 @@ public class ZoekAlgoritme
             for (int i = 0; i < bedrijf.frequentie; i++) // vind 4 nodes waar de nodes van dit bedrijf vóór worden geinsert
             {
                 //random bedrijf
-                b2Index = r.Next(0, week.bedrijvenWel.Count + 20);
+                b2Index = r.Next(0, week.bedrijvenWel.Count + 15);
 
                 //dit is zodat er een kans is dat je een node
-                //aan het eind van 1 van de 20 rijmomenten toevoegt
+                //aan het eind van 1 van de 15 vulbare rijmomenten toevoegt
                 //in plaats van vóór een node van een ander bedrijf
-                if (b2Index >= week.bedrijvenWel.Count) // als het 1 van de 20 rijmoment-eindes is
+                if (b2Index >= week.bedrijvenWel.Count) // als het 1 van de 15 vulbare rijmoment-eindes is
                 {
                     //bereken welk rijmoment
                     b2Index -= week.bedrijvenWel.Count;
                     dag = b2Index % 5 + 1;
                     bus = b2Index / 5 < 2 ? 0 : 1;
-                    rijmoment = b2Index % 2;
+                    rijmoment = bus == 1 ? 0 : b2Index % 2;
                     nodes[i] = week.dagen[dag].bussen[bus].rijmomenten[rijmoment].eindnode;
                 }
                 else
@@ -223,9 +226,6 @@ public class ZoekAlgoritme
             //als het een legale Insert is, stop met zoeken naar een mogelijke insert
             if (bo)
                 break;
-
-            //als het geen legale insert is, voeg het bedrijf weer toe aan de niet bezochte bedrijven
-            week.bedrijvenNiet.Add(bedrijf);
             
             //als hij na 100.000 keer proberen nog geen legale plek heeft gevonden, is er misschien
             //helemaal geen legale plek. return, om uit de infinite loop te komen
@@ -240,10 +240,6 @@ public class ZoekAlgoritme
         // als hij geaccepteerd word, insert hem
         if (AcceptatieKans(extraTijd, T))
             week.Insert(bedrijf, b1Index, extratijd, nodes);
-
-        //als hij toch niet geaccepteerd wordt, voeg hem weer toe aan de niet bezochte bedrijven
-        else
-            week.bedrijvenNiet.Add(bedrijf);
     }
 
     public void FillRandomWeek()
@@ -263,18 +259,18 @@ public class ZoekAlgoritme
         int[] extratijd;
         Bedrijf bedrijf;
         bool bo;
+        int bIndex;
 
         while(true) // blijf doorgaan met bedrijven zoeken totdat je een legale delete hebt gevonden
         {
-            bedrijf = week.bedrijvenWel.Get(r.Next(0, week.bedrijvenWel.Count));
+            bIndex = r.Next(0, week.bedrijvenWel.Count);
+            bedrijf = week.bedrijvenWel.GetBedrijf(bIndex);
 
             (bo, extratijd) = week.DeleteCheck(bedrijf);
 
             //als het een legale delete is, stop met zoeken naar nieuwe nodes
             if (bo)
                 break;
-
-            week.bedrijvenWel.Add(bedrijf);
         }
 
         // bereken de incrementele kosten
@@ -282,14 +278,7 @@ public class ZoekAlgoritme
 
         // als hij wordt geaccepteerd, delete hem
         if (AcceptatieKans(extraTijd, T))
-            week.Delete(bedrijf, extratijd);
-        
-        else
-            week.bedrijvenWel.Add(bedrijf);
-        
-        
-    
-
+            week.Delete(bedrijf, bIndex, extratijd);  
     }
 
     public void Verplaats(double T)
@@ -312,17 +301,17 @@ public class ZoekAlgoritme
             b = week.bedrijvenWel.GetBedrijf(r.Next(0, week.bedrijvenWel.Count));
             n1 = GetBedrijfNode(b); // vindt een random node van een random bedrijf, deze wordt verplaatst
 
-            b2Index = r.Next(0, week.bedrijvenWel.Count + 19);
+            b2Index = r.Next(0, week.bedrijvenWel.Count + 14);
 
-            //Dit is zodat er een kans is dat je het verplaatst naar het einde van 1 van de 20 rijmoment in plaats van 
-            //naar vóór een node van een bedrijf. 19 ipv 20 omdat je hem natuurlijk niet kan verplaatsen naar een node van hetzelfde bedrijf,
+            //Dit is zodat er een kans is dat je het verplaatst naar het einde van 1 van de 15 vulbare rijmoment in plaats van 
+            //naar vóór een node van een bedrijf. 14 ipv 15 omdat je hem natuurlijk niet kan verplaatsen naar een node van hetzelfde bedrijf,
             //dan zou dat bedrijf 2 keer op 1 dag worden bezocht.
-            if (b2Index >= week.bedrijvenWel.Count - 1) // als het 1 van de 20 rijmoment-eindes is
+            if (b2Index >= week.bedrijvenWel.Count - 1) // als het 1 van de 15 vulbare rijmoment-eindes is
             {
                 b2Index -= week.bedrijvenWel.Count - 1;     //bereken naar het eind van welk rijmoment hij wordt verplaatst
                 dag = b2Index % 5 + 1;
                 bus = b2Index / 5 < 2 ? 0 : 1;
-                rijmoment = b2Index % 2;
+                rijmoment = bus == 1 ? 0 : b2Index % 2;
                 n2 = week.dagen[dag].bussen[bus].rijmomenten[rijmoment].eindnode;
             }
             else
@@ -382,7 +371,7 @@ public class ZoekAlgoritme
         }
     }
 
-    public void Opt3(double T)
+    public void Opt3(double T) // dit gaat helaas niet werken, zie mijn comments bij de swapcheck van drie nodes in Week
     {
         // als er minder dan 3 bedrijven worden bezocht heeft 3opt geen zin, return
         if (week.bedrijvenWel.Count < 3) return;
