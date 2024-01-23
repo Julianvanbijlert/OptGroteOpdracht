@@ -203,7 +203,7 @@ public static class IO
         try
         {
             // Combine the location and the filename (using the integer as the filename)
-            string filePath = Path.Combine(_scoreMap, $"{(float)w.Kosten / 60000}________{dateTimeString}.txt");
+            string filePath = Path.Combine(_scoreMap, $"{Math.Round((double) w.Kosten / 60000, 2)}________{dateTimeString}.txt");
 
             // Write the string content to the file
             File.WriteAllText(filePath, s);

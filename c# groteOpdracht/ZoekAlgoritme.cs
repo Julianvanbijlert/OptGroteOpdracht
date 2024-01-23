@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Timers;
+using System.Transactions;
 
 namespace rommelrouterakkers;
 
@@ -13,12 +15,12 @@ public class ZoekAlgoritme
     private Stopwatch timer;
     private Timer timer2;
     public Random r;
-    //private double tempVerkleining = 0.99999999;
+    private double tempVerkleining = 0.99;
     private int totItt = 0;
     private int totIttTemp = 0; // om iteraties van 0.5 sec terug bij te houden voor it/sec berekening
     private int besteScoreTemp;
     private int sweeps = 0;
-    private double T;
+    private double Temp;
 
     public ZoekAlgoritme()
     {
@@ -87,7 +89,7 @@ public class ZoekAlgoritme
                           $"Iteraties per seconde:     {2 * (totItt - totIttTemp):n0}  \n" +
                           $"Sweeps since new best:     {sweeps}                     \n" +
                           $"Time elapsed:              {timer.Elapsed}            \n" +
-                          $"Current Temperature:       {(int) T}");                          
+                          $"Current Temperature:       {(int) Temp}");                          
 
     }
 
@@ -96,31 +98,30 @@ public class ZoekAlgoritme
 
         timer.Start();
         timer2.Enabled = true;
-        double t = bestOplossing / 5800;
-        //reset t, start simulated annealing
-        SimAnn(t);
+        Temp = bestOplossing / 100000; //5800
+        //reset temp, start simulated annealing
+        SimAnn();
 
         //if it goes out of the simulated annealing that means that there have been a lot of iterations, so something has to change.
         //that is what sweeps is for.
         sweeps++;
 
         //random reset
-        if (sweeps % 50 == 0)
+        if (sweeps % 10 == 0)
         {
             //load de beste file tot nu toe, we kunnen later ook met gewoon lege week doen maar dit is goed voor nu
             //FillRandomWeek()
-            week = IO.LoadSolutionAuto(false, r);
+            week = IO.LoadSolutionAuto(true, r); // false, ik ga de nacht van dinsdag op woensdag grondig lokaal zoeken
             bestOplossing = week.kosten;
+            besteScoreTemp = week.Kosten;
             sweeps = 0;
         }
 
         //random walk
-        else if (sweeps % 20 == 0)
-        {
-            RandomWalk();
-        }
-
-        CheckAddDelete(T / 100);
+        //else if (sweeps % 20 == 0)
+        //{
+        //    RandomWalk();
+        //}
 
         //infinite loop
         ILS();
@@ -129,27 +130,40 @@ public class ZoekAlgoritme
         timer2.Enabled = false;
     }
 
-    public void SimAnn(double t) // simulated annealing
+    public void SimAnn() // simulated annealing
     {
-        T = t; //t; //temperatuur = bestscore / 7000
-        double tempVerkleining = 0.99; //0.9999999; //0.999 999 99;
+        // Temp = t; //t; //temperatuur = bestscore / 7000
+        //double tempVerkleining = 0.99; //0.9999999; //0.999 999 99;
                                             //double maxAantalIteraties = 10_000_000 - T * 100; //Je wil aan het begin zo veel mogelijk resets en later iets minder
                                             // int sindsLastChange = 0; // aantal iteraties sinds de laatste keer dat de beste oplossing is veranderd
-        while (T >= 50)//T >= Modulo) 
+        
+        bool bestLegaal; 
+        while (Temp >= 30)//T >= Modulo) 
         {
-            PickAction(T); // doe een actie
+            PickAction(Temp); // doe een actie
 
             if (week.Kosten < bestOplossing) // als een betere oplossing is gevonden
             {
-                ChangeBest();
+                bestLegaal = true;
+                for (int i = 1; i <= 5; i++)
+                    foreach (Bus bus in week.dagen[i].bussen)
+                        foreach (Rijmoment rijmoment in bus.rijmomenten)
+                            if (rijmoment.volume > 100000)
+                                bestLegaal = false;
+                if (bestLegaal)
+                    ChangeBest();
+
                 //sindsLastChange = 0; 
             }
 
             totItt++;
             //sindsLastChange += 1;
 
-            if (totItt % 200_000 == 0)
-                T *= tempVerkleining; // verlaag de temperatuur
+            if (totItt % 500_000 == 0)
+            {
+                Temp *= tempVerkleining; // verlaag de temperatuur
+            }
+
         }
     }
 
@@ -161,20 +175,12 @@ public class ZoekAlgoritme
             Insert(T);
         else if (welk <= 2)
             Delete(T);
-       // else if (welk <= 5)
-         //  Swap(T);
+        // else if (welk <= 5)
+        //  Swap(T);
         else
-        
-        Verplaats(T);
-        
-        //Opt3(10000000);
-    }
+            Verplaats(T);
 
-    public void CheckAddDelete(double T)
-    {
-        Insert(T);
-        Delete(T);
-       
+        //Opt3(10000000);
     }
 
     public void Insert(double T)
@@ -186,13 +192,14 @@ public class ZoekAlgoritme
         bool bo;
         int[] extratijd;
         Node[] nodes;
-        int b1Index = 0 ,b2Index = 0, dag, bus, rijmoment, iteraties = 0;
+        int extraStrafVolume = 0;
+        int b1Index, b2Index, dag, bus, rijmoment, iteraties = 0;
 
         while(true) // blijf doorgaan met inserts vinden totdat je een legale insert vindt
         {
             //kies een random bedrijf uit de niet lijst
             b1Index = r.Next(0, week.bedrijvenNiet.Count);
-            bedrijf = week.bedrijvenNiet.GetBedrijf(b1Index); //flag
+            bedrijf = week.bedrijvenNiet.GetBedrijf(b1Index); 
 
             //maak array aan van nodes
             nodes = new Node[bedrijf.frequentie];
@@ -217,7 +224,7 @@ public class ZoekAlgoritme
                 else
                 {
                     //anders pak een node van het bedrijf met die index in de lijst
-                    nodes[i] = GetBedrijfNode(week.bedrijvenWel.GetBedrijf(b2Index)); //flag
+                    nodes[i] = GetBedrijfNode(week.bedrijvenWel.GetBedrijf(b2Index)); 
                 }
             }
 
@@ -235,11 +242,27 @@ public class ZoekAlgoritme
         }
 
         // bereken de incrementele kosten
-        int extraTijd = extratijd.Sum() - bedrijf.strafkosten;     
+        int extraTijd = extratijd.Sum() - bedrijf.strafkosten;   
+        
+        foreach (Node volgende in nodes)
+        {
+            if (volgende.rijmoment.volume + bedrijf.volume > 100000)
+                if (volgende.rijmoment.volume > 100000)
+                    extraStrafVolume += bedrijf.volume;
+                else
+                    extraStrafVolume += volgende.rijmoment.volume + bedrijf.volume - 100000;
+        }
+
+        int overschrijdingsKosten = OverschrijdingsKosten(extraStrafVolume, T);
+
+        // PROBLEEM: altijd overschrijdingskosten = 0. waarom?
 
         // als hij geaccepteerd word, insert hem
-        if (AcceptatieKans(extraTijd, T))
+        if (AcceptatieKans(extraTijd + overschrijdingsKosten, T))
+        {
             week.Insert(bedrijf, b1Index, extratijd, nodes);
+            week.kosten += overschrijdingsKosten;
+        }
     }
 
     public void FillRandomWeek()
@@ -260,6 +283,7 @@ public class ZoekAlgoritme
         Bedrijf bedrijf;
         bool bo;
         int bIndex;
+        int extraStrafVolume = 0;
 
         while(true) // blijf doorgaan met bedrijven zoeken totdat je een legale delete hebt gevonden
         {
@@ -276,9 +300,23 @@ public class ZoekAlgoritme
         // bereken de incrementele kosten
         int extraTijd = extratijd.Sum() + bedrijf.strafkosten;
 
+        foreach (Node n in bedrijf.Locaties) // of het past of niet, bereken het strafvolume
+        {
+            if (n.rijmoment.volume > 100000)
+                if (n.rijmoment.volume - bedrijf.volume > 100000)
+                    extraStrafVolume -= bedrijf.volume;
+                else
+                    extraStrafVolume -= n.rijmoment.volume - 100000;
+        }
+
+        int overschrijdingsKosten = OverschrijdingsKosten(extraStrafVolume, T);
+
         // als hij wordt geaccepteerd, delete hem
-        if (AcceptatieKans(extraTijd, T))
-            week.Delete(bedrijf, bIndex, extratijd);  
+        if (AcceptatieKans(extraTijd + overschrijdingsKosten, T))
+        {
+            week.Delete(bedrijf, bIndex, extratijd);
+            week.kosten += overschrijdingsKosten;
+        }     
     }
 
     public void Verplaats(double T)
@@ -287,7 +325,7 @@ public class ZoekAlgoritme
         if (week.bedrijvenWel.Count == 0) return;
         
         Bedrijf b, b2;
-        Node n1, n2;
+        Node mover, hierVoor;
         bool bo;
         int i;
         int j;
@@ -295,11 +333,12 @@ public class ZoekAlgoritme
         int dag;
         int bus;
         int rijmoment;
+        int extraStrafVolume = 0;
 
         while(true) // blijf doorgaan met verplaatsmogelijkheden zoeken totdat je een legale hebt gevonden
         {
             b = week.bedrijvenWel.GetBedrijf(r.Next(0, week.bedrijvenWel.Count));
-            n1 = GetBedrijfNode(b); // vindt een random node van een random bedrijf, deze wordt verplaatst
+            mover = GetBedrijfNode(b); // vindt een random node van een random bedrijf, deze wordt verplaatst
 
             b2Index = r.Next(0, week.bedrijvenWel.Count + 14);
 
@@ -312,26 +351,40 @@ public class ZoekAlgoritme
                 dag = b2Index % 5 + 1;
                 bus = b2Index / 5 < 2 ? 0 : 1;
                 rijmoment = bus == 1 ? 0 : b2Index % 2;
-                n2 = week.dagen[dag].bussen[bus].rijmomenten[rijmoment].eindnode;
+                hierVoor = week.dagen[dag].bussen[bus].rijmomenten[rijmoment].eindnode;
             }
             else
             {
                 // anders pak een node van een random bedrijf ongelijk zichzelf 
                 while ((b2 = week.bedrijvenWel.GetBedrijf(r.Next(0, week.bedrijvenWel.Count))) == b) ;
-                n2 = GetBedrijfNode(b2);
+                hierVoor = GetBedrijfNode(b2);
             }
 
-            (bo, i, j) = week.VerplaatsCheck(n1, n2);
+            (bo, i, j) = week.VerplaatsCheck(mover, hierVoor);
 
             //als het een legale swap is, stop met nieuwe zoeken
             if (bo)
                 break;
         }
 
+        if (mover.rijmoment.volume > 100000) // als het qua volume op bepaalde momenten niet past
+            if (mover.rijmoment.volume - mover.bedrijf.volume > 100000)
+                extraStrafVolume -= mover.bedrijf.volume;
+            else
+                extraStrafVolume -= mover.rijmoment.volume - 100000;
+        if (hierVoor.rijmoment.volume + mover.bedrijf.volume > 100000)
+            if (hierVoor.rijmoment.volume > 100000)
+                extraStrafVolume += mover.bedrijf.volume;
+            else
+                extraStrafVolume += hierVoor.rijmoment.volume + mover.bedrijf.volume - 100000;
+
+        int overschrijdingsKosten = OverschrijdingsKosten(extraStrafVolume, T);
+
         // als het geaccepteerd wordt, verplaats hem
-        if (AcceptatieKans(i + j, T))
+        if (AcceptatieKans(i + j + overschrijdingsKosten, T))
         {
-            week.Verplaats(n1, n2, i, j);
+            week.Verplaats(mover, hierVoor, i, j);
+            week.kosten += overschrijdingsKosten;
         }
     }
     public void Swap(double T)
@@ -445,7 +498,10 @@ public class ZoekAlgoritme
         double acceptKans = double.Exp(-1 * extratijd / T); // anders, bereken de kans op een acceptatie
         return acceptKans > r.NextDouble(); // bepaal of hij geaccepteerd wordt
     }
-
+    public int OverschrijdingsKosten(int extraStrafVolume, double T)
+    {
+        return 1000 * extraStrafVolume;
+    }
     public Node GetBedrijfNode(Bedrijf b) 
     {
         return b.Locaties[r.Next(0, b.Locaties.Count)];

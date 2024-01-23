@@ -2,6 +2,7 @@ namespace rommelrouterakkers;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Xml.Linq;
 
 public class Week
@@ -30,7 +31,7 @@ public class Week
 
     public (bool, int[]) InsertCheck(Bedrijf b, Node[] nodes) // controleer of de nodes van dit bedrijf vóór deze nodes geinsert mogen worden
                                                               // en geef dan de incrementele kosten
-    {
+    {        
         for (int i = 0; i < nodes.Length; i++) // als de dagen van 2 nodes overeen komen mag het niet
             for (int j = i + 1; j < nodes.Length; j++)
                 if (nodes[i].rijmoment.bus.dag == nodes[j].rijmoment.bus.dag)
@@ -38,10 +39,6 @@ public class Week
 
         if (!InsertFreqCheck(nodes)) // als de freqcheck is gefaald mag het ook niet
             return (false, null);
-
-        foreach (Node node in nodes) // als het niet in de bus past mag het ook niet
-            if (node.rijmoment.volume + b.volume > 100000)
-                return (false, null);
 
         int[] extratijd = new int[nodes.Length];
         int extraTijd;
@@ -116,6 +113,7 @@ public class Week
         bool legaal;
         int extratijd1;
         int extratijd2;
+
         if (mover.rijmoment == hierVoor.rijmoment) // Als de nodes in hetzelfde rijmoment zitten
         {
             if (mover.Next == hierVoor) // als mover al vóór hierVoor staat, hoeft het niet natuurlijk
@@ -129,9 +127,6 @@ public class Week
         }
 
         // als het programma hier komt zitten ze in een ander rijmoment
-
-        if (hierVoor.rijmoment.volume + mover.bedrijf.volume > 100000) // als het qua volume niet past
-            return (false, 0, 0);
 
         extratijd1 = mover.ExtraTijdskostenBijVerwijderen();
         extratijd2 = hierVoor.rijmoment.ExtraTijdskostenBijToevoegen(mover.bedrijf, hierVoor.Previous, hierVoor);
