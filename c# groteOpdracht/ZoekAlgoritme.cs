@@ -138,7 +138,7 @@ public class ZoekAlgoritme
                                             //double maxAantalIteraties = 10_000_000 - T * 100; //Je wil aan het begin zo veel mogelijk resets en later iets minder
                                             // int sindsLastChange = 0; // aantal iteraties sinds de laatste keer dat de beste oplossing is veranderd
         
-        strafkostenCoefficient = 20; // nieuwe variabele
+        strafkostenCoefficient = 1; // nieuwe variabele
         while (Temp >= 30)//T >= Modulo) 
         {
             PickAction(Temp); // doe een actie
@@ -157,14 +157,17 @@ public class ZoekAlgoritme
             if (totItt % 500_000 == 0)
             {
                 Temp *= tempVerkleining; // verlaag de temperatuur
+                Console.WriteLine(strafkostenCoefficient);
+            }
 
+            if (totItt % 10_000_000 == 0) // aparte casus, ivm kommagetallen en afronden
+            {
                 if (strafkostenCoefficient >= 10_000) // voorkomt integer overflows enzo. dit is ook een variabele
                     continue;
                 week.kosten -= OverschrijdingsKosten(week.totaalStrafVolume);
-                strafkostenCoefficient = (int)(strafkostenCoefficient * 1.05); // nieuwe variabele
+                strafkostenCoefficient = (int)(strafkostenCoefficient * 2); // nieuwe variabele
                 week.kosten += OverschrijdingsKosten(week.totaalStrafVolume);
             }
-
         }
     }
 
