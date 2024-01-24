@@ -197,7 +197,12 @@ public class Setup
                             break;
                         }
                         huidig.LaatstToevoegen(bedrijf.Locaties[0], extratijd);
-                        werkWeek.bedrijvenNiet.Remove(bedrijf);
+                        for (int k = 0; k < werkWeek.bedrijvenNiet.Count; k++)
+                            if (werkWeek.bedrijvenNiet[i] == bedrijf)
+                            {
+                                werkWeek.bedrijvenNiet.RemoveAt(k);
+                                break;
+                            }
                         werkWeek.bedrijvenWel.Add(bedrijf);
                         werkWeek.kosten -= bedrijf.strafkosten;
                         bedrijf.wordtBezocht = true;
@@ -221,7 +226,12 @@ public class Setup
             huidigen[k + 3].LaatstToevoegen(bedr.Locaties[1], extratijd); // ook toevoegen 3 dagen verder
             bedr.wordtBezocht = true;
             werkWeek.kosten -= bedr.strafkosten;
-            werkWeek.bedrijvenNiet.Remove(bedr);
+            for (int i = 0; i < werkWeek.bedrijvenNiet.Count; i++)
+                if (werkWeek.bedrijvenNiet[i] == bedr)
+                {
+                    werkWeek.bedrijvenNiet.RemoveAt(i);
+                    break;
+                }
             werkWeek.bedrijvenWel.Add(bedr);
         }
     }
@@ -237,7 +247,12 @@ public class Setup
             }
             bedr.wordtBezocht = true;
             werkWeek.kosten -= bedr.strafkosten;
-            werkWeek.bedrijvenNiet.Remove(bedr);
+            for (int i = 0; i < werkWeek.bedrijvenNiet.Count; i++)
+                if (werkWeek.bedrijvenNiet[i] == bedr)
+                {
+                    werkWeek.bedrijvenNiet.RemoveAt(i);
+                    break;
+                }
             werkWeek.bedrijvenWel.Add(bedr);
         }
     }
@@ -252,7 +267,12 @@ public class Setup
         }
         bedr4.wordtBezocht = true;
         werkWeek.kosten -= bedr4.strafkosten;
-        werkWeek.bedrijvenNiet.Remove(bedr4);
+        for (int i = 0; i < werkWeek.bedrijvenNiet.Count; i++)
+            if (werkWeek.bedrijvenNiet[i] == bedr4)
+            {
+                werkWeek.bedrijvenNiet.RemoveAt(i);
+                break;
+            }
         werkWeek.bedrijvenWel.Add(bedr4);
 
     }

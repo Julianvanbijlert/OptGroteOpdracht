@@ -130,7 +130,12 @@ public static class IO
                         {
                             b.wordtBezocht = true;
                             w.kosten -= 3 * b.ledigingsDuur * b.frequentie;
-                            w.bedrijvenNiet.Remove(b);
+                            for (int i = 0; i < w.bedrijvenNiet.Count; i++)
+                                if (w.bedrijvenNiet[i] == b)
+                                {
+                                    w.bedrijvenNiet.RemoveAt(i);
+                                    break;
+                                }
                             w.bedrijvenWel.Add(b);
                         }
 

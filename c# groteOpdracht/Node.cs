@@ -5,6 +5,7 @@ public class Node
     public Node Next = null;
     public Bedrijf bedrijf;
     public Rijmoment rijmoment;
+    public int Plaats;
 
     public Node(Bedrijf bedrijf)
     {

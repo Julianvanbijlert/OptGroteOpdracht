@@ -3,6 +3,7 @@ namespace rommelrouterakkers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
+using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 
 public class Week
@@ -11,8 +12,10 @@ public class Week
     public Dag[] dagen = new Dag[6];
     public int kosten = 0;
     public int tijd = 0;
-    public Bedrijvenbezocht bedrijvenWel = new Bedrijvenbezocht();
-    public Bedrijvenbezocht bedrijvenNiet = new Bedrijvenbezocht();
+    public EigenArray<Bedrijf> bedrijvenWel = new EigenArray<Bedrijf>();
+    public EigenArray<Bedrijf> bedrijvenNiet = new EigenArray<Bedrijf>();
+    public int totaalStrafVolume = 0;
+
     public Week()
     {
         for (int i = 1; i <= 5; i++)
@@ -68,7 +71,7 @@ public class Week
         b.wordtBezocht = true;
         kosten -= b.strafkosten;
         bedrijvenWel.Add(b);
-        bedrijvenNiet.Remove(index);
+        bedrijvenNiet.RemoveAt(index);
     }
 
     public (bool, int[]) DeleteCheck(Bedrijf b) // Controleer of een bedrijf verwijderd mag worden uit de oplossing
@@ -104,7 +107,7 @@ public class Week
         b.wordtBezocht = false;
         kosten += b.strafkosten;
         bedrijvenNiet.Add(b);
-        bedrijvenWel.Remove(index);
+        bedrijvenWel.RemoveAt(index);
     }
 
     public (bool, int, int) VerplaatsCheck(Node mover, Node hierVoor) // Controleer of node mover naar vóór node hierVoor verplaatst mag worden,
@@ -408,42 +411,30 @@ public class Week
     }
 }
 
-public class Bedrijvenbezocht
+public class EigenArray<T>
 {
     public int Count;
-    public Bedrijf[] elems;
+    public T[] elems;
 
-    public Bedrijvenbezocht()
+    public EigenArray()
     {
         Count = 0;
-        elems = new Bedrijf[1177];
+        elems = new T[1177];
     }
 
-    public void Add(Bedrijf bedrijf)
+    public void Add(T elem)
     {
-        elems[Count] = bedrijf;
+        elems[Count] = elem;
         Count++;
     }
 
-    public void Remove(int i)
+    public void RemoveAt(int i)
     {
         elems[i] = elems[--Count];
     }
 
-    public void Remove(Bedrijf b) // voor bij het loaden van een oude oplossing. dit is niet O(1), maar deze functie gebruiken we toch maar zelden
+    public T this[int i]
     {
-        for (int i = 0; i < Count; i++)
-        {
-            if (elems[i] == b)
-            {
-                Remove(i);
-                return;
-            }
-        }
-    }
-
-    public Bedrijf GetBedrijf(int i)
-    {
-        return elems[i];
+        get { return elems[i]; }
     }
 }
