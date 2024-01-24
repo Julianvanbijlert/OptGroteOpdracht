@@ -22,6 +22,7 @@ public class ZoekAlgoritme
     private int sweeps = 0;
     private double Temp;
     private int strafkostenCoefficient;
+    private int startTemp = 20000;
 
     public ZoekAlgoritme()
     {
@@ -100,7 +101,7 @@ public class ZoekAlgoritme
 
         timer.Start();
         timer2.Enabled = true;
-        Temp = bestOplossing / 100000; //5800
+        Temp = startTemp; //5800
         //reset temp, start simulated annealing
         SimAnn();
 
@@ -138,14 +139,13 @@ public class ZoekAlgoritme
                                             //double maxAantalIteraties = 10_000_000 - T * 100; //Je wil aan het begin zo veel mogelijk resets en later iets minder
                                             // int sindsLastChange = 0; // aantal iteraties sinds de laatste keer dat de beste oplossing is veranderd
         
-        strafkostenCoefficient = 1; // nieuwe variabele
-        while (Temp >= 30)//T >= Modulo) 
+        while (Temp >= startTemp * 0.01)//T >= Modulo) 
         {
             PickAction(Temp); // doe een actie
 
             if (week.Kosten < bestOplossing) // als een betere oplossing is gevonden
             {
-                if (week.totaalStrafVolume == 0)
+                if (week.totaalStrafVolume == 0) // als het een toegelaten oplossing is
                     ChangeBest();
 
                 //sindsLastChange = 0; 
@@ -154,18 +154,12 @@ public class ZoekAlgoritme
             totItt++;
             //sindsLastChange += 1;
 
-            if (totItt % 500_000 == 0)
+            if (totItt % 300_000 == 0)
             {
                 Temp *= tempVerkleining; // verlaag de temperatuur
-                Console.WriteLine(strafkostenCoefficient);
-            }
 
-            if (totItt % 10_000_000 == 0) // aparte casus, ivm kommagetallen en afronden
-            {
-                if (strafkostenCoefficient >= 10_000) // voorkomt integer overflows enzo. dit is ook een variabele
-                    continue;
                 week.kosten -= OverschrijdingsKosten(week.totaalStrafVolume);
-                strafkostenCoefficient = (int)(strafkostenCoefficient * 2); // nieuwe variabele
+                strafkostenCoefficient = Math.Min(10000, (int) (startTemp / Temp * startTemp / Temp) - 1); 
                 week.kosten += OverschrijdingsKosten(week.totaalStrafVolume);
             }
         }
@@ -203,7 +197,7 @@ public class ZoekAlgoritme
         {
             //kies een random bedrijf uit de niet lijst
             b1Index = r.Next(0, week.bedrijvenNiet.Count);
-            bedrijf = week.bedrijvenNiet[b1Index]; 
+            bedrijf = week.bedrijvenNiet[b1Index];
 
             //maak array aan van nodes
             nodes = new Node[bedrijf.frequentie];
@@ -228,7 +222,7 @@ public class ZoekAlgoritme
                 else
                 {
                     //anders pak een node van het bedrijf met die index in de lijst
-                    nodes[i] = GetBedrijfNode(week.bedrijvenWel[b2Index]); 
+                    nodes[i] = GetBedrijfNode(week.bedrijvenWel[b2Index]);
                 }
             }
 
@@ -329,7 +323,7 @@ public class ZoekAlgoritme
         if (week.bedrijvenWel.Count == 0) return;
         
         Bedrijf b, b2;
-        Node mover, hierVoor;
+        Node mover, hierVoor; 
         bool bo;
         int i;
         int j;
@@ -348,7 +342,7 @@ public class ZoekAlgoritme
             {
                 while ((hierVoor = mover.rijmoment.nodeLijst[r.Next(0, mover.rijmoment.nodeLijst.Count)]) == mover);
             }
-            else
+            else           
             {
                 b2Index = r.Next(0, week.bedrijvenWel.Count + 14);
 
