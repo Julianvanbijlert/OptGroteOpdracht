@@ -500,7 +500,8 @@ public class ZoekAlgoritme
     }
     public int OverschrijdingsKosten(int extraStrafVolume, double T)
     {
-        return 1000 * extraStrafVolume;
+        return 1000 * extraStrafVolume; // mag alleen homogeen lineair zijn, anders is later niet te achterhalen hoeveel strafkosten een bepaalde toevoeging
+                                        // van volume kostte, voor als je het volume weer naar beneden wilt halen
     }
     public Node GetBedrijfNode(Bedrijf b) 
     {
