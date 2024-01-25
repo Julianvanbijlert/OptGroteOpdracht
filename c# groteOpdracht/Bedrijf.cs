@@ -5,7 +5,6 @@ using System;
 
 public class Bedrijf
 {
-    //Order;Plaats;Frequentie;AantContainers;VolumePerContainer;LedigingsDuurMinuten;MatrixID;XCoordinaat;YCoordinaat
     public int orderNummer;
     public int frequentie;
     public int volume; //totale volume niet volume per container
@@ -27,7 +26,7 @@ public class Bedrijf
         FillLocaties(); // Maak vast nodes aan
     }
 
-    public static Bedrijf parseBedrijf(string s)
+    public static Bedrijf parseBedrijf(string s) // zet een regel uit het oplossingsbestand om naar een bedrijf
     {
         char separator = ';';
         string[] list = s.Split(separator); 
@@ -63,7 +62,8 @@ public class Bedrijf
         return null;
     }
 
-    public void ResetNodes() // reset de nodes, zodat duidelijk is dat ze niet in een rijmoment zitten
+    public void ResetNodes() // reset de nodes, zodat duidelijk is dat ze niet in een rijmoment zitten.
+                             // dit is handig bij bijvoorbeeld een andere oplossing loaden
     {
         foreach (Node n in Locaties)
         {

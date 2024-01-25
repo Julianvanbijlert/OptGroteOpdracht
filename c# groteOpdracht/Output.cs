@@ -2,7 +2,6 @@ namespace rommelrouterakkers;
 using System;
 using System.IO;
 
-//Eigenlijk zou dit een static class moeten zijn
 public static class IO
 {
     private static readonly string filepath = "../../../../";
@@ -11,7 +10,7 @@ public static class IO
     public static readonly string orderbestandFileNaam = filepath + "Orderbestand.txt";
 
     public static readonly string _scoreMap = "../../../scorefiles/";
-    public static readonly string _scoreFile = filepath + "Scores.txt";
+    public static readonly string _beginoplossing = filepath + "Beginoplossing.txt";
     private static readonly string _screenMap = "../../../screenshots/";
 
     public static Week LoadSolutionAuto(bool best, Random r) // selecteert een oplossing en roept LoadSolution aan
@@ -132,7 +131,7 @@ public static class IO
 
     public static void SaveBeginOplossing(Week w) // sla de huidige oplossing op in beginoplossing.txt
     {
-        File.WriteAllText(_scoreFile, w.ToString());
+        File.WriteAllText(_beginoplossing, w.ToString());
     }
 
     public static void CreateFile(Week w, string mapje) // maak een nieuwe text file aan in scorefiles met de huidige oplossing in string-vorm

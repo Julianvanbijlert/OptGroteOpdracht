@@ -10,9 +10,10 @@ public class Setup
     private static int matrixIds = 1099;
     public static Bedrijf stort = new Bedrijf(0, 0, 0, 0, 287, 0);
     public static AfstandMatrix aMatrix;
-    public Week week;
     public static List<Bedrijf> bedrijven = new List<Bedrijf>();
     public static Dictionary<int, Bedrijf> bedrijvenDict = new Dictionary<int, Bedrijf>();
+
+    public Week week;
     public ZoekAlgoritme za;
 
     public Setup()
@@ -32,7 +33,7 @@ public class Setup
         //za.BFS();                                          //huidige oplossing BFS'en, vooral handig na instellen van een nieuwe beginoplossing
         za.StartILS();                                       //ga iterated local searchen
 
-        //IO.SaveBeginOplossing(werkWeek);                   //huidige oplossing opslaan als beginoplossing
+        //IO.SaveBeginOplossing(week);                       //huidige oplossing opslaan als beginoplossing
         //IO.PrintSolution(week);                            //huidige oplossing in de console weergeven
     }
 

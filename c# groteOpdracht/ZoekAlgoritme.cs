@@ -64,14 +64,17 @@ public class ZoekAlgoritme
     public void PrintVoortgang()
     {
         Console.Clear();
-        Console.WriteLine($"Beste oplossingsscore:     {(float)bestOplossing / 60000}       \n" +
+        string s =        $"Beste oplossingsscore:     {(float)bestOplossing / 60000}       \n" +
                           $"Huidige score:             {(float)week.Kosten / 60000}         \n" +
-                          $"Totale iteraties:          {totItt:n0}                  \n" +
-                          $"Iteraties per seconde:     {2 * (totItt - totIttTemp):n0}  \n" +
-                          $"Sweeps sinds beste score:  {sweeps}                     \n" +
-                          $"Totale tijd:               {timer.Elapsed}            \n" +
-                          $"Huidige temperatuur:       {(int) Temp}               \n" +
-                          $"Totaal strafvolume:        {week.totaalStrafVolume}");
+                          $"Totale iteraties:          {totItt:n0}                          \n" +
+                          $"Iteraties per seconde:     {2 * (totItt - totIttTemp):n0}       \n" +
+                          $"Sweeps sinds beste score:  {sweeps}                             \n" +
+                          $"Totale tijd:               {timer.Elapsed}                      \n" +
+                          $"Huidige temperatuur:       {(int)Temp}                          \n" +
+                          $"Totaal strafvolume:        {week.totaalStrafVolume}             ";
+        if (week.totaalStrafVolume == 0)
+            s += "\nDruk op Q om een screenshot te maken (de huidige oplossing op te slaan)";
+        Console.WriteLine(s);
     }
 
     public void StartILS()
