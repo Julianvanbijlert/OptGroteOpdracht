@@ -5,7 +5,7 @@ public class Node
     public Node Next = null;
     public Bedrijf bedrijf;
     public Rijmoment rijmoment;
-    public int Plaats;
+    public int Plaats; // op de hoeveelste plek in de lijst met nodes van het rijmoment staat deze node
 
     public Node(Bedrijf bedrijf)
     {

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
+using System.Threading.Tasks;
 
 public class Setup
 {
@@ -19,29 +20,22 @@ public class Setup
         aMatrix = new AfstandMatrix(vulMatrix(IO.matrixFileNaam)); 
         vulBedrijven(IO.orderbestandFileNaam);
         vulDict();
-        //week = new Week();
-        
-        //week = StelBeginoplossingIn();                  //nieuwe beginoplossing maken en loaden
-        //week = IO.LoadSolution(IO._beginoplossing);     //bestaande beginoplossing loaden
+
+        //week = new Week();                                 //compleet nieuwe week aanmaken  
+        //week = StelBeginoplossingIn();                     //nieuwe beginoplossing maken en loaden
+        //week = IO.LoadSolution(IO._beginoplossing);        //bestaande beginoplossing loaden
+        //week = IO.LoadPickSolution();                      //load handmatig een oplossing
         week = IO.LoadSolutionAuto(true, r: new Random());   //load beste oplossing tot nu toe
-        //week = IO.LoadPickSolution();
        
-        
         za = new ZoekAlgoritme(week);
-        //za = new ZoekAlgoritme();
 
-        za.BFS();                                       //huidige oplossing BFS'en, vooral handig na instellen van een nieuwe beginoplossing
-        //IO.SaveBeginOplossing(werkWeek);                //huidige oplossing opslaan als beginoplossing
+        //za.BFS();                                          //huidige oplossing BFS'en, vooral handig na instellen van een nieuwe beginoplossing
+        za.StartILS();                                       //ga iterated local searchen
 
-                                                    //ga iterated local searchen
-        //IO.CreateBest(za.Week);
-        //IO.PrintSolution(week);                         //huidige oplossing in de console weergeven
+        //IO.SaveBeginOplossing(werkWeek);                   //huidige oplossing opslaan als beginoplossing
+        //IO.PrintSolution(week);                            //huidige oplossing in de console weergeven
     }
 
-    public void ILS()
-    {
-        za.ILS();
-    }
     static void vulDict() // dictionary maken zodat je in O(1) tijd een bedrijf kan vinden aan de hand van zijn ordernummer
     {
         foreach (Bedrijf bedrijf in bedrijven)
@@ -289,11 +283,6 @@ public class Setup
             b.ResetNodes();
             b.wordtBezocht = false;
         }
-    }
-
-    public void ScreenShot()
-    {
-        za.ScreenShot();
     }
 }
 

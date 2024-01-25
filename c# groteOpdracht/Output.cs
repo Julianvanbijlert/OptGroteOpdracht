@@ -1,6 +1,5 @@
 namespace rommelrouterakkers;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 //Eigenlijk zou dit een static class moeten zijn
@@ -11,82 +10,51 @@ public static class IO
     public static readonly string matrixFileNaam = filepath + "AfstandenMatrix.txt";
     public static readonly string orderbestandFileNaam = filepath + "Orderbestand.txt";
 
-    private static readonly string _scoreMap = "../../../scorefiles/";
+    public static readonly string _scoreMap = "../../../scorefiles/";
     public static readonly string _scoreFile = filepath + "Scores.txt";
     private static readonly string _screenMap = "../../../screenshots/";
 
-
-    //VrachtwagenNummer ; Dagnummer ; hoeveelste adres ; id van dat adres (odernummer?) afstorten is 0
-
-
-    //loads solution from file, should return a "week"
-
-    /*
-     * NOTE: Dit werkt alleen als er een geldige solution in de text file staat.
-     * Er is geen error handling, en als hij niet langs 0 gaat dan zijn we de lul.
-     */
-    public static Week LoadSolutionAuto(bool best, Random r)
+    public static Week LoadSolutionAuto(bool best, Random r) // selecteert een oplossing en roept LoadSolution aan
     {
-        Week w = new Week();
-        Setup.ResetBedrijven();
         try
         {
-            string[] files = Directory.GetFiles(_scoreMap);
+            string[] files = Directory.GetFiles(_scoreMap); // selecteer de map met oplossingen
 
             if (files.Length == 0)
             {
                 Console.WriteLine("No files found in the specified directory.");
-                return null; // or throw an exception or handle the case as appropriate
-            }
-
-            string firstFilePath;
-            if (best)
-                firstFilePath = files[0];
-            else
-            {
-                
-                firstFilePath = files[r.Next(0, files.Length - 1)];
-            }
-            w = LoadSolution(firstFilePath, Setup.bedrijven);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error loading solution: {ex.Message}");
-            return null; // or throw an exception or handle the case as appropriate
-        }
-
-        return w;
-    }
-
-    public static Week LoadPickSolution()
-    {
-        Week w = new Week();
-
-        try
-        {
-            Console.WriteLine("Enter the path of the solution file:");
-            string selectedFilePath = Console.ReadLine();
-
-            if (!string.IsNullOrEmpty(selectedFilePath))
-            {
-                w = LoadSolution(selectedFilePath, Setup.bedrijven);
-            }
-            else
-            {
-                Console.WriteLine("Invalid file path. Please provide a valid path.");
                 return null;
             }
+
+            string file;
+            if (best)
+                file = files[0]; // kies de beste oplossing
+            else
+            {
+                file = files[r.Next(0, files.Length)]; // kies een random oplossing
+            }
+            return LoadSolution(file);
         }
-        catch (Exception ex)
+        catch (Exception ex) // er is iets mis met de scorefiles map
         {
             Console.WriteLine($"Error loading solution: {ex.Message}");
             return null;
         }
+    }
 
+
+    public static Week LoadPickSolution()
+    {
+        Console.WriteLine("Drag and drop the desired solution file into the console, or enter its path:");
+        string selectedFilePath = Console.ReadLine().Replace("\"", "");
+
+        Week w = LoadSolution(selectedFilePath);
+        if (w == null)
+            return LoadPickSolution();
         return w;
     }
 
-    public static Week LoadSolution(string fileNaam, List<Bedrijf> bedrijven)
+    public static Week LoadSolution(string fileNaam) // leest een oplossing van een tekstbestand in en returnt de hele week
     {
         Week w = new Week();
 
@@ -111,25 +79,27 @@ public static class IO
                         dag = int.Parse(list[1]);
                         ord = int.Parse(list[3]);
                     }
-                    catch 
+                    catch // de regel staat niet in de juiste vorm
                     {
-                        Console.WriteLine("SkippedLine due to error, check file");
-                        break;
+                        Console.WriteLine("File is not in correct format");
+                        return null;
                     }
 
-                    if (ord == 0)
+                    if (ord == 0) // als het rijmoment klaar is
                     {
                         stortIngelezen = true;
                     }
-                    
-                    else if (ord != 8942)
+
+                    else if (ord != 8942) // als het nog een hele oude oplossing is staat het bedrijf met negatieve leegtijd
+                                          // er nog in. Lees dat bedrijf nu niet meer in, het is immers altijd winstgevend
+                                          // om dat bedrijf te skippen
                     {
-                        
+
                         b = Setup.VindBedrijf(ord);
-                        if (!b.wordtBezocht)
+                        if (!b.wordtBezocht) // als er nog geen node van dit bedrijf is ingelezen
                         {
                             b.wordtBezocht = true;
-                            w.kosten -= 3 * b.ledigingsDuur * b.frequentie;
+                            w.kosten -= b.strafkosten;
                             for (int i = 0; i < w.bedrijvenNiet.Count; i++)
                                 if (w.bedrijvenNiet[i] == b)
                                 {
@@ -139,113 +109,61 @@ public static class IO
                             w.bedrijvenWel.Add(b);
                         }
 
-                        w.Load(dag, bus, b, stortIngelezen);
-                        stortIngelezen = false;
+                        w.Load(dag, bus, b, stortIngelezen); // load een node van het bedrijf
+                        stortIngelezen = false; // het rijmoment is nog niet klaar
                     }
                 }
             }
-
-            //foreach (Bedrijf bedrijf in bedrijven)
-            //{
-            //    if (!bedrijf.wordtBezocht)
-            //    {
-            //        w.kosten += 3 * bedrijf.frequentie * bedrijf.ledigingsDuur;
-                      
-            //        w.bedrijvenNiet.Add(bedrijf.orderNummer, bedrijf);
-            //    }
-            //}
-
         }
-        catch (Exception ex)
+        catch (Exception ex) // het bestand staat niet in de juiste vorm
         {
             Console.WriteLine($"Error loading solution: {ex.Message}");
-            return null; // or throw an exception or handle the case as appropriate
+            return null;
         }
 
         return w;
     }
 
-
-
-
-    public static void PrintSolution(Week w)
+    public static void PrintSolution(Week w) // schrijf de oplossing in de console
     {
-        /*
-         * 1.      Vrachtautonummer (1 of 2)
-           2.      Dagnummer (maandag =1, dinsdag =2, …, vrijdag =5)
-           3.      Hoeveelste adres dat het voertuig op die dag aandoet (begin met 1, 2, …)
-           4.      Id. van het adres (uit orderbestand.txt); de stort heeft nummer 0.
-
-           1; 1; 1; 10
-           1; 1; 2; 20
-           1; 1; 3; 0
-           1; 1; 4; 30
-         */
         Console.WriteLine(w.ToString());
-
-        Console.WriteLine("score: " + w.Eval);
-        Console.WriteLine(
-            "Ik heb alle ledigingsduren naar boven afgerond. hierdoor valt de score ongeveer +/- 5 hoger uit \n" +
-            "dan zou moeten, maar daardoor bouwen we geen afrondfouten op, wat vervelend is bij controleren \n" +
-            "of tijden groter of kleiner zijn dan 0. een iets hoger uitvallende score is opzich geen enorme ramp");
+        Console.WriteLine("score: " + (float) w.Kosten / 60000);
     }
 
-    public static void PrintSolutionToFile(Week w)
+    public static void SaveBeginOplossing(Week w) // sla de huidige oplossing op in beginoplossing.txt
     {
-        //pak de beste solution variabele
-        //schrijf die naar de file met pad scoreFile
-        StreamWriter wr = new StreamWriter(_scoreFile);
-        wr.WriteLine(w.ToString());
-        wr.Close();
-
+        File.WriteAllText(_scoreFile, w.ToString());
     }
 
-    public static void CreateBest(Week w)
+    public static void CreateFile(Week w, string mapje) // maak een nieuwe text file aan in scorefiles met de huidige oplossing in string-vorm
     {
-        string s = w.ToString();
         DateTime currentDateTime = DateTime.Now;
-        string dateTimeString = currentDateTime.ToString("MM-dd_HH-mm-ss"); // Using underscores instead of colons
+        string dateTimeString = currentDateTime.ToString("MM-dd_HH-mm-ss"); // de huidige datum+tijd
         try
         {
-            // Combine the location and the filename (using the integer as the filename)
-            string filePath = Path.Combine(_scoreMap, $"{Math.Round((double) w.Kosten / 60000, 2)}________{dateTimeString}.txt");
+            // Voeg de locatie en de naam van het bestand samen, de score en datum vormen de naam van het bestand
+            string filePath = Path.Combine(mapje, $"{Math.Round((float)w.Kosten / 60000, 2)}________{dateTimeString}.txt"); // de datum+tijd zorgt ervoor dat een oude file met dezelfde score niet wordt ge-overwrite
 
-            // Write the string content to the file
-            File.WriteAllText(filePath, s);
+            // Schrijf de oplossing in string-vorm naar het bestand
+            File.WriteAllText(filePath, w.ToString());
 
-            Console.WriteLine($"Printed score {(float)w.Kosten / 60000} successfully");
+            Console.WriteLine($"Printed score {(float) w.Kosten / 60000} successfully");
 
         }
-        catch (Exception ex)
+        catch (Exception ex) // er is iets fout gegaan met een file createn
         {
             Console.WriteLine($"Error creating the file: {ex.Message}");
         }
-    }
-
-    public static void OpenPrevFile()
-    {
-        
     }
 
     public static void ScreenShot(Week w)
     {
-        string s = w.ToString();
-        DateTime currentDateTime = DateTime.Now;
-        string dateTimeString = currentDateTime.ToString("MM-dd_HH-mm-ss"); // Using underscores instead of colons
-        try
+        if (w.totaalStrafVolume != 0)
         {
-            // Combine the location and the filename (using the integer as the filename)
-            string filePath = Path.Combine(_screenMap, $"{dateTimeString}________{w.Eval}.txt");
-
-            // Write the string content to the file
-            File.WriteAllText(filePath, s);
-
-            Console.WriteLine($"Printed score {w.Eval} successfully");
-
+            Console.WriteLine("Deze oplossing kan niet worden opgeslagen, volumeconstraint wordt overschreden");
+            return;
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error creating the file: {ex.Message}");
-        }
+
+        CreateFile(w, _screenMap);
     }
 }

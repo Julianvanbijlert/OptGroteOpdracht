@@ -13,7 +13,7 @@ public class Dag
         getal = i;
     }
 
-    public static bool InterBusSwapCheck(Node node1, Node node2, int extratijd1, int extratijd2) // Controleer of de nodes tussen de bussen geswapt mogen worden qua tijd
+    public static bool InterBusVerplaatsCheck(Node node1, Node node2, int extratijd1, int extratijd2) // Controleer of de nodes tussen de bussen geswapt mogen worden qua tijd
     {
         if (node1.rijmoment.bus.tijd + extratijd1 > 43200 * 1000 ||
             node2.rijmoment.bus.tijd + extratijd2 > 43200 * 1000)

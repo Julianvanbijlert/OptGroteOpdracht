@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace rommelrouterakkers;
 
 public class Rijmoment
@@ -182,9 +179,4 @@ public class Rijmoment
         return (count,s); // door count weet bus.tostring bij welk getal dit rijmoment is gebleven 
                           // (het hoeveelste bedrijf dat door deze bus op deze dag wordt bezocht)
     }
-
-    //public Node GetRandomNode(Random r)
-    //{
-    //    return nodeLijst[r.Next(nodeLijst.Count)];
-    //}
 }
