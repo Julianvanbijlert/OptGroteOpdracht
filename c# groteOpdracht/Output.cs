@@ -11,7 +11,7 @@ public static class IO
 
     public static readonly string _scoreMap = "../../../scorefiles/";
     public static readonly string _beginoplossing = filepath + "Beginoplossing.txt";
-    private static readonly string _screenMap = "../../../screenshots/";
+    public static readonly string _screenMap = "../../../screenshots/";
 
     public static Week LoadSolutionAuto(bool best, Random r) // selecteert een oplossing en roept LoadSolution aan
     {
@@ -32,6 +32,7 @@ public static class IO
             {
                 file = files[r.Next(0, files.Length)]; // kies een random oplossing
             }
+
             return LoadSolution(file);
         }
         catch (Exception ex) // er is iets mis met de scorefiles map
@@ -42,13 +43,13 @@ public static class IO
     }
 
 
-    public static Week LoadPickSolution()
+    public static Week LoadPickSolution() // Laat de gebruiker handmatig een oplossing kiezen
     {
         Console.WriteLine("Drag and drop the desired solution file into the console, or enter its path:");
         string selectedFilePath = Console.ReadLine().Replace("\"", "");
 
         Week w = LoadSolution(selectedFilePath);
-        if (w == null)
+        if (w == null) // als dit geen geldige oplossing is, laat de gebruiker opnieuw kiezen
             return LoadPickSolution();
         return w;
     }
@@ -99,7 +100,7 @@ public static class IO
                         {
                             b.wordtBezocht = true;
                             w.kosten -= b.strafkosten;
-                            for (int i = 0; i < w.bedrijvenNiet.Count; i++)
+                            for (int i = 0; i < w.bedrijvenNiet.Count; i++) // dit is niet O(1), maar dit stukje programma wordt maar heel weinig gerund
                                 if (w.bedrijvenNiet[i] == b)
                                 {
                                     w.bedrijvenNiet.RemoveAt(i);
@@ -134,7 +135,7 @@ public static class IO
         File.WriteAllText(_beginoplossing, w.ToString());
     }
 
-    public static void CreateFile(Week w, string mapje) // maak een nieuwe text file aan in scorefiles met de huidige oplossing in string-vorm
+    public static void CreateFile(Week w, string mapje) // maak een nieuwe text file aan in het mapje met de huidige oplossing in string-vorm
     {
         DateTime currentDateTime = DateTime.Now;
         string dateTimeString = currentDateTime.ToString("MM-dd_HH-mm-ss"); // de huidige datum+tijd
@@ -153,16 +154,5 @@ public static class IO
         {
             Console.WriteLine($"Error creating the file: {ex.Message}");
         }
-    }
-
-    public static void ScreenShot(Week w)
-    {
-        if (w.totaalStrafVolume != 0)
-        {
-            Console.WriteLine("Deze oplossing kan niet worden opgeslagen, volumeconstraint wordt overschreden");
-            return;
-        }
-
-        CreateFile(w, _screenMap);
     }
 }

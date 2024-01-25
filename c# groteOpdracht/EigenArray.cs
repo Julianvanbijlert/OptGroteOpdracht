@@ -1,5 +1,5 @@
 ﻿namespace rommelrouterakkers;
-public class EigenArray<T>
+public class EigenArray<T> // onze eigen array
 {
     public int Count;
     public T[] elems;
@@ -16,7 +16,7 @@ public class EigenArray<T>
         Count++;
     }
 
-    public void RemoveAt(int i)
+    public void RemoveAt(int i) // hierdoor is RemoveAt O(1)
     {
         elems[i] = elems[--Count];
     }

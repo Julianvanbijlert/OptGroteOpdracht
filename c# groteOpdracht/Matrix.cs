@@ -1,6 +1,5 @@
 namespace rommelrouterakkers;
 
-
 public class AfstandMatrix
 {
     //we hebben ervoor gekozen om de afstanden niet op te slaan, alleen de rijtijden.

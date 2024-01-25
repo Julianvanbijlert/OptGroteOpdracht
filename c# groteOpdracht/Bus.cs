@@ -7,6 +7,7 @@ public class Bus
     public int tijd = 0;
     public Dag dag;
     public Week week;
+    public int welkRijmomentVoorLoaden = 0;
 
     public Bus(Week werkWeek, Dag werkdag)
     {
@@ -18,15 +19,11 @@ public class Bus
 
     public void Load(Bedrijf b, bool stortIngelezen) // lees het bedrijf in
     {
-        if (stortIngelezen) //als stort is ingelezen, switch de rijmomenten, zodat rijmomenten[0] nu het tweede rijmoment is
-        {
-            Rijmoment temp = rijmomenten[0];
-            rijmomenten[0] = rijmomenten[1];
-            rijmomenten[1] = temp;
-        }
+        if (stortIngelezen && rijmomenten[0].nodeLijst.Count != 0) //als stort is ingelezen, switch naar het tweede rijmoment, tenminste,
+                                                                   //als het eerste rijmoment al gevuld was en het dus geen true van de vorige bus was
+            welkRijmomentVoorLoaden = 1;
       
-        //als dat niet zo is pak het eerste rijmoment en voeg hem daar aan toe
-        rijmomenten[0].Load(b);
+        rijmomenten[welkRijmomentVoorLoaden].Load(b);
     }
 
     public void BFS()

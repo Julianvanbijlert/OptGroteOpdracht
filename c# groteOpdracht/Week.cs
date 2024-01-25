@@ -11,7 +11,7 @@ public class Week
     public int tijd = 0;
     public EigenArray<Bedrijf> bedrijvenWel = new EigenArray<Bedrijf>();
     public EigenArray<Bedrijf> bedrijvenNiet = new EigenArray<Bedrijf>();
-    public int totaalStrafVolume = 0;
+    public int totaalStrafVolume = 0; // hoeveelheid volume waarmee het volume-constraint in totaal wordt geschonden (som van alle rijmomenten)
 
     public Week()
     {
@@ -80,10 +80,10 @@ public class Week
         return false;
     }
 
-    public int InsertStrafVolumeBerekenen(Bedrijf bedrijf, Node[] nodes)
+    public int InsertStrafVolumeBerekenen(Bedrijf bedrijf, Node[] nodes) // Bereken het extra volume waarmee het volume-constraint geschonden wordt door deze actie
     {
         int extraStrafVolume = 0;
-        foreach (Node volgende in nodes)
+        foreach (Node volgende in nodes) // voor elke node waar we het bedrijf vóór willen inserten
         {
             if (volgende.rijmoment.volume + bedrijf.volume > 100_000)
                 if (volgende.rijmoment.volume > 100_000)
@@ -134,10 +134,10 @@ public class Week
         return (true, extratijd);
     }
 
-    public int DeleteStrafVolumeBerekenen(Bedrijf bedrijf)
+    public int DeleteStrafVolumeBerekenen(Bedrijf bedrijf) // bereken het extra volume waarmee het volume-constraint wordt geschonden door deze actie
     {
         int extraStrafVolume = 0;
-        foreach (Node n in bedrijf.Locaties) // of het past of niet, bereken het strafvolume
+        foreach (Node n in bedrijf.Locaties)
         {
             if (n.rijmoment.volume > 100_000)
                 if (n.rijmoment.volume - bedrijf.volume > 100_000)
@@ -240,12 +240,12 @@ public class Week
         return true; // dan is het freq 4 en mag het, want er zat nog geen node van het bedrijf in de nieuweDag
     }
 
-    public int VerplaatsStrafVolumeBerekenen(Node mover, Node hierVoor)
+    public int VerplaatsStrafVolumeBerekenen(Node mover, Node hierVoor) //bereken het extra volume waarmee het volume-constraint geschonden gaat worden door deze actie
     {
         int extraStrafVolume = 0;
         if (mover.rijmoment != hierVoor.rijmoment)
         {
-            if (mover.rijmoment.volume > 100_000) // als het qua volume op bepaalde momenten niet past
+            if (mover.rijmoment.volume > 100_000) 
                 if (mover.rijmoment.volume - mover.bedrijf.volume > 100_000)
                     extraStrafVolume -= mover.bedrijf.volume;
                 else

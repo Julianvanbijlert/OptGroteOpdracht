@@ -6,6 +6,8 @@ public class Node
     public Bedrijf bedrijf;
     public Rijmoment rijmoment;
     public int Plaats; // op de hoeveelste plek in de lijst met nodes van het rijmoment staat deze node
+                       // op deze manier kunnen we in O(1) tijd vinden waar een node in de lijst staat,
+                       // waarna we in O(1) tijd (door onze eigen array) de node kunnen verwijderen
 
     public Node(Bedrijf bedrijf)
     {

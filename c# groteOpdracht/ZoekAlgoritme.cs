@@ -21,13 +21,13 @@ public class ZoekAlgoritme
     private int besteScoreTemp;
     private int sweeps = 0;
     private double Temp;
-    private int strafkostenCoefficient;
-    private int startTemp = 20000;
+    private int strafkostenCoefficient; // hoe zwaar het strafvolume meetelt in de kosten
+    private int startTemp = 20000; // starttemperatuur. Deze is laag omdat we op dit moment vanaf onze beste score zoeken
 
     public ZoekAlgoritme(Week w)
     {
         week = w;
-        timer = new Stopwatch(); // voor de elapsed time
+        timer = new Stopwatch(); // voor de totale tijd
         r = new Random();
         bestOplossing = w.Kosten;
         besteScoreTemp = w.Kosten;
@@ -41,7 +41,7 @@ public class ZoekAlgoritme
 
     public void OnTimedEvent(object o, ElapsedEventArgs eea)
     {
-        if (bestOplossing < besteScoreTemp)
+        if (bestOplossing < besteScoreTemp) // als er in de 0.5 sec een beste oplossing is gevonden
             Console.ForegroundColor = ConsoleColor.Green;
         PrintVoortgang();
         Console.ResetColor();
@@ -51,13 +51,14 @@ public class ZoekAlgoritme
 
     public void BFS()
     { //bfs staat voor best first search en zorgt ervoor dat elk rijmoment optimaal wordt voor hoe het nu ingedeeld is
+      //dit is handig bij de beginoplossing, daarna gebruiken we het niet meer.
         week.BFS();
     }
 
     public void ChangeBest()
     {
-        if (week.Kosten / 60000 < 5600)
-            IO.CreateFile(week, IO._scoreMap);
+        if (week.Kosten / 60000 < 5600) 
+            IO.CreateFile(week, IO._scoreMap); // maak een nieuwe file aan 
         bestOplossing = week.Kosten;
         sweeps = 0; // resetten zodat ie bijv niet randomwalks gaat doen terwijl we steeds beste oplossingen aan het vinden zijn
     }
@@ -79,7 +80,7 @@ public class ZoekAlgoritme
 
     public void StartILS()
     {
-        Task keyHandlerTask = Task.Run(() => HandleKeyEvents());
+        Task keyHandlerTask = Task.Run(() => HandleKeyEvents()); // zorgt ervoor dat je de huidige oplossing kan opslaan als je op Q drukt
 
         timer.Start();
         timer2.Enabled = true;
@@ -103,11 +104,11 @@ public class ZoekAlgoritme
             RandomWalk();
         }
 
-        //reset
+        //reset naar beste oplossing
         else if (sweeps % 10 == 0)
         {
             //load de beste file tot nu toe, we kunnen later ook met gewoon lege week doen maar dit is goed voor nu
-            week = IO.LoadSolutionAuto(true, r); 
+            week = IO.LoadSolutionAuto(true, r);
             bestOplossing = week.kosten;
             besteScoreTemp = week.Kosten;
         }
@@ -118,13 +119,13 @@ public class ZoekAlgoritme
 
     public void SimAnn() // simulated annealing
     {
-        while (Temp >= startTemp * 0.01)//T >= Modulo) 
+        while (Temp >= startTemp * 0.01)
         {
             PickAction(Temp); // doe een actie
 
             if (week.Kosten < bestOplossing) // als een betere oplossing is gevonden
             {
-                if (week.totaalStrafVolume == 0) // als het een toegelaten oplossing is
+                if (week.totaalStrafVolume == 0) // als het een toegelaten oplossing is, zonder overschreden constraints
                     ChangeBest();
             }
 
@@ -136,6 +137,7 @@ public class ZoekAlgoritme
 
                 week.kosten -= OverschrijdingsKosten(week.totaalStrafVolume);
                 strafkostenCoefficient = Math.Min(10000, (int) (startTemp / Temp * startTemp / Temp) - 1); 
+                //het overschreden volume telt zwaarder mee naarmate de temperatuur daalt
                 week.kosten += OverschrijdingsKosten(week.totaalStrafVolume);
             }
         }
@@ -144,15 +146,15 @@ public class ZoekAlgoritme
     public void PickAction(double T)
     {
         
-        int welk = r.Next(0, 10); // 2/8, 1/8, 3/8, 4/8 is dus de verdeling
+        int welk = r.Next(0, 8); // 2/8, 1/8, 3/8, 4/8 is dus de verdeling
         if (welk <= 1)
             Insert(T);
         else if (welk <= 2)
             Delete(T);
         if (welk <= 5)
-            Verplaats(T, true);
+            Verplaats(T, true); // Verplaats binnen een rijmoment
         else
-            Verplaats(T, false);
+            Verplaats(T, false); // Verplaats willekeurige nodes, kan binnen rijmoment zijn, kan tussen rijmomenten zijn
     }
 
     public void Insert(double T)
@@ -175,16 +177,16 @@ public class ZoekAlgoritme
             //maak array aan van nodes
             nodes = new Node[bedrijf.frequentie];
 
-            for (int i = 0; i < bedrijf.frequentie; i++) // vind 4 nodes waar de nodes van dit bedrijf vóór worden geinsert
+            for (int i = 0; i < bedrijf.frequentie; i++) // vind nodes waar de nodes van dit bedrijf vóór worden geinsert
             {
-                //random bedrijf
+                //random bedrijf index
                 b2Index = r.Next(0, week.bedrijvenWel.Count + 15);
-
                 //dit is zodat er een kans is dat je een node
                 //aan het eind van 1 van de 15 vulbare rijmomenten toevoegt
                 //in plaats van vóór een node van een ander bedrijf
+
                 if (b2Index >= week.bedrijvenWel.Count) // als het 1 van de 15 vulbare rijmoment-eindes is
-                    nodes[i] = KiesEindnode(b2Index - week.bedrijvenWel.Count); // bereken welk rijmoment en dus welke eindnode
+                    nodes[i] = KiesEindnode(); // bereken welk rijmoment en dus welke eindnode
                 else
                 {
                     //anders pak een node van het bedrijf met die index in de lijst
@@ -192,7 +194,7 @@ public class ZoekAlgoritme
                 }
             }
 
-            (bo, extratijd) = week.InsertCheck(bedrijf, nodes);
+            (bo, extratijd) = week.InsertCheck(bedrijf, nodes); // bereken legaliteit en incrementele kosten
 
             //als het een legale Insert is, stop met zoeken naar een mogelijke insert
             if (bo)
@@ -208,6 +210,7 @@ public class ZoekAlgoritme
         // bereken de incrementele kosten
         int extraTijd = extratijd.Sum() - bedrijf.strafkosten;
 
+        //bereken het extra strafvolume en de incrementele overschrijdingskosten door dat extra strafvolume (volume boven de 100.000)
         int extraStrafVolume = week.InsertStrafVolumeBerekenen(bedrijf, nodes);
         int overschrijdingsKosten = OverschrijdingsKosten(extraStrafVolume);
 
@@ -231,7 +234,7 @@ public class ZoekAlgoritme
             bIndex = r.Next(0, week.bedrijvenWel.Count);
             bedrijf = week.bedrijvenWel[bIndex];
 
-            (bo, extratijd) = week.DeleteCheck(bedrijf);
+            (bo, extratijd) = week.DeleteCheck(bedrijf); //bereken legaliteit en incrementele kosten
 
             //als het een legale delete is, stop met zoeken naar nieuwe nodes
             if (bo)
@@ -241,6 +244,7 @@ public class ZoekAlgoritme
         // bereken de incrementele kosten
         int extraTijd = extratijd.Sum() + bedrijf.strafkosten;
 
+        //bereken het extra strafvolume en de incrementele overschrijdingskosten door dat extra strafvolume (volume boven de 100.000)
         int extraStrafVolume = week.DeleteStrafVolumeBerekenen(bedrijf);
         int overschrijdingsKosten = OverschrijdingsKosten(extraStrafVolume);
 
@@ -267,11 +271,13 @@ public class ZoekAlgoritme
             b = week.bedrijvenWel[r.Next(0, week.bedrijvenWel.Count)];
             mover = GetBedrijfNode(b); // vindt een random node van een random bedrijf, deze wordt verplaatst
 
-            if (binnenRijmoment)
+            if (binnenRijmoment) // als er binnen een rijmoment verplaatst moet worden
             {
-                b2Index = r.Next(0, mover.rijmoment.nodeLijst.Count); // eentje minder dan totale aantal nodes inclusief eindnode, kan niet voor zichzelf namelijk
+                b2Index = r.Next(0, mover.rijmoment.nodeLijst.Count); 
+                //kies een random index voor de node waar hij vóór verplaatst moet worden.
+                //het aantal mogelijkheden is eentje minder dan (totale aantal nodes + eindnode), kan niet vóór zichzelf namelijk
                 
-                if (b2Index == 0)
+                if (b2Index == 0) // de kleine kans dat hij naar vóór de eindnode moet worden verplaatst
                     hierVoor = mover.rijmoment.eindnode;
                 else
                     while ((hierVoor = mover.rijmoment.nodeLijst[r.Next(0, mover.rijmoment.nodeLijst.Count)]) == mover);
@@ -281,10 +287,10 @@ public class ZoekAlgoritme
                 b2Index = r.Next(0, week.bedrijvenWel.Count + 14);
 
                 //Dit is zodat er een kans is dat je het verplaatst naar het einde van 1 van de 15 vulbare rijmoment in plaats van 
-                //naar vóór een node van een bedrijf. 14 ipv 15 omdat je hem natuurlijk niet kan verplaatsen naar een node van hetzelfde bedrijf,
+                //naar vóór een node van een bedrijf. +14 ipv +15 omdat je hem natuurlijk niet kan verplaatsen naar een node van hetzelfde bedrijf,
                 //dan zou dat bedrijf 2 keer op 1 dag worden bezocht.
                 if (b2Index >= week.bedrijvenWel.Count - 1) // als het 1 van de 15 vulbare rijmoment-eindes is
-                    hierVoor = KiesEindnode(b2Index - (week.bedrijvenWel.Count - 1));     //bereken naar het eind van welk rijmoment hij wordt verplaatst
+                    hierVoor = KiesEindnode();     //bereken naar het eind van welk rijmoment hij wordt verplaatst
                 else
                 {
                     // anders pak een node van een random bedrijf ongelijk zichzelf 
@@ -293,7 +299,7 @@ public class ZoekAlgoritme
                 }
             }
 
-            (bo, i, j) = week.VerplaatsCheck(mover, hierVoor);
+            (bo, i, j) = week.VerplaatsCheck(mover, hierVoor); // bereken legaliteit en incrementele kosten
 
             //als het een legale swap is, stop met nieuwe zoeken
             if (bo)
@@ -306,6 +312,7 @@ public class ZoekAlgoritme
                 return;
         }
 
+        //bereken het extra strafvolume en de incrementele overschrijdingskosten door dat extra strafvolume (volume boven de 100.000)
         int extraStrafVolume = week.VerplaatsStrafVolumeBerekenen(mover, hierVoor);
         int overschrijdingsKosten = OverschrijdingsKosten(extraStrafVolume);
 
@@ -314,13 +321,14 @@ public class ZoekAlgoritme
             week.Verplaats(mover, hierVoor, i, j, extraStrafVolume, overschrijdingsKosten);
     }
 
-    public Node KiesEindnode(int i)
+    public Node KiesEindnode() // Kies een eindnode van 1 van de 15 toegestane rijmomenten (in totaal zijn er 20 rijmomenten).
+                               // Die 15 doen we omdat er in principe niet meer dan 15 nodig zijn
     {
         int bus;
         return week.
-               dagen[i % 5 + 1].
-               bussen[bus = i / 5 < 2 ? 0 : 1].
-               rijmomenten[bus == 1 ? 0 : i % 2].
+               dagen[r.Next(1,6)].
+               bussen[bus = r.Next(0,3) <= 1 ? 0 : 1].
+               rijmomenten[bus == 1 ? 0 : r.Next(0,2)].
                eindnode;
     }
 
@@ -332,13 +340,13 @@ public class ZoekAlgoritme
         return acceptKans > r.NextDouble(); // bepaal of hij geaccepteerd wordt
     }
 
-    public int OverschrijdingsKosten(int extraStrafVolume)
+    public int OverschrijdingsKosten(int extraStrafVolume) // bereken de incrementele overschrijdingskosten die horen bij
+                                                           // een bepaalde toe/afname van het strafvolume
     {
-        return strafkostenCoefficient * extraStrafVolume; // mag alleen homogeen lineair zijn, anders is later niet te achterhalen hoeveel strafkosten een bepaalde toevoeging
-                                        // van volume kostte, voor als je het volume weer naar beneden wilt halen
+        return strafkostenCoefficient * extraStrafVolume;
     }
 
-    public Node GetBedrijfNode(Bedrijf b) 
+    public Node GetBedrijfNode(Bedrijf b) // pak een willekeurige node van een bedrijf
     {
         return b.Locaties[r.Next(0, b.Locaties.Count)];
     }
@@ -351,7 +359,7 @@ public class ZoekAlgoritme
         } 
     }
 
-    void HandleKeyEvents()
+    void HandleKeyEvents() // zorgt dat de huidige oplossing wordt opgeslagen als er op Q wordt gedrukt
     {
         while (true)
         {
@@ -361,7 +369,10 @@ public class ZoekAlgoritme
             // Check the pressed key
             if (keyInfo.Key == ConsoleKey.Q)
             {
-                IO.ScreenShot(week);
+                if (week.totaalStrafVolume != 0) // mag alleen als de oplossing toegestaan is, zonder overscreden constraints
+                    Console.WriteLine("Deze oplossing kan niet worden opgeslagen, volumeconstraint wordt overschreden");
+                else
+                    IO.CreateFile(week, IO._screenMap);
             }
             else
             {

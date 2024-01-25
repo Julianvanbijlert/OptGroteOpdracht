@@ -1,9 +1,7 @@
 namespace rommelrouterakkers;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Threading.Tasks;
 
 public class Setup
 {
@@ -26,15 +24,19 @@ public class Setup
         //week = StelBeginoplossingIn();                     //nieuwe beginoplossing maken en loaden
         //week = IO.LoadSolution(IO._beginoplossing);        //bestaande beginoplossing loaden
         //week = IO.LoadPickSolution();                      //load handmatig een oplossing
-        week = IO.LoadSolutionAuto(true, r: new Random());   //load beste oplossing tot nu toe
-       
+        week = IO.LoadSolutionAuto(true, r: new Random());   //true: load beste oplossing tot nu toe
+                                                             //false: load random oplossing
+
+        if (week == null)                                    //het bestand bevatte geen oplossing
+            return;
+        
         za = new ZoekAlgoritme(week);
 
-        //za.BFS();                                          //huidige oplossing BFS'en, vooral handig na instellen van een nieuwe beginoplossing
+        //za.BFS();                                          //huidige oplossing BFS'en, vooral handig na maken van een nieuwe beginoplossing. Verder gebruiken we dit eigenlijk niet
         za.StartILS();                                       //ga iterated local searchen
 
         //IO.SaveBeginOplossing(week);                       //huidige oplossing opslaan als beginoplossing
-        //IO.PrintSolution(week);                            //huidige oplossing in de console weergeven
+        //IO.PrintSolution(week);                            //huidige oplossing in de console weergeven, handig bij beginoplossing maken
     }
 
     static void vulDict() // dictionary maken zodat je in O(1) tijd een bedrijf kan vinden aan de hand van zijn ordernummer
@@ -277,7 +279,7 @@ public class Setup
         return bedrijvenDict[ord];
     }
 
-    public static void ResetBedrijven()
+    public static void ResetBedrijven() 
     {
         foreach (Bedrijf b in bedrijven)
         {

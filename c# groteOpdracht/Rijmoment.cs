@@ -21,7 +21,7 @@ public class Rijmoment
         beginnode.rijmoment = this;
         eindnode.rijmoment = this;
 
-        nodeLijst = new EigenArray<Node>();
+        nodeLijst = new EigenArray<Node>(); // deze is om een random node uit het rijmoment te kunnen pakken. Alles wat we doen met deze array is O(1)
     }
     public int ExtraTijdskostenBijToevoegen(Bedrijf bedrijf, Node vorige, Node volgende) // bereken de incrementele kosten die ontstaan bij toevoegen
                                                                                          // van dit bedrijf na de node vorige en vóór de node volgende
