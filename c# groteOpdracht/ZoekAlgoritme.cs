@@ -20,7 +20,7 @@ public class ZoekAlgoritme
     private int sweeps = 0;
     private double Temp;
     private int strafkostenCoefficient; // hoe zwaar het strafvolume meetelt in de kosten
-    private int startTemp = 3000; // starttemperatuur. Deze is laag omdat we op dit moment vanaf onze beste score zoeken
+    private int startTemp = 20000; // starttemperatuur. Deze is laag omdat we op dit moment vanaf onze beste score zoeken
 
     public ZoekAlgoritme(Week w)
     {
@@ -117,7 +117,7 @@ public class ZoekAlgoritme
 
     public void SimAnn() // simulated annealing
     {
-        while (Temp >= 30)
+        while (Temp >= 800)
         {           
             PickAction(Temp); // doe een actie
 
@@ -129,11 +129,11 @@ public class ZoekAlgoritme
 
             totItt++;
 
-            if (totItt % 300_000 == 0)
+            if (totItt % 3_000_000 == 0)
             {
                 Temp *= tempVerkleining; // verlaag de temperatuur
 
-                strafkostenCoefficient = Math.Min(10000, (int) (startTemp / Temp * startTemp / Temp) - 1); 
+                strafkostenCoefficient = Math.Min(10000, (int) (startTemp / Temp * startTemp / Temp) - 1); // 10000 is tegen integer-overflow 
                 //het overschreden volume telt zwaarder mee naarmate de temperatuur daalt
             }
         }
@@ -142,12 +142,12 @@ public class ZoekAlgoritme
     public void PickAction(double T)
     {
         
-        int welk = r.Next(0, 30); // 2/8, 1/8, 3/8, 4/8 is dus de verdeling
+        int welk = r.Next(0, 10); // 2/8, 1/8, 5/8, 2/8 is dus de verdeling
         if (welk <= 1)
             Insert(T);
         else if (welk <= 2)
             Delete(T);
-        if (welk <= 10)
+        else if (welk <= 7)
             Verplaats(T, true); // Verplaats binnen een rijmoment
         else
             Verplaats(T, false); // Verplaats willekeurige nodes, kan binnen rijmoment zijn, kan tussen rijmomenten zijn
@@ -318,7 +318,7 @@ public class ZoekAlgoritme
     }
 
     public Node KiesEindnode() // Kies een eindnode van 1 van de 14 toegestane rijmomenten (in totaal zijn er 20 rijmomenten).
-                               // Die 14 doen we omdat er in principe niet meer dan 15 nodig zijn
+                               // Die 14 doen we omdat er in principe niet meer dan 14 nodig zijn
     {
         if (week.legeRijmomenten != 6 )        //het programma zorgt er vanzelf voor dat er 6 rijmomenten leeg worden getrokken
             return                          
