@@ -333,7 +333,7 @@ public class ZoekAlgoritme
                dagen[r.Next(1, 6)].
                bussen[r.Next(0, 2)].           // als er 6 lege rijmomenten zijn, zorg dat dat getal op 6 blijft.
                rijmomenten[r.Next(0, 2)]).     // accepteer dus geen eindnode van een leeg rijmoment.
-               nodeLijst.Count > 0);
+               nodeLijst.Count == 0);
         return rijmoment.eindnode;
     }
 
