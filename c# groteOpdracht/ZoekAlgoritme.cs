@@ -20,7 +20,7 @@ public class ZoekAlgoritme
     private int sweeps = 0;
     private double Temp;
     private int strafkostenCoefficient; // hoe zwaar het strafvolume meetelt in de kosten
-    private int startTemp = 20000; // starttemperatuur. Deze is laag omdat we op dit moment vanaf onze beste score zoeken
+    private int startTemp = 3000; // starttemperatuur. Deze is laag omdat we op dit moment vanaf onze beste score zoeken
 
     public ZoekAlgoritme(Week w)
     {
@@ -117,8 +117,8 @@ public class ZoekAlgoritme
 
     public void SimAnn() // simulated annealing
     {
-        while (Temp >= startTemp * 0.01)
-        {
+        while (Temp >= 30)
+        {           
             PickAction(Temp); // doe een actie
 
             if (week.Kosten < bestOplossing) // als een betere oplossing is gevonden
@@ -133,10 +133,8 @@ public class ZoekAlgoritme
             {
                 Temp *= tempVerkleining; // verlaag de temperatuur
 
-                week.kosten -= OverschrijdingsKosten(week.totaalStrafVolume);
                 strafkostenCoefficient = Math.Min(10000, (int) (startTemp / Temp * startTemp / Temp) - 1); 
                 //het overschreden volume telt zwaarder mee naarmate de temperatuur daalt
-                week.kosten += OverschrijdingsKosten(week.totaalStrafVolume);
             }
         }
     }
@@ -144,12 +142,12 @@ public class ZoekAlgoritme
     public void PickAction(double T)
     {
         
-        int welk = r.Next(0, 8); // 2/8, 1/8, 3/8, 4/8 is dus de verdeling
+        int welk = r.Next(0, 30); // 2/8, 1/8, 3/8, 4/8 is dus de verdeling
         if (welk <= 1)
             Insert(T);
         else if (welk <= 2)
             Delete(T);
-        if (welk <= 5)
+        if (welk <= 10)
             Verplaats(T, true); // Verplaats binnen een rijmoment
         else
             Verplaats(T, false); // Verplaats willekeurige nodes, kan binnen rijmoment zijn, kan tussen rijmomenten zijn
@@ -178,12 +176,12 @@ public class ZoekAlgoritme
             for (int i = 0; i < bedrijf.frequentie; i++) // vind nodes waar de nodes van dit bedrijf vóór worden geinsert
             {
                 //random bedrijf index
-                b2Index = r.Next(0, week.bedrijvenWel.Count + 15);
+                b2Index = r.Next(0, week.bedrijvenWel.Count + 14);
                 //dit is zodat er een kans is dat je een node
-                //aan het eind van 1 van de 15 vulbare rijmomenten toevoegt
+                //aan het eind van 1 van de 14 vulbare rijmomenten toevoegt
                 //in plaats van vóór een node van een ander bedrijf
 
-                if (b2Index >= week.bedrijvenWel.Count) // als het 1 van de 15 vulbare rijmoment-eindes is
+                if (b2Index >= week.bedrijvenWel.Count) // als het 1 van de 14 vulbare rijmoment-eindes is
                     nodes[i] = KiesEindnode(); // bereken welk rijmoment en dus welke eindnode
                 else
                 {
@@ -208,7 +206,7 @@ public class ZoekAlgoritme
         // bereken de incrementele kosten
         int extraTijd = extratijd.Sum() - bedrijf.strafkosten;
 
-        //bereken het extra strafvolume en de incrementele overschrijdingskosten door dat extra strafvolume (volume boven de 100.000)
+        //bereken het extra strafvolume en de overschrijdingskosten door dat extra strafvolume (volume boven de 100.000)
         int extraStrafVolume = week.InsertStrafVolumeBerekenen(bedrijf, nodes);
         int overschrijdingsKosten = OverschrijdingsKosten(extraStrafVolume);
 
@@ -242,7 +240,7 @@ public class ZoekAlgoritme
         // bereken de incrementele kosten
         int extraTijd = extratijd.Sum() + bedrijf.strafkosten;
 
-        //bereken het extra strafvolume en de incrementele overschrijdingskosten door dat extra strafvolume (volume boven de 100.000)
+        //bereken het extra strafvolume en de overschrijdingskosten door dat extra strafvolume (volume boven de 100.000)
         int extraStrafVolume = week.DeleteStrafVolumeBerekenen(bedrijf);
         int overschrijdingsKosten = OverschrijdingsKosten(extraStrafVolume);
 
@@ -282,12 +280,12 @@ public class ZoekAlgoritme
             }
             else           
             {
-                b2Index = r.Next(0, week.bedrijvenWel.Count + 14);
+                b2Index = r.Next(0, week.bedrijvenWel.Count + 13);
 
-                //Dit is zodat er een kans is dat je het verplaatst naar het einde van 1 van de 15 vulbare rijmoment in plaats van 
-                //naar vóór een node van een bedrijf. +14 ipv +15 omdat je hem natuurlijk niet kan verplaatsen naar een node van hetzelfde bedrijf,
+                //Dit is zodat er een kans is dat je het verplaatst naar het einde van 1 van de 14 vulbare rijmoment in plaats van 
+                //naar vóór een node van een bedrijf. +13 ipv +14 omdat je hem natuurlijk niet kan verplaatsen naar een node van hetzelfde bedrijf,
                 //dan zou dat bedrijf 2 keer op 1 dag worden bezocht.
-                if (b2Index >= week.bedrijvenWel.Count - 1) // als het 1 van de 15 vulbare rijmoment-eindes is
+                if (b2Index >= week.bedrijvenWel.Count - 1) // als het 1 van de 14 vulbare rijmoment-eindes is
                     hierVoor = KiesEindnode();     //bereken naar het eind van welk rijmoment hij wordt verplaatst
                 else
                 {
@@ -310,7 +308,7 @@ public class ZoekAlgoritme
                 return;
         }
 
-        //bereken het extra strafvolume en de incrementele overschrijdingskosten door dat extra strafvolume (volume boven de 100.000)
+        //bereken het extra strafvolume en de overschrijdingskosten door dat extra strafvolume (volume boven de 100.000)
         int extraStrafVolume = week.VerplaatsStrafVolumeBerekenen(mover, hierVoor);
         int overschrijdingsKosten = OverschrijdingsKosten(extraStrafVolume);
 
@@ -319,15 +317,24 @@ public class ZoekAlgoritme
             week.Verplaats(mover, hierVoor, i, j, extraStrafVolume, overschrijdingsKosten);
     }
 
-    public Node KiesEindnode() // Kies een eindnode van 1 van de 15 toegestane rijmomenten (in totaal zijn er 20 rijmomenten).
-                               // Die 15 doen we omdat er in principe niet meer dan 15 nodig zijn
+    public Node KiesEindnode() // Kies een eindnode van 1 van de 14 toegestane rijmomenten (in totaal zijn er 20 rijmomenten).
+                               // Die 14 doen we omdat er in principe niet meer dan 15 nodig zijn
     {
-        int bus;
-        return week.
-               dagen[r.Next(1,6)].
-               bussen[bus = r.Next(0,3) <= 1 ? 0 : 1].
-               rijmomenten[bus == 1 ? 0 : r.Next(0,2)].
+        if (week.legeRijmomenten != 6 )        //het programma zorgt er vanzelf voor dat er 6 rijmomenten leeg worden getrokken
+            return                          
+               week.
+               dagen[r.Next(1, 6)].
+               bussen[r.Next(0, 2)].
+               rijmomenten[r.Next(0,2)].
                eindnode;
+
+        Rijmoment rijmoment;                
+        while ((rijmoment = week.        
+               dagen[r.Next(1, 6)].
+               bussen[r.Next(0, 2)].           // als er 6 lege rijmomenten zijn, zorg dat dat getal op 6 blijft.
+               rijmomenten[r.Next(0, 2)]).     // accepteer dus geen eindnode van een leeg rijmoment.
+               nodeLijst.Count > 0);
+        return rijmoment.eindnode;
     }
 
     public bool AcceptatieKans(int extratijd, double T) // bepaal of de actie wel of niet geaccepteerd wordt

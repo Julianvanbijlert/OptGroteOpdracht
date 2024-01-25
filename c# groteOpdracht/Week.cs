@@ -11,11 +11,14 @@ public class Week
     public EigenArray<Bedrijf> bedrijvenWel = new EigenArray<Bedrijf>();
     public EigenArray<Bedrijf> bedrijvenNiet = new EigenArray<Bedrijf>();
     public int totaalStrafVolume = 0; // hoeveelheid volume waarmee het volume-constraint in totaal wordt geschonden (som van alle rijmomenten)
+    public int legeRijmomenten;
 
     public Week()
     {
         for (int i = 1; i <= 5; i++)
             dagen[i] = new Dag(this, i);
+
+        legeRijmomenten = 20;
 
         foreach (Bedrijf bedrijf in Setup.bedrijven) // reset alle bedrijven, voeg strafkosten toe
         {
@@ -109,7 +112,6 @@ public class Week
         bedrijvenNiet.RemoveAt(index);
 
         totaalStrafVolume += extraStrafVolume;
-        kosten += overschrijdingsKosten;
     }
 
     public (bool, int[]) DeleteCheck(Bedrijf b) // Controleer of een bedrijf verwijderd mag worden uit de oplossing
@@ -162,7 +164,6 @@ public class Week
         bedrijvenWel.RemoveAt(index);
 
         totaalStrafVolume += extraStrafVolume;
-        kosten += overschrijdingsKosten;
     }
 
     public (bool, int, int) VerplaatsCheck(Node mover, Node hierVoor) // Controleer of node mover naar vóór node hierVoor verplaatst mag worden,
@@ -263,7 +264,6 @@ public class Week
         mover.Verwijder(extratijd1);
         hierVoor.rijmoment.ToevoegenVoor(mover, hierVoor, extratijd2);
 
-        kosten += overschrijdingsKosten;
         totaalStrafVolume += extraStrafVolume;
     }
 

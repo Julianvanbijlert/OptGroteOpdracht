@@ -41,6 +41,9 @@ public class Rijmoment
 
     public void ToevoegenVoor(Node nieuw, Node volgende, int extratijd) // voegt Node nieuw toe vóór volgende
     {
+        if (nodeLijst.Count == 0) // als hij leeg was, verlaag legeRijmomenten
+            bus.week.legeRijmomenten -= 1;
+
         nieuw.rijmoment = this;
         
         bus.tijd += extratijd;
@@ -73,7 +76,10 @@ public class Rijmoment
         weg.rijmoment = null;
 
         nodeLijst[nodeLijst.Count - 1].Plaats = weg.Plaats;
-        nodeLijst.RemoveAt(weg.Plaats); 
+        nodeLijst.RemoveAt(weg.Plaats);
+
+        if (nodeLijst.Count == 0) // als hij leeg wprdt, verhoog legeRijmomenten
+            bus.week.legeRijmomenten += 1;
     }
 
     public int ExtraTijdsKostenBijWisselen(Node node, Node node2) // Berekent de incrementele kosten die ontstaan na wisselen van node en node2
