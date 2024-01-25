@@ -317,24 +317,23 @@ public class ZoekAlgoritme
             week.Verplaats(mover, hierVoor, i, j, extraStrafVolume, overschrijdingsKosten);
     }
 
-    public Node KiesEindnode() // Kies een eindnode van 1 van de 14 toegestane rijmomenten (in totaal zijn er 20 rijmomenten).
-                               // Die 14 doen we omdat er in principe niet meer dan 14 nodig zijn
+    public Node KiesEindnode() // Kies een eindnode
     {
-        if (week.legeRijmomenten != 6 )        //het programma zorgt er vanzelf voor dat er 6 rijmomenten leeg worden getrokken
+        if (week.legeRijmomenten != 6 || week.bedrijvenWel.Count < 1080)        
             return                          
-               week.
-               dagen[r.Next(1, 6)].
-               bussen[r.Next(0, 2)].
-               rijmomenten[r.Next(0,2)].
+               week.                                // als er geen 6 lege rijmomenten zijn (of minder dan 1080 v/d 1177 bedrijven, zodat je fatsoenlijk
+               dagen[r.Next(1, 6)].                 // een lege week kan vullen zonder last te krijgen van dat je niet voorbij de 6 lege rijmomenten kunt)
+               bussen[r.Next(0, 2)].                // kies dan 1 van de 20 eindnodes.
+               rijmomenten[r.Next(0,2)].            // het programma zorgt er vanzelf voor dat er precies 6 rijmomenten worden leeggetrokken, omdat dat beter is
                eindnode;
 
         Rijmoment rijmoment;                
         while ((rijmoment = week.        
                dagen[r.Next(1, 6)].
-               bussen[r.Next(0, 2)].           // als er 6 lege rijmomenten zijn, zorg dat dat getal op 6 blijft.
-               rijmomenten[r.Next(0, 2)]).     // accepteer dus geen eindnode van een leeg rijmoment.
-               nodeLijst.Count == 0);
-        return rijmoment.eindnode;
+               bussen[r.Next(0, 2)].           // als er 6 lege rijmomenten zijn, zorg dat dat getal op 6 blijft. Dan zijn 
+               rijmomenten[r.Next(0, 2)]).     // zijn er namelijk precies 14 gevulde rijmomenten, het optimale aantal. 
+               nodeLijst.Count == 0) ;         // accepteer dan dus alleen een eindnode van een niet-leeg rijmoment.
+        return rijmoment.eindnode;             // hierdoor kan een leeg rijmoment nooit gevuld worden
     }
 
     public bool AcceptatieKans(int extratijd, double T) // bepaal of de actie wel of niet geaccepteerd wordt
